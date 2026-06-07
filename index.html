@@ -1239,6 +1239,36 @@ let formula = {};
 let flippedCard = null;
 let alcoholFilled = false; // tracks whether user confirmed and alcohol animation has run
 let lastActualTotal = 0;  // last calculated concentrate total — used by fillAlcohol
+let mobFillAnimFrame = null; // rAF handle for mobile fill animation
+let mobFillCurrentH  = 0;   // current animated height — persists between calls
+
+// ── Mobile fill animator — JS-driven for reliable cross-browser animation ──
+function animateMobileFill(targetH, delay) {
+  if (mobFillAnimFrame) { cancelAnimationFrame(mobFillAnimFrame); mobFillAnimFrame = null; }
+  const run = () => {
+    const startH  = mobFillCurrentH;
+    const duration = 3500;
+    const t0 = performance.now();
+    const step = (now) => {
+      const t      = Math.min((now - t0) / duration, 1);
+      const eased  = t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
+      const h      = Math.round(startH + (targetH - startH) * eased);
+      const y      = 220 - h;
+      const rect   = document.getElementById('mobLiqRect');
+      const label  = document.getElementById('mobFillLabel');
+      if (rect)  { rect.setAttribute('y', y); rect.setAttribute('height', h + 10); }
+      if (label && h > 0) {
+        const ly = h < 16 ? Math.max(y - 8, 80) : Math.min(Math.round(y + h * 0.5), 213);
+        label.setAttribute('y', ly);
+      }
+      mobFillCurrentH = h;
+      if (t < 1) { mobFillAnimFrame = requestAnimationFrame(step); }
+      else        { mobFillAnimFrame = null; }
+    };
+    mobFillAnimFrame = requestAnimationFrame(step);
+  };
+  delay > 0 ? setTimeout(run, delay) : run();
+}
 
 // Cost helper — restricted ingredients priced by fixedPct proportion, not slot count
 function getTotalCost() {
@@ -1700,6 +1730,9 @@ function clearAll() {
   alcoholFilled = false;
   capModalShown = false;
   capDismissed = false;
+  // Reset mobile fill animator
+  if (mobFillAnimFrame) { cancelAnimationFrame(mobFillAnimFrame); mobFillAnimFrame = null; }
+  mobFillCurrentH = 0;
   // Reset alcohol rects
   const alc = document.getElementById('alcoholRect');
   if (alc) { alc.setAttribute('height', '0'); }
@@ -1901,9 +1934,16 @@ function updateMobile(keys, totalPct, cost, pctMap) {
   const mobGlow       = document.getElementById('mobBottleGlow');
 
   if (mobLiqRect) {
-    mobLiqRect.style.transition = 'y 3.5s cubic-bezier(0.4,0,0.2,1), height 3.5s cubic-bezier(0.4,0,0.2,1)';
-    mobLiqRect.setAttribute('y', fillY);
-    mobLiqRect.setAttribute('height', fillH + 10);
+    if (window.innerWidth <= 768) {
+      // JS animation — reliable on mobile Safari and all Android browsers
+      // Delay if the panel was closed (about to open) so fill starts after drawer is visible
+      const bar = document.getElementById('mobBar');
+      const delay = (bar && !bar.classList.contains('open')) ? 460 : 0;
+      animateMobileFill(fillH, delay);
+    } else {
+      mobLiqRect.setAttribute('y', fillY);
+      mobLiqRect.setAttribute('height', fillH + 10);
+    }
   }
   if (mobLiqFill && keys.length) {
     const colors = keys.map(id => INGREDIENTS.find(i => i.id === id).color);
