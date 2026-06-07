@@ -835,8 +835,13 @@
 
   /* ── INGREDIENT CHIP STRIP ── */
     .mob-chip-strip-wrap {
-      width:100%; border-top:1px solid var(--border-sub);
-      padding-top:14px; margin-top:4px;
+      position:sticky; bottom:0;
+      width:100%;
+      background:var(--surface);
+      border-top:1px solid var(--border-sub);
+      padding:12px 0 16px;
+      margin-top:4px;
+      z-index:5;
     }
     .mob-chip-strip-label {
       font-family:var(--cinzel); font-size:.5rem; letter-spacing:.22em;
@@ -1167,6 +1172,20 @@ function renderIngredients() {
         </div>
       </div>`;
   }).join('');
+
+  // Populate mobile chip strip on load so it's ready before any ingredient is added
+  const chipStrip = document.getElementById('mobChipStrip');
+  if (chipStrip) {
+    chipStrip.innerHTML = INGREDIENTS.map(ing => {
+      const isAdded = !!formula[ing.id];
+      const isRare  = ing.rare ? 'rare' : '';
+      return `<div class="mob-chip ${isAdded ? 'added' : ''} ${isRare}" id="mob-chip-${ing.id}">
+        <span class="mob-chip-emoji">${ing.emoji}</span>
+        <span>${ing.name}</span>
+        <button type="button" class="mob-chip-btn" onclick="toggleIngredient('${ing.id}')">${isAdded ? '✕' : '+'}</button>
+      </div>`;
+    }).join('');
+  }
 }
 
 function cardHTML(ing) {
