@@ -728,7 +728,7 @@
     .builder-main {
       margin-left:0;
       min-height:unset;
-      padding-bottom:72px;
+      padding-bottom:280px;
     }
     .builder-header { margin-left:0; }
 
@@ -1372,6 +1372,19 @@ function flipCard(id) {
     closeWarnDrawer(id);
   }
   flippedCard = card.classList.contains('flipped') ? card : null;
+
+  // On mobile, scroll the flipped card into view so the Add button
+  // is never hidden behind the sticky bottom bar
+  if (window.innerWidth <= 768 && card.classList.contains('flipped')) {
+    setTimeout(() => {
+      const barH = (document.getElementById('mobBar')?.offsetHeight || 64) + 20;
+      const rect = card.getBoundingClientRect();
+      const overlapBy = rect.bottom - (window.innerHeight - barH);
+      if (overlapBy > 0) {
+        window.scrollBy({ top: overlapBy, behavior: 'smooth' });
+      }
+    }, 80);
+  }
 }
 
 function closeWarnDrawer(id) {
