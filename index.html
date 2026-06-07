@@ -264,7 +264,7 @@
 
   /* RIGHT — BOTTLE PANEL */
   .bottle-side {
-    padding:20px 20px 16px;
+    padding:12px 20px 16px;
     display:flex; flex-direction:column; align-items:center;
     position:fixed; top:0; left:0; width:280px; height:100vh;
     overflow:hidden; z-index:10;
@@ -274,13 +274,13 @@
 
   .bottle-eyebrow {
     font-family:var(--cinzel); font-size:.78rem; letter-spacing:.22em;
-    text-transform:uppercase; color:var(--white); margin-bottom:10px;
+    text-transform:uppercase; color:var(--amber); margin-bottom:20px;
     flex-shrink:0;
-    animation:eyebrowWhiteGlow 4s ease-in-out infinite;
+    animation:eyebrowAmberGlow 3.5s ease-in-out infinite;
   }
-  @keyframes eyebrowWhiteGlow {
-    0%,100% { text-shadow:0 0 6px rgba(230,236,231,0.2); color:rgba(230,236,231,0.7); }
-    50%     { text-shadow:0 0 14px rgba(230,236,231,0.6), 0 0 28px rgba(230,236,231,0.2); color:rgba(230,236,231,1); }
+  @keyframes eyebrowAmberGlow {
+    0%,100% { color:rgba(212,160,23,0.65); text-shadow:0 0 8px rgba(212,160,23,0.25), 0 0 16px rgba(212,160,23,0.1); }
+    50%     { color:rgba(240,178,30,1); text-shadow:0 0 16px rgba(212,160,23,0.8), 0 0 32px rgba(212,160,23,0.45), 0 0 52px rgba(212,160,23,0.2); }
   }
 
   /* BOTTLE SVG wrapper */
@@ -298,7 +298,7 @@
   }
 
   /* FORMULA */
-  .formula-section { width:100%; flex:1; min-height:0; display:flex; flex-direction:column; }
+  .formula-section { width:100%; flex:1; min-height:0; display:flex; flex-direction:column; border-top:1px solid var(--border-sub); padding-top:6px; }
   .formula-title {
     font-family:var(--cinzel); font-size:.72rem; letter-spacing:.2em;
     text-transform:uppercase; color:var(--white);
@@ -307,7 +307,15 @@
     flex-shrink:0;
     animation:eyebrowWhiteGlow 4s ease-in-out infinite; animation-delay:.8s;
   }
-  .formula-empty { font-size:1rem; color:rgba(230,236,231,.45); text-align:center; padding:12px 0; font-style:italic; font-family:var(--serif); }
+  .formula-empty {
+    font-size:1.08rem; color:var(--amber); text-align:center;
+    padding:5px 0 12px; font-style:italic; font-family:var(--serif);
+    animation:accordGlow 3.5s ease-in-out infinite;
+  }
+  @keyframes accordGlow {
+    0%,100% { color:rgba(212,160,23,0.6); }
+    50%     { color:rgba(212,160,23,1); text-shadow:0 0 14px rgba(212,160,23,0.3); }
+  }
   .formula-scroll { flex:1; min-height:0; overflow-y:auto; scrollbar-width:none; }
   .formula-scroll::-webkit-scrollbar { display:none; }
   .formula-item {
@@ -969,7 +977,7 @@
 </header>
 
   <div class="bottle-side">
-    <div class="bottle-eyebrow">Your formula</div>
+    <div class="bottle-eyebrow">Your Signature Scent</div>
     <div class="bottle-wrap">
       <div class="bottle-glow" id="bottleGlow"></div>
       <svg width="200" height="290" viewBox="0 0 140 230" id="bottleSvg" style="position:relative;z-index:1;">
@@ -1011,7 +1019,6 @@
       </svg>
     </div>
     <div class="formula-section">
-      <div class="formula-title">Composition</div>
       <div class="formula-scroll">
         <div id="formulaBody"><div class="formula-empty">Your accord awaits</div></div>
         <div class="formula-pct-total" id="totalRow" style="display:none">
