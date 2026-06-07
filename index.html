@@ -1513,7 +1513,7 @@ function updateBottle(keys, totalPct) {
   const liqRect = document.getElementById('liqRect');
   liqRect.setAttribute('y', fillY);
   liqRect.setAttribute('height', fillH + 10);
-  liqRect.style.transition = 'all 0.6s ease';
+  liqRect.style.transition = 'all 3.5s cubic-bezier(0.4,0,0.2,1)';
 
   const colors = keys.map(id => INGREDIENTS.find(i => i.id === id).color);
   const blended = blendColors(colors);
@@ -1901,6 +1901,7 @@ function updateMobile(keys, totalPct, cost, pctMap) {
   const mobGlow       = document.getElementById('mobBottleGlow');
 
   if (mobLiqRect) {
+    mobLiqRect.style.transition = 'y 3.5s cubic-bezier(0.4,0,0.2,1), height 3.5s cubic-bezier(0.4,0,0.2,1)';
     mobLiqRect.setAttribute('y', fillY);
     mobLiqRect.setAttribute('height', fillH + 10);
   }
