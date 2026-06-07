@@ -541,6 +541,55 @@
     background:rgba(212,160,23,.06);
   }
 
+  /* ── CHIP DESCRIPTION MODAL ── */
+  .chip-modal-overlay {
+    position:fixed; inset:0; background:rgba(0,0,0,.78);
+    z-index:900; display:flex; align-items:center; justify-content:center;
+    opacity:0; pointer-events:none; transition:opacity .25s;
+    backdrop-filter:blur(6px); padding:24px;
+  }
+  .chip-modal-overlay.open { opacity:1; pointer-events:all; }
+  .chip-modal {
+    background:var(--surface); border:1px solid var(--border);
+    box-shadow:0 0 60px rgba(0,0,0,.65);
+    width:min(360px, 92vw); padding:28px 24px 22px;
+    position:relative; display:flex; flex-direction:column; gap:12px;
+    transform:scale(.95); transition:transform .25s;
+  }
+  .chip-modal-overlay.open .chip-modal { transform:scale(1); }
+  .chip-modal-close {
+    position:absolute; top:12px; right:14px;
+    background:none; border:none; color:var(--white-dim);
+    font-size:1.2rem; cursor:pointer; padding:4px 8px; transition:color .2s;
+  }
+  .chip-modal-close:hover { color:var(--white); }
+  .chip-modal-emoji { font-size:2.2rem; line-height:1; }
+  .chip-modal-name {
+    font-family:var(--serif); font-size:1.3rem; font-weight:300;
+    color:var(--white); line-height:1.2;
+  }
+  .chip-modal-note {
+    font-size:.55rem; letter-spacing:.14em; text-transform:uppercase;
+    color:var(--green-lt); margin-top:3px;
+  }
+  .chip-modal-note.rare { color:var(--amber); }
+  .chip-modal-desc { font-size:.75rem; color:var(--white-dim); line-height:1.7; }
+  .chip-modal-warn {
+    font-size:.65rem; color:var(--amber); line-height:1.55;
+    padding:8px 10px; border-left:2px solid rgba(212,160,23,.5);
+    background:rgba(212,160,23,.06);
+  }
+  .chip-modal-btn {
+    width:100%; padding:13px; margin-top:4px;
+    background:transparent; color:#b8e832; border:1px solid #b8e832;
+    font-family:var(--sans); font-size:.65rem; font-weight:500;
+    letter-spacing:.12em; text-transform:uppercase; cursor:pointer;
+    transition:background .2s, color .2s;
+  }
+  .chip-modal-btn:hover { background:#b8e832; color:#080d09; }
+  .chip-modal-btn.remove { color:var(--white-dim); border-color:var(--border-sub); }
+  .chip-modal-btn.remove:hover { border-color:rgba(200,60,60,.5); color:rgba(220,80,80,.8); background:rgba(200,60,60,.06); }
+
   /* ── TOAST ── */
   .toast {
     position:fixed; bottom:28px; left:50%; transform:translateX(-50%) translateY(6px);
@@ -1179,10 +1228,10 @@ function renderIngredients() {
     chipStrip.innerHTML = INGREDIENTS.map(ing => {
       const isAdded = !!formula[ing.id];
       const isRare  = ing.rare ? 'rare' : '';
-      return `<div class="mob-chip ${isAdded ? 'added' : ''} ${isRare}" id="mob-chip-${ing.id}">
+      return `<div class="mob-chip ${isAdded ? 'added' : ''} ${isRare}" id="mob-chip-${ing.id}" onclick="openChipModal('${ing.id}')">
         <span class="mob-chip-emoji">${ing.emoji}</span>
         <span>${ing.name}</span>
-        <button type="button" class="mob-chip-btn" onclick="toggleIngredient('${ing.id}')">${isAdded ? '✕' : '+'}</button>
+        <button type="button" class="mob-chip-btn" onclick="event.stopPropagation(); toggleIngredient('${ing.id}')">${isAdded ? '✕' : '+'}</button>
       </div>`;
     }).join('');
   }
@@ -1889,10 +1938,10 @@ function updateMobile(keys, totalPct, cost, pctMap) {
     chipStrip.innerHTML = INGREDIENTS.map(ing => {
       const isAdded = !!formula[ing.id];
       const isRare  = ing.rare ? 'rare' : '';
-      return `<div class="mob-chip ${isAdded ? 'added' : ''} ${isRare}" id="mob-chip-${ing.id}">
+      return `<div class="mob-chip ${isAdded ? 'added' : ''} ${isRare}" id="mob-chip-${ing.id}" onclick="openChipModal('${ing.id}')">
         <span class="mob-chip-emoji">${ing.emoji}</span>
         <span>${ing.name}</span>
-        <button type="button" class="mob-chip-btn" onclick="toggleIngredient('${ing.id}')">${isAdded ? '✕' : '+'}</button>
+        <button type="button" class="mob-chip-btn" onclick="event.stopPropagation(); toggleIngredient('${ing.id}')">${isAdded ? '✕' : '+'}</button>
       </div>`;
     }).join('');
   }
@@ -1913,6 +1962,47 @@ function blendColors(hexColors) {
 function hexToRgba(hex, a) {
   const n = parseInt(hex.replace('#',''), 16);
   return `rgba(${(n>>16)&255},${(n>>8)&255},${n&255},${a})`;
+}
+
+// ═══════════════════════════════════════════════════════════════
+// CHIP DESCRIPTION MODAL — mobile ingredient strip
+// ═══════════════════════════════════════════════════════════════
+function openChipModal(id) {
+  const ing = INGREDIENTS.find(i => i.id === id);
+  if (!ing) return;
+  const isAdded = !!formula[id];
+
+  document.getElementById('chipModalEmoji').textContent = ing.emoji;
+  document.getElementById('chipModalName').textContent = ing.name;
+  const noteEl = document.getElementById('chipModalNote');
+  noteEl.textContent = ing.note + (ing.rare ? ' · Rare' : '') + (ing.restricted ? ' · IFRA Regulated' : '');
+  noteEl.className = 'chip-modal-note' + (ing.rare ? ' rare' : '');
+  document.getElementById('chipModalDesc').textContent = ing.desc;
+
+  const warnEl = document.getElementById('chipModalWarn');
+  if (ing.warn) { warnEl.textContent = ing.warn; warnEl.style.display = 'block'; }
+  else { warnEl.style.display = 'none'; }
+
+  const btn = document.getElementById('chipModalBtn');
+  if (isAdded) {
+    btn.textContent = 'Remove from Formula';
+    btn.className = 'chip-modal-btn remove';
+  } else {
+    btn.textContent = ing.restricted
+      ? `+ Add to Bottle — IFRA capped at ${ing.fixedPct}%`
+      : '+ Add to Bottle';
+    btn.className = 'chip-modal-btn';
+  }
+  btn.onclick = () => { toggleIngredient(id); closeChipModal(); };
+
+  document.getElementById('chipModalOverlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeChipModal(e) {
+  if (e && e.target !== document.getElementById('chipModalOverlay')) return;
+  document.getElementById('chipModalOverlay').classList.remove('open');
+  document.body.style.overflow = '';
 }
 
 // ═══════════════════════════════════════════════════════════════
@@ -2125,6 +2215,24 @@ renderIngredients();
       <button type="button" class="req-submit-btn" onclick="sendFormulaRequest()">Send Formula Request</button>
       <p class="req-note">By submitting you agree to be contacted by Profound Naturals regarding your custom scent. Your formula details will be kept confidential.</p>
     </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     CHIP DESCRIPTION MODAL
+     Mobile only — triggered by tapping an ingredient chip
+     ═══════════════════════════════════════════════════════ -->
+<div class="chip-modal-overlay" id="chipModalOverlay" onclick="closeChipModal(event)">
+  <div class="chip-modal">
+    <button class="chip-modal-close" onclick="closeChipModal()">&times;</button>
+    <div class="chip-modal-emoji" id="chipModalEmoji"></div>
+    <div>
+      <div class="chip-modal-name" id="chipModalName"></div>
+      <div class="chip-modal-note" id="chipModalNote"></div>
+    </div>
+    <div class="chip-modal-desc" id="chipModalDesc"></div>
+    <div class="chip-modal-warn" id="chipModalWarn" style="display:none"></div>
+    <button class="chip-modal-btn" id="chipModalBtn" type="button"></button>
   </div>
 </div>
 
