@@ -854,7 +854,7 @@
       font-size:.7rem;
     }
     .mob-formula-dot { width:6px; height:6px; border-radius:50%; flex-shrink:0; }
-    .mob-formula-name { flex:1; color:var(--white-dim); }
+    .mob-formula-name { flex:1; color:var(--white-dim); min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
     .mob-formula-pct { color:var(--green-lt); font-weight:500; min-width:30px; text-align:right; }
     .mob-formula-total {
       display:flex; justify-content:space-between;
@@ -1977,11 +1977,28 @@ function updateMobile(keys, totalPct, cost, pctMap) {
     if (!keys.length) {
       mobBody.innerHTML = '<div class="mob-formula-empty">Your accord awaits</div>';
     } else {
+      const ts = totalSlots();
       mobBody.innerHTML = keys.map((id) => {
         const ing = INGREDIENTS.find(x => x.id === id);
+        const slots = formula[id];
+        const atGlobalMax = ts >= 8;
+        const atIngMax = slots >= 3;
+        if (ing.restricted) {
+          return `<div class="mob-formula-item">
+            <div class="mob-formula-dot" style="background:${ing.color}"></div>
+            <div class="mob-formula-name">${ing.name}</div>
+            <span class="formula-ifra-tag">⚠ IFRA</span>
+            <div class="mob-formula-pct">${pctMap[id]}%</div>
+          </div>`;
+        }
         return `<div class="mob-formula-item">
           <div class="mob-formula-dot" style="background:${ing.color}"></div>
           <div class="mob-formula-name">${ing.name}</div>
+          <div class="formula-stepper">
+            <button class="fml-btn minus" onclick="decrementSlot('${id}')">−</button>
+            <span class="fml-slots">${slots}</span>
+            <button class="fml-btn plus" ${atGlobalMax || atIngMax ? 'disabled' : ''} onclick="incrementSlot('${id}')">+</button>
+          </div>
           <div class="mob-formula-pct">${pctMap[id]}%</div>
         </div>`;
       }).join('');
