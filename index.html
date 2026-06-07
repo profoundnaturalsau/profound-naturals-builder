@@ -1247,7 +1247,7 @@ function animateMobileFill(targetH, delay) {
   if (mobFillAnimFrame) { cancelAnimationFrame(mobFillAnimFrame); mobFillAnimFrame = null; }
   const run = () => {
     const startH  = mobFillCurrentH;
-    const duration = 3500;
+    const duration = 8000;
     const t0 = performance.now();
     const step = (now) => {
       const t      = Math.min((now - t0) / duration, 1);
@@ -1543,7 +1543,7 @@ function updateBottle(keys, totalPct) {
   const liqRect = document.getElementById('liqRect');
   liqRect.setAttribute('y', fillY);
   liqRect.setAttribute('height', fillH + 10);
-  liqRect.style.transition = 'all 3.5s cubic-bezier(0.4,0,0.2,1)';
+  liqRect.style.transition = 'all 8s cubic-bezier(0.4,0,0.2,1)';
 
   const colors = keys.map(id => INGREDIENTS.find(i => i.id === id).color);
   const blended = blendColors(colors);
