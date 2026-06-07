@@ -1644,10 +1644,11 @@ function closeReqModal(e) {
 }
 
 async function sendFormulaRequest() {
-  const name   = document.getElementById('reqName').value.trim();
-  const email  = document.getElementById('reqEmail').value.trim();
-  const phone  = document.getElementById('reqPhone').value.trim();
-  const notes  = document.getElementById('reqNotes').value.trim();
+  const name        = document.getElementById('reqName').value.trim();
+  const email       = document.getElementById('reqEmail').value.trim();
+  const phone       = document.getElementById('reqPhone').value.trim();
+  const notes       = document.getElementById('reqNotes').value.trim();
+  const formulaName = document.getElementById('reqFormulaName').value.trim();
   const btn    = document.querySelector('.req-submit-btn');
 
   if (!name)  { alert('Please enter your name'); return; }
@@ -1673,7 +1674,7 @@ async function sendFormulaRequest() {
     const res = await fetch('/.netlify/functions/request-formula', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name, email, phone, notes, formula: formulaLines, price: cost.toFixed(2) })
+      body: JSON.stringify({ name, email, phone, notes, formulaName, formula: formulaLines, price: cost.toFixed(2) })
     });
     if (res.ok) {
       document.getElementById('reqModalOverlay').classList.remove('open');
@@ -2236,6 +2237,7 @@ renderIngredients();
         </div>
       </div>
       <div class="req-fields">
+        <input class="req-field" id="reqFormulaName" type="text" placeholder="Name your formula (optional)" style="border-color:rgba(212,160,23,.45); color:var(--amber);" onfocus="this.style.borderColor='var(--amber)'" onblur="this.style.borderColor='rgba(212,160,23,.45)'">
         <div class="req-field-row">
           <input class="req-field" id="reqName" type="text" placeholder="Your name">
           <input class="req-field" id="reqPhone" type="tel" placeholder="Phone (optional)">
@@ -2243,8 +2245,8 @@ renderIngredients();
         <input class="req-field" id="reqEmail" type="email" placeholder="Email address">
         <textarea class="req-textarea" id="reqNotes" placeholder="Any additional notes or preferences..."></textarea>
       </div>
-      <button type="button" class="req-submit-btn" onclick="sendFormulaRequest()">Send Request</button>
-      <p class="req-note">By submitting you agree to be contacted by Profound Naturals regarding your custom scent. Your formula details will be kept confidential.</p>
+      <button type="button" class="req-submit-btn" onclick="sendFormulaRequest()">Continue to Checkout</button>
+      <p class="req-note">By proceeding you agree to Profound Naturals' terms. Your formula and personal details are kept confidential and used solely to process your order.</p>
     </div>
   </div>
 </div>
