@@ -1,0 +1,2009 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Custom Scent Builder - Profound Naturals</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@300;400;500&family=Cinzel:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:        #0d1a0f;
+    --surface:   #0f1610;
+    --surface-2: #141d15;
+    --surface-3: #1a2419;
+    --white:     #e6ece7;
+    --white-dim: rgba(230,236,231,0.6);
+    --green:     #8cc40f;
+    --green-lt:  #a0d916;
+    --green-pale:#0f1f02;
+    --border:    rgba(140,196,15,0.22);
+    --border-sub:rgba(255,255,255,0.06);
+    --amber:     #d4a017;
+    --teal:      #35b8d4;
+    --serif: 'Cormorant Garamond', Georgia, serif;
+    --sans:  'Jost', sans-serif;
+    --cinzel: 'Cinzel', serif;
+  }
+
+  *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+  html, body { background:var(--bg); color:var(--white); font-family:var(--sans); min-height:100vh; overflow-x:hidden; }
+
+  /* HEADER */
+  .builder-header {
+    text-align:center; padding:60px 24px 40px;
+    border-bottom:1px solid var(--border-sub);
+    margin-left:280px; /* offset to match fixed bottle panel */
+    box-sizing:border-box;
+  }
+  .builder-header .eyebrow {
+    font-family:var(--cinzel); font-size:clamp(1.1rem,2.5vw,1.8rem); letter-spacing:.22em;
+    text-transform:uppercase; margin-bottom:20px; display:block;
+    position:relative; display:inline-block;
+    background:linear-gradient(
+      90deg,
+      var(--green-lt) 0%,
+      var(--green-lt) 42%,
+      #d4a017 48%,
+      #f0c040 50%,
+      #d4a017 52%,
+      var(--green-lt) 58%,
+      var(--green-lt) 100%
+    );
+    background-size:300% auto;
+    -webkit-background-clip:text;
+    -webkit-text-fill-color:transparent;
+    background-clip:text;
+    animation:eyebrowShimmer 7s linear infinite, eyebrowGlow 3s ease-in-out infinite;
+    filter:drop-shadow(0 0 8px rgba(160,217,22,0.4));
+  }
+  @keyframes eyebrowShimmer {
+    0%   { background-position:200% center; }
+    100% { background-position:-200% center; }
+  }
+  @keyframes eyebrowGlow {
+    0%,100% { filter:drop-shadow(0 0 6px rgba(160,217,22,0.3)); }
+    50%     { filter:drop-shadow(0 0 18px rgba(160,217,22,0.75)) drop-shadow(0 0 32px rgba(140,196,15,0.3)); }
+  }
+  .builder-header h1 {
+    font-family:var(--serif); font-size:clamp(2.4rem,5vw,4rem);
+    font-weight:300; line-height:1.1; color:var(--white);
+  }
+  .builder-header h1 em {
+    font-style:italic; color:var(--green-lt);
+    animation:signatureGlow 3s ease-in-out infinite;
+  }
+  @keyframes signatureGlow {
+    0%,100% { text-shadow:0 0 8px rgba(160,217,22,0.3), 0 0 16px rgba(140,196,15,0.15); }
+    50%     { text-shadow:0 0 16px rgba(160,217,22,0.8), 0 0 32px rgba(140,196,15,0.4), 0 0 48px rgba(140,196,15,0.15); }
+  }
+  .builder-header p {
+    font-size:.85rem; color:var(--white-dim); margin-top:14px;
+    max-width:520px; margin-left:auto; margin-right:auto; line-height:1.7;
+  }
+  .concentrate-bar {
+    display:inline-flex; align-items:center; gap:10px;
+    margin-top:20px; padding:10px 20px;
+    border:1px solid var(--border); background:var(--surface);
+    font-size:.72rem; letter-spacing:.08em;
+  }
+  .concentrate-bar .pct { color:var(--green-lt); font-weight:500; font-size:.9rem; }
+  .concentrate-bar .limit { color:rgba(230,236,231,.35); }
+
+  /* MAIN LAYOUT */
+  .builder-main {
+    display:block;
+    margin-left:280px; /* offset for fixed bottle panel */
+    min-height:100vh;
+  }
+
+  /* LEFT — INGREDIENTS */
+  .ingredients-side { padding:40px 40px 40px 40px; border-left:none; }
+
+  .note-section { margin-bottom:40px; }
+  .note-label {
+    font-family:var(--cinzel); font-size:.58rem; letter-spacing:.25em;
+    text-transform:uppercase; color:var(--white-dim); margin-bottom:16px;
+    display:flex; align-items:center; gap:12px;
+  }
+  .note-label::after { content:''; flex:1; height:1px; background:var(--border-sub); }
+
+  .cards-row { display:grid; grid-template-columns:repeat(auto-fill, minmax(130px,1fr)); gap:12px; align-items:start; }
+
+  /* FLIP CARD */
+  .flip-card { height:180px; cursor:pointer; position:relative; z-index:1; }
+  .flip-card.flipped { z-index:100; }
+  .flip-inner {
+    position:relative; width:100%; height:100%;
+  }
+  /* FRONT */
+  .flip-front {
+    position:absolute; inset:0;
+    border:1px solid var(--border-sub);
+    background:var(--surface);
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    padding:12px;
+    transition:opacity .3s ease, border-color .2s;
+    opacity:1; pointer-events:all;
+  }
+  .flip-front:hover { border-color:var(--border); }
+  .flip-card.flipped .flip-front { opacity:0; pointer-events:none; }
+  /* BACK — overlays downward, shaded panel */
+  .flip-back {
+    position:absolute;
+    top:0; left:0; right:0;
+    height:auto; min-height:100%;
+    background:var(--surface-2);
+    border:1px solid var(--border);
+    display:flex; flex-direction:column; align-items:center;
+    justify-content:flex-start;
+    padding:14px 12px;
+    opacity:0; pointer-events:none;
+    transition:opacity .3s ease;
+    z-index:20;
+    box-shadow:0 16px 56px rgba(0,0,0,.82), 0 0 0 1px rgba(140,196,15,.1);
+  }
+  .flip-card.flipped .flip-back { opacity:1; pointer-events:all; }
+  .flip-card.added .flip-front { border-color:var(--green); background:var(--green-pale); }
+  .flip-card.warning .flip-front { border-color:rgba(212,160,23,.4); }
+
+  .card-image {
+    width:70px; height:70px; object-fit:contain;
+    margin-bottom:8px; border-radius:4px;
+  }
+  .card-emoji { font-size:3rem; margin-bottom:8px; line-height:1; }
+  .card-name { font-family:var(--serif); font-size:.95rem; font-weight:300; color:var(--white); text-align:center; line-height:1.2; }
+  .card-note { font-size:.6rem; letter-spacing:.12em; text-transform:uppercase; color:var(--green-lt); margin-top:4px; }
+  .card-badge-rare {
+    position:absolute; top:7px; left:7px;
+    font-size:.5rem; letter-spacing:.1em;
+    background:#d4a017; color:#080d09;
+    padding:2px 7px;
+    font-family:var(--sans); font-weight:600; text-transform:uppercase;
+    animation:badgeGlowRare 5s ease-in-out infinite;
+    z-index:200; cursor:pointer; pointer-events:all;
+  }
+  @keyframes badgeGlowRare {
+    0%,100% { filter:drop-shadow(0 0 5px rgba(212,160,23,0.65)) drop-shadow(0 0 12px rgba(212,160,23,0.3)); }
+    50%     { filter:drop-shadow(0 0 7px rgba(212,160,23,0.85)) drop-shadow(0 0 18px rgba(212,160,23,0.5)); }
+  }
+  .card-badge-warn {
+    position:absolute; bottom:7px; left:50%; transform:translateX(-50%);
+    font-size:.48rem; letter-spacing:.08em;
+    background:rgba(212,160,23,.12); color:var(--amber);
+    padding:2px 8px; border:1px solid rgba(212,160,23,.35);
+    font-family:var(--sans); font-weight:500; text-transform:uppercase;
+    animation:warnCandle 3.5s ease-in-out infinite;
+    z-index:2; text-align:center; white-space:nowrap;
+  }
+  @keyframes warnCandle {
+    0%,100% { border-color:rgba(212,160,23,.25); color:rgba(212,160,23,.65); background:rgba(212,160,23,.08); }
+    30%     { border-color:rgba(212,160,23,.6); color:rgba(212,160,23,.95); background:rgba(212,160,23,.18); }
+    50%     { border-color:rgba(220,80,80,.5); color:rgba(230,100,100,.9); background:rgba(220,80,80,.1); }
+    70%     { border-color:rgba(212,160,23,.4); color:rgba(212,160,23,.78); background:rgba(212,160,23,.12); }
+  }
+
+  /* ── CARD GLOW SYSTEM ── */
+
+  /* Standard cards — brand green glow */
+  .flip-front {
+    animation: cardGlowGreen 4s ease-in-out infinite;
+  }
+  @keyframes cardGlowGreen {
+    0%,100% { border-color:rgba(140,196,15,.3); box-shadow:0 0 8px rgba(140,196,15,.14); }
+    50%     { border-color:rgba(140,196,15,.6); box-shadow:0 0 18px rgba(140,196,15,.28); }
+  }
+  .flip-front:hover {
+    border-color:rgba(140,196,15,.95) !important;
+    box-shadow:0 0 26px rgba(140,196,15,.45), 0 0 50px rgba(140,196,15,.16) !important;
+    animation:none;
+  }
+
+  /* Rare cards — amber glow matching main site */
+  .flip-card.rare-card .flip-front {
+    animation: cardGlowAmber 4s ease-in-out infinite;
+  }
+  @keyframes cardGlowAmber {
+    0%,100% { border-color:rgba(212,160,23,.38); box-shadow:0 0 8px rgba(212,160,23,.16); }
+    50%     { border-color:rgba(212,160,23,.75); box-shadow:0 0 22px rgba(212,160,23,.38); }
+  }
+  .flip-card.rare-card .flip-front:hover {
+    border-color:rgba(212,160,23,1) !important;
+    box-shadow:0 0 28px rgba(212,160,23,.58), 0 0 52px rgba(212,160,23,.2) !important;
+    animation:none;
+  }
+
+  .back-note { font-size:.58rem; letter-spacing:.14em; text-transform:uppercase; color:var(--green-lt); margin-bottom:10px; }
+  .back-desc { font-size:.72rem; color:var(--white-dim); line-height:1.6; flex:1; }
+  .warn-toggle {
+    display:flex; align-items:center; justify-content:space-between;
+    width:100%; margin-top:8px; padding:5px 0;
+    border-top:1px solid rgba(212,160,23,.25);
+    cursor:pointer; background:none; border-bottom:none; border-left:none; border-right:none;
+    font-family:var(--sans); font-size:.6rem; letter-spacing:.08em;
+    color:var(--amber); text-align:left;
+  }
+  .warn-toggle:hover { color:#e8b830; }
+  .warn-chevron { font-size:.7rem; transition:transform .25s; display:inline-block; }
+  .warn-toggle.open .warn-chevron { transform:rotate(180deg); }
+  .warn-drawer {
+    width:100%; overflow:hidden; max-height:0;
+    transition:max-height .3s ease, padding .3s ease;
+  }
+  .warn-drawer.open { max-height:120px; }
+  .warn-drawer-inner {
+    font-size:.6rem; color:rgba(212,160,23,.8); line-height:1.55;
+    padding:6px 8px; background:rgba(212,160,23,.05);
+    border-left:2px solid rgba(212,160,23,.4);
+  }
+  .add-btn {
+    margin-top:10px; width:100%; padding:8px;
+    background:transparent; color:#b8e832;
+    border:1px solid #b8e832; cursor:pointer;
+    font-family:var(--sans); font-size:.65rem;
+    letter-spacing:.12em; text-transform:uppercase; font-weight:500;
+    transition:all .25s;
+    position:relative; z-index:0;
+    animation:addBtnGlow 3s ease-in-out infinite;
+  }
+  @keyframes addBtnGlow {
+    0%,100% { box-shadow:0 0 8px rgba(184,232,50,0.2), 0 0 3px rgba(184,232,50,0.12); border-color:rgba(184,232,50,0.65); }
+    50%      { box-shadow:0 0 20px rgba(184,232,50,0.55), 0 0 6px rgba(184,232,50,0.25); border-color:rgba(184,232,50,1); }
+  }
+  .add-btn::before {
+    content:''; position:absolute; inset:-4px; z-index:-1;
+    background:#b8e832; filter:blur(12px); opacity:0;
+    transition:opacity .3s;
+  }
+  .add-btn:hover, .add-btn:active { background:#b8e832; color:#080d09; font-weight:600; animation:none; box-shadow:none; border-color:#b8e832; }
+  .add-btn:hover::before, .add-btn:active::before { opacity:.35; }
+  .add-btn.remove { background:transparent; color:var(--white-dim); border:1px solid var(--border-sub); animation:none; box-shadow:none; }
+  .add-btn.remove::before { display:none; }
+  .add-btn.remove:hover { border-color:rgba(200,60,60,.5); color:rgba(220,80,80,.8); background:rgba(200,60,60,.06); }
+
+  /* RIGHT — BOTTLE PANEL */
+  .bottle-side {
+    padding:32px 24px 24px;
+    display:flex; flex-direction:column; align-items:center;
+    position:fixed; top:0; left:0; width:280px; height:100vh;
+    overflow-y:auto; overflow-x:hidden; z-index:10;
+    border-right:1px solid var(--border-sub);
+    background:var(--bg);
+    scrollbar-width:none;
+  }
+  .bottle-side::-webkit-scrollbar { display:none; }
+
+  .bottle-eyebrow {
+    font-family:var(--cinzel); font-size:.78rem; letter-spacing:.22em;
+    text-transform:uppercase; color:var(--white); margin-bottom:16px;
+    animation:eyebrowWhiteGlow 4s ease-in-out infinite;
+  }
+  @keyframes eyebrowWhiteGlow {
+    0%,100% { text-shadow:0 0 6px rgba(230,236,231,0.2); color:rgba(230,236,231,0.7); }
+    50%     { text-shadow:0 0 14px rgba(230,236,231,0.6), 0 0 28px rgba(230,236,231,0.2); color:rgba(230,236,231,1); }
+  }
+
+  /* BOTTLE SVG wrapper */
+  .bottle-wrap {
+    position:relative; width:210px; height:300px;
+    display:flex; align-items:center; justify-content:center;
+    margin-bottom:20px;
+  }
+  .bottle-glow {
+    position:absolute; inset:-20px;
+    border-radius:50%;
+    background:radial-gradient(ellipse at center, var(--glow-color, rgba(140,196,15,0.1)) 0%, transparent 70%);
+    transition:background 0.8s ease;
+    pointer-events:none;
+  }
+
+  /* FORMULA */
+  .formula-section { width:100%; }
+  .formula-title {
+    font-family:var(--cinzel); font-size:.72rem; letter-spacing:.2em;
+    text-transform:uppercase; color:var(--white);
+    margin-bottom:12px; padding-bottom:8px;
+    border-bottom:1px solid var(--border-sub);
+    animation:eyebrowWhiteGlow 4s ease-in-out infinite; animation-delay:.8s;
+  }
+  .formula-empty { font-size:1rem; color:rgba(230,236,231,.45); text-align:center; padding:16px 0; font-style:italic; font-family:var(--serif); }
+  .formula-item {
+    display:flex; align-items:center; gap:8px;
+    padding:7px 0; border-bottom:1px solid var(--border-sub);
+    font-size:.72rem;
+  }
+  .formula-dot { width:6px; height:6px; border-radius:50%; flex-shrink:0; }
+  .formula-name { flex:1; color:var(--white-dim); }
+  .formula-pct { color:var(--green-lt); font-weight:500; min-width:32px; text-align:right; }
+  .formula-pct-total {
+    display:flex; justify-content:space-between;
+    padding:10px 0 0; font-size:.72rem;
+    color:var(--white-dim);
+  }
+  .formula-pct-total span:last-child { color:var(--green-lt); font-weight:500; }
+
+  /* PRICE */
+  .price-block {
+    width:100%; margin-top:20px;
+    padding:16px; background:var(--surface);
+    border:1px solid var(--border);
+    text-align:center;
+  }
+  .price-label { font-size:.58rem; letter-spacing:.18em; text-transform:uppercase; color:var(--white-dim); margin-bottom:6px; display:block; }
+  .price-value { font-family:var(--serif); font-size:2rem; font-weight:300; color:var(--white); }
+  .price-size { font-size:.7rem; color:var(--white-dim); margin-top:4px; }
+
+  /* REQUEST BTN */
+  .request-btn {
+    width:100%; margin-top:12px; padding:16px;
+    background:var(--green); color:var(--bg);
+    border:none; cursor:pointer;
+    font-family:var(--sans); font-size:.72rem;
+    letter-spacing:.15em; text-transform:uppercase; font-weight:500;
+    transition:background .2s, box-shadow .2s;
+    animation:btnGlow 4s ease-in-out infinite;
+  }
+  @keyframes btnGlow {
+    0%,100% { box-shadow:0 0 12px rgba(140,196,15,.2); }
+    50%      { box-shadow:0 0 28px rgba(140,196,15,.5); }
+  }
+  .request-btn:hover { background:var(--green-lt); }
+  .request-btn:disabled { background:var(--surface-2); color:var(--white-dim); animation:none; cursor:default; }
+
+  .clear-link { font-size:.65rem; color:rgba(230,236,231,.25); cursor:pointer; margin-top:10px; text-decoration:underline; background:none; border:none; display:block; text-align:center; }
+  .clear-link:hover { color:var(--white-dim); }
+
+  /* FLY PARTICLE */
+  .fly-particle { position:fixed; pointer-events:none; font-size:20px; z-index:9999; }
+
+  /* ── CONFIRM CAP MODAL ── */
+  .cap-modal-overlay {
+    position:fixed; inset:0; background:rgba(0,0,0,.75);
+    z-index:700; display:flex; align-items:center; justify-content:center;
+    opacity:0; pointer-events:none; transition:opacity .25s;
+    backdrop-filter:blur(6px);
+  }
+  .cap-modal-overlay.open { opacity:1; pointer-events:all; }
+  .cap-modal {
+    background:var(--surface); border:1px solid rgba(140,196,15,0.4);
+    box-shadow:0 0 60px rgba(140,196,15,0.1);
+    width:min(400px, 92vw); padding:36px 32px;
+    text-align:center; display:flex; flex-direction:column; gap:16px;
+    transform:scale(.96); transition:transform .25s;
+  }
+  .cap-modal-overlay.open .cap-modal { transform:scale(1); }
+  .cap-modal-icon { font-size:2rem; }
+  .cap-modal-title {
+    font-family:var(--cinzel); font-size:.65rem; letter-spacing:.2em;
+    text-transform:uppercase; color:var(--green-lt);
+  }
+  .cap-modal-body {
+    font-family:var(--serif); font-size:1.1rem; font-weight:300;
+    color:var(--white); line-height:1.5;
+  }
+  .cap-modal-sub { font-size:.72rem; color:var(--white-dim); line-height:1.6; }
+  .cap-modal-btns { display:flex; gap:12px; margin-top:8px; }
+  .cap-modal-yes {
+    flex:1; padding:14px; background:var(--green); color:var(--bg);
+    border:none; cursor:pointer; font-family:var(--sans);
+    font-size:.68rem; letter-spacing:.14em; text-transform:uppercase; font-weight:500;
+    transition:background .2s;
+  }
+  .cap-modal-yes:hover { background:var(--green-lt); }
+  .cap-modal-no {
+    flex:1; padding:14px; background:transparent; color:var(--white-dim);
+    border:1px solid var(--border); cursor:pointer; font-family:var(--sans);
+    font-size:.68rem; letter-spacing:.14em; text-transform:uppercase;
+    transition:border-color .2s, color .2s;
+  }
+  .cap-modal-no:hover { border-color:var(--white-dim); color:var(--white); }
+
+  /* ── RARE COLLECTION MODAL ── */
+  .rare-modal-overlay {
+    position:fixed; inset:0; background:rgba(0,0,0,.82);
+    z-index:600; display:flex; align-items:center; justify-content:center;
+    opacity:0; pointer-events:none; transition:opacity .3s;
+    backdrop-filter:blur(8px);
+  }
+  .rare-modal-overlay.open { opacity:1; pointer-events:all; }
+  .rare-modal {
+    background:var(--surface); border:1px solid rgba(212,160,23,0.5);
+    box-shadow:0 0 80px rgba(212,160,23,0.12), 0 0 160px rgba(212,160,23,0.06);
+    width:min(820px, 96vw); max-height:88vh;
+    display:flex; flex-direction:column;
+    transform:scale(.96); transition:transform .3s;
+    position:relative; overflow:hidden;
+  }
+  .rare-modal-overlay.open .rare-modal { transform:scale(1); }
+  .rare-modal-header {
+    padding:28px 32px 20px; border-bottom:1px solid rgba(212,160,23,0.2); flex-shrink:0;
+  }
+  .rare-modal-eyebrow {
+    font-family:var(--cinzel); font-size:.5rem; letter-spacing:.28em;
+    text-transform:uppercase; color:var(--amber); display:block; margin-bottom:8px;
+    animation:rareGlowPulse 3s ease-in-out infinite;
+  }
+  @keyframes rareGlowPulse { 0%,100% { opacity:.7; } 50% { opacity:1; } }
+  .rare-modal-title {
+    font-family:var(--serif); font-size:1.8rem; font-weight:300; color:var(--white);
+    line-height:1.2; margin:0;
+  }
+  .rare-modal-sub { font-size:.72rem; color:var(--white-dim); margin-top:6px; letter-spacing:.03em; }
+  .rare-modal-close {
+    position:absolute; top:16px; right:20px;
+    background:none; border:none; color:var(--white-dim);
+    font-size:1.2rem; cursor:pointer; transition:color .2s; padding:4px 8px;
+  }
+  .rare-modal-close:hover { color:var(--amber); }
+  .rare-modal-body { overflow-y:auto; padding:24px 32px 32px; flex:1; overscroll-behavior:contain; }
+  .rare-modal-group { margin-bottom:32px; }
+  .rare-modal-group:last-child { margin-bottom:0; }
+  .rare-modal-group-label {
+    font-family:var(--cinzel); font-size:.52rem; letter-spacing:.24em;
+    text-transform:uppercase; color:var(--white-dim);
+    padding-bottom:10px; border-bottom:1px solid var(--border-sub);
+    margin-bottom:16px; display:block;
+  }
+  .rare-modal-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(200px,1fr)); gap:12px; }
+  .rm-card {
+    border:1px solid rgba(212,160,23,0.25); background:var(--surface-2);
+    padding:16px; display:flex; flex-direction:column; gap:8px;
+    transition:border-color .2s, background .2s;
+    animation:rareCardGlow 4s ease-in-out infinite;
+  }
+  @keyframes rareCardGlow {
+    0%,100% { box-shadow:0 0 8px rgba(212,160,23,0.06); border-color:rgba(212,160,23,0.2); }
+    50%     { box-shadow:0 0 18px rgba(212,160,23,0.2); border-color:rgba(212,160,23,0.5); }
+  }
+  .rm-card:hover { background:var(--surface-3); border-color:rgba(212,160,23,0.6); }
+  .rm-card.added { border-color:var(--green); background:var(--green-pale); animation:none; }
+  .rm-card-emoji { font-size:1.8rem; line-height:1; }
+  .rm-card-name { font-family:var(--serif); font-size:1rem; font-weight:300; color:var(--white); line-height:1.2; }
+  .rm-card-note { font-size:.55rem; letter-spacing:.14em; text-transform:uppercase; color:var(--amber); }
+  .rm-card.added .rm-card-note { color:var(--green-lt); }
+  .rm-card-desc { font-size:.68rem; color:var(--white-dim); line-height:1.6; flex:1; }
+  .rm-card-btn {
+    margin-top:4px; padding:8px 12px; width:100%;
+    background:transparent; color:var(--amber); border:1px solid rgba(212,160,23,0.5);
+    font-family:var(--sans); font-size:.6rem; font-weight:500;
+    letter-spacing:.14em; text-transform:uppercase; cursor:pointer;
+    transition:background .2s, color .2s, border-color .2s;
+  }
+  .rm-card-btn:hover { background:var(--amber); color:#080d09; border-color:var(--amber); }
+  .rm-card.added .rm-card-btn { background:transparent; color:var(--green-lt); border-color:var(--green); }
+  .rm-card.added .rm-card-btn:hover { background:rgba(220,80,80,.15); color:rgba(220,100,100,.9); border-color:rgba(220,80,80,.5); }
+  @media(max-width:600px) {
+    .rare-modal-grid { grid-template-columns:1fr; }
+    .rare-modal-body { padding:16px 20px 24px; }
+    .rare-modal-header { padding:20px 20px 16px; }
+  }
+
+  /* ── SLOT STEPPER ── */
+  .card-action { width:100%; margin-top:10px; display:flex; flex-direction:column; gap:6px; }
+  .slot-stepper {
+    display:flex; align-items:center; justify-content:center; gap:0;
+    border:1px solid var(--border); width:100%;
+  }
+  .slot-btn {
+    background:transparent; border:none; color:var(--green-lt);
+    font-size:1.1rem; font-weight:300; cursor:pointer;
+    padding:6px 14px; line-height:1; flex-shrink:0;
+    transition:background .2s, color .2s;
+  }
+  .slot-btn:hover:not(:disabled) { background:rgba(140,196,15,.12); }
+  .slot-btn:disabled { color:rgba(140,196,15,.2); cursor:default; }
+  .slot-count {
+    flex:1; text-align:center;
+    font-family:var(--sans); font-size:.75rem; font-weight:500;
+    color:var(--white); letter-spacing:.08em;
+    border-left:1px solid var(--border); border-right:1px solid var(--border);
+    padding:7px 0; line-height:1;
+  }
+  .slot-label {
+    font-size:.5rem; letter-spacing:.1em; text-transform:uppercase;
+    color:var(--white-dim); text-align:center;
+  }
+
+  /* ── REQUEST FORMULA MODAL ── */
+  .req-modal-overlay {
+    position:fixed; inset:0; background:rgba(0,0,0,.82);
+    z-index:800; display:flex; align-items:center; justify-content:center;
+    opacity:0; pointer-events:none; transition:opacity .35s;
+    backdrop-filter:blur(8px);
+  }
+  .req-modal-overlay.open { opacity:1; pointer-events:all; }
+  .req-modal {
+    background:var(--surface); border:1px solid rgba(140,196,15,0.35);
+    box-shadow:0 0 80px rgba(140,196,15,0.1);
+    width:min(600px, 96vw); max-height:90vh;
+    display:flex; flex-direction:column;
+    transform:scale(.96); transition:transform .35s;
+    position:relative; overflow:hidden;
+  }
+  .req-modal-overlay.open .req-modal { transform:scale(1); }
+  .req-modal-header { padding:28px 32px 20px; border-bottom:1px solid var(--border-sub); flex-shrink:0; }
+  .req-modal-eyebrow {
+    font-family:var(--cinzel); font-size:.5rem; letter-spacing:.28em;
+    text-transform:uppercase; color:var(--green-lt); display:block; margin-bottom:8px;
+  }
+  .req-modal-title { font-family:var(--serif); font-size:1.8rem; font-weight:300; color:var(--white); line-height:1.2; }
+  .req-modal-sub { font-size:.72rem; color:var(--white-dim); margin-top:6px; line-height:1.6; }
+  .req-modal-close {
+    position:absolute; top:16px; right:20px;
+    background:none; border:none; color:var(--white-dim);
+    font-size:1.2rem; cursor:pointer; transition:color .2s; padding:4px 8px;
+  }
+  .req-modal-close:hover { color:var(--green-lt); }
+  .req-modal-body { overflow-y:auto; padding:24px 32px 32px; flex:1; overscroll-behavior:contain; display:flex; flex-direction:column; gap:20px; }
+  .req-formula-summary {
+    background:var(--surface-2); border:1px solid var(--border);
+    padding:16px 20px; display:flex; flex-direction:column; gap:8px;
+  }
+  .req-summary-label {
+    font-family:var(--cinzel); font-size:.5rem; letter-spacing:.2em;
+    text-transform:uppercase; color:var(--white-dim); margin-bottom:4px;
+  }
+  .req-summary-row {
+    display:flex; align-items:center; gap:8px;
+    font-size:.72rem; padding:4px 0; border-bottom:1px solid var(--border-sub);
+  }
+  .req-summary-row:last-of-type { border-bottom:none; }
+  .req-summary-dot { width:6px; height:6px; border-radius:50%; flex-shrink:0; }
+  .req-summary-name { flex:1; color:var(--white-dim); }
+  .req-summary-slots { color:var(--amber); font-size:.65rem; }
+  .req-summary-pct { color:var(--green-lt); font-weight:500; min-width:36px; text-align:right; }
+  .req-summary-total {
+    display:flex; justify-content:space-between; padding-top:8px;
+    font-size:.72rem; color:var(--white-dim); border-top:1px solid var(--border-sub); margin-top:4px;
+  }
+  .req-summary-total span:last-child { color:var(--green-lt); font-weight:500; }
+  .req-summary-price {
+    display:flex; justify-content:space-between; align-items:center;
+    padding-top:10px;
+  }
+  .req-price-label { font-size:.6rem; letter-spacing:.12em; text-transform:uppercase; color:var(--white-dim); }
+  .req-price-value { font-family:var(--serif); font-size:1.6rem; font-weight:300; color:var(--white); }
+  .req-fields { display:flex; flex-direction:column; gap:10px; }
+  .req-field {
+    background:var(--surface-3); border:1px solid var(--border);
+    color:var(--white); padding:11px 14px;
+    font-family:var(--sans); font-size:.82rem; outline:none;
+    transition:border-color .2s; width:100%;
+  }
+  .req-field::placeholder { color:rgba(255,255,255,.25); }
+  .req-field:focus { border-color:var(--green-lt); }
+  .req-field-row { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+  .req-textarea {
+    background:var(--surface-3); border:1px solid var(--border);
+    color:var(--white); padding:11px 14px;
+    font-family:var(--sans); font-size:.82rem; outline:none;
+    transition:border-color .2s; width:100%;
+    resize:vertical; min-height:80px;
+  }
+  .req-textarea::placeholder { color:rgba(255,255,255,.25); }
+  .req-textarea:focus { border-color:var(--green-lt); }
+  .req-submit-btn {
+    background:var(--green); color:var(--bg);
+    border:none; padding:16px; width:100%;
+    font-family:var(--sans); font-size:.72rem; font-weight:500;
+    letter-spacing:.18em; text-transform:uppercase; cursor:pointer;
+    transition:background .2s, box-shadow .2s;
+  }
+  .req-submit-btn:hover { background:var(--green-lt); box-shadow:0 0 20px rgba(140,196,15,.3); }
+  .req-submit-btn:disabled { background:var(--surface-2); color:var(--white-dim); cursor:default; }
+  .req-note { font-size:.66rem; color:var(--white-dim); text-align:center; letter-spacing:.04em; line-height:1.6; }
+
+  /* MOBILE */
+  /* ═══════════════════════════════════════════════════════════════
+     MOBILE LAYOUT — max-width 768px
+     Desktop layout above is untouched. Everything below is
+     mobile-only. The bottle moves into a sticky bottom drawer
+     so ingredients fill the screen and the bottle stays visible.
+     ═══════════════════════════════════════════════════════════════ */
+  @media(max-width:768px) {
+
+    /* ── Hide the desktop bottle-side entirely on mobile ── */
+    .bottle-side { display:none !important; }
+
+    /* ── Builder main becomes single full-width column ── */
+    .builder-main {
+      margin-left:0;
+      min-height:unset;
+      padding-bottom:72px;
+    }
+    .builder-header { margin-left:0; }
+
+    /* ── Ingredients side fills screen ── */
+    .ingredients-side {
+      padding:20px 16px 20px;
+      border-left:none;
+    }
+
+    /* ── Smaller cards in tighter grid ── */
+    .cards-row {
+      grid-template-columns:repeat(auto-fill, minmax(100px,1fr));
+      gap:8px;
+    }
+    .flip-card { height:150px; }
+    .card-emoji { font-size:2.4rem; margin-bottom:6px; }
+    .card-name { font-size:.82rem; }
+
+    /* ══════════════════════════════════════════
+       MOBILE BOTTOM BAR — always visible
+       ══════════════════════════════════════════ */
+    .mob-bar {
+      position:fixed; bottom:0; left:0; right:0;
+      z-index:500;
+      background:var(--surface);
+      border-top:1px solid var(--border);
+      box-shadow:0 -8px 40px rgba(0,0,0,.6);
+      display:flex; flex-direction:column-reverse;
+    }
+
+    /* Collapsed state — slim bar */
+    .mob-bar-collapsed {
+      display:flex; align-items:center;
+      padding:0 16px; height:64px; gap:14px;
+      cursor:pointer;
+    }
+
+    /* Mini fill indicator */
+    .mob-fill-track {
+      flex:1; height:4px; background:var(--surface-3);
+      border-radius:2px; overflow:hidden;
+    }
+    .mob-fill-bar {
+      height:100%; width:0%; background:var(--green-lt);
+      border-radius:2px;
+      transition:width .5s ease, background .5s ease;
+      box-shadow:0 0 8px rgba(140,196,15,.5);
+    }
+
+    .mob-bar-info {
+      display:flex; flex-direction:column; align-items:flex-end; gap:2px;
+      flex-shrink:0;
+    }
+    .mob-bar-count {
+      font-size:.62rem; letter-spacing:.1em; text-transform:uppercase;
+      color:var(--white-dim);
+    }
+    .mob-bar-price {
+      font-family:var(--serif); font-size:1.05rem; color:var(--white);
+      line-height:1;
+    }
+    .mob-bar-arrow {
+      font-size:.85rem; color:var(--green-lt);
+      transition:transform .35s ease; flex-shrink:0;
+    }
+    .mob-bar.open .mob-bar-arrow { transform:rotate(180deg); }
+
+    /* ══════════════════════════════════════════
+       MOBILE PANEL — expands up from bar
+       ══════════════════════════════════════════ */
+    .mob-panel {
+      overflow:hidden;
+      max-height:0;
+      transition:max-height .4s cubic-bezier(.4,0,.2,1);
+      /* Panel grows upward because mob-bar is column-reverse */
+    }
+    .mob-bar.open .mob-panel {
+      max-height:80vh;
+      overflow-y:auto;
+      overscroll-behavior:contain;
+    }
+
+    .mob-panel-inner {
+      padding:20px 20px 8px;
+      display:flex; flex-direction:column; align-items:center; gap:16px;
+    }
+    .mob-panel-close {
+      position:absolute; top:12px; right:16px;
+      background:none; border:none; color:var(--white-dim);
+      font-size:1.2rem; cursor:pointer; z-index:10;
+      transition:color .2s; line-height:1; padding:4px 8px;
+    }
+    .mob-panel-close:hover { color:var(--white); }
+    .mob-panel { position:relative; }
+
+    /* Bottle in panel */
+    .mob-bottle-wrap {
+      position:relative; width:120px; height:190px;
+      display:flex; align-items:center; justify-content:center;
+    }
+    .mob-bottle-glow {
+      position:absolute; inset:-16px; border-radius:50%;
+      background:radial-gradient(ellipse at center, var(--mob-glow, rgba(140,196,15,0.12)) 0%, transparent 70%);
+      pointer-events:none; transition:background .8s ease;
+    }
+
+    /* Formula list in panel */
+    .mob-formula-wrap { width:100%; }
+    .mob-formula-title {
+      font-family:var(--cinzel); font-size:.52rem; letter-spacing:.2em;
+      text-transform:uppercase; color:var(--white-dim);
+      padding-bottom:8px; border-bottom:1px solid var(--border-sub);
+      margin-bottom:10px;
+    }
+    .mob-formula-empty {
+      font-size:.75rem; color:rgba(230,236,231,.25);
+      text-align:center; padding:12px 0;
+      font-style:italic; font-family:var(--serif);
+    }
+    .mob-formula-item {
+      display:flex; align-items:center; gap:8px;
+      padding:6px 0; border-bottom:1px solid var(--border-sub);
+      font-size:.7rem;
+    }
+    .mob-formula-dot { width:6px; height:6px; border-radius:50%; flex-shrink:0; }
+    .mob-formula-name { flex:1; color:var(--white-dim); }
+    .mob-formula-pct { color:var(--green-lt); font-weight:500; min-width:30px; text-align:right; }
+    .mob-formula-total {
+      display:flex; justify-content:space-between;
+      padding:8px 0 0; font-size:.7rem; color:var(--white-dim);
+    }
+    .mob-formula-total span:last-child { color:var(--green-lt); font-weight:500; }
+
+    /* Price in panel */
+    .mob-price-block {
+      width:100%; padding:14px; background:var(--surface-2);
+      border:1px solid var(--border); text-align:center;
+    }
+    .mob-price-label {
+      font-size:.55rem; letter-spacing:.16em; text-transform:uppercase;
+      color:var(--white-dim); margin-bottom:4px; display:block;
+    }
+    .mob-price-value {
+      font-family:var(--serif); font-size:1.8rem; font-weight:300; color:var(--white);
+    }
+    .mob-price-size { font-size:.62rem; color:var(--white-dim); margin-top:3px; }
+
+    /* Request button in panel */
+    .mob-request-btn {
+      width:100%; padding:16px;
+      background:var(--green); color:var(--bg);
+      border:none; cursor:pointer;
+      font-family:var(--sans); font-size:.72rem;
+      letter-spacing:.15em; text-transform:uppercase; font-weight:500;
+      transition:background .2s, box-shadow .2s;
+      animation:btnGlow 4s ease-in-out infinite;
+    }
+    .mob-request-btn:hover { background:var(--green-lt); }
+    .mob-request-btn:disabled {
+      background:var(--surface-3); color:var(--white-dim);
+      animation:none; cursor:default;
+    }
+    .mob-clear-link {
+      font-size:.62rem; color:rgba(230,236,231,.25);
+      cursor:pointer; text-decoration:underline;
+      background:none; border:none; margin-bottom:4px;
+    }
+    .mob-clear-link:hover { color:var(--white-dim); }
+
+    /* Pct bar in header — hide on mobile, redundant with bottom bar */
+    .concentrate-bar { display:none; }
+
+  /* ── INGREDIENT CHIP STRIP ── */
+    .mob-chip-strip-wrap {
+      width:100%; border-top:1px solid var(--border-sub);
+      padding-top:14px; margin-top:4px;
+    }
+    .mob-chip-strip-label {
+      font-family:var(--cinzel); font-size:.5rem; letter-spacing:.22em;
+      text-transform:uppercase; color:var(--white-dim);
+      margin-bottom:10px; display:block;
+    }
+    .mob-chip-strip {
+      display:flex; gap:8px; overflow-x:auto;
+      padding-bottom:10px; scroll-snap-type:x mandatory;
+      -webkit-overflow-scrolling:touch;
+    }
+    .mob-chip-strip::-webkit-scrollbar { display:none; }
+    .mob-chip {
+      flex-shrink:0; scroll-snap-align:start;
+      display:flex; align-items:center; gap:6px;
+      padding:6px 10px;
+      border:1px solid var(--border);
+      background:var(--surface-3);
+      font-family:var(--sans); font-size:.62rem;
+      letter-spacing:.06em; text-transform:uppercase;
+      color:var(--white-dim); cursor:pointer;
+      transition:border-color .2s, background .2s, color .2s;
+      white-space:nowrap;
+    }
+    .mob-chip.added {
+      border-color:var(--green); background:var(--green-pale); color:var(--green-lt);
+    }
+    .mob-chip.rare { border-color:rgba(212,160,23,.4); color:var(--amber); }
+    .mob-chip.rare.added { border-color:var(--green); background:var(--green-pale); color:var(--green-lt); }
+    .mob-chip-emoji { font-size:.85rem; line-height:1; }
+    .mob-chip-btn {
+      font-size:.7rem; color:var(--green-lt); font-weight:600;
+      background:none; border:none; cursor:pointer; padding:0; line-height:1;
+    }
+    .mob-chip.added .mob-chip-btn { color:rgba(220,80,80,.7); }
+
+    /* Pct bar in header — hide on mobile, redundant with bottom bar */
+    .concentrate-bar { display:none; }
+  }
+</style>
+</head>
+<body>
+
+<header class="builder-header">
+  <div style="text-align:center;"><span class="eyebrow">Profound Naturals</span></div>
+  <h1>Build Your <em>Signature</em> Scent</h1>
+  <p>Select your botanicals, read their profiles, and compose a bespoke 50ml eau de parfum. Concentrates are capped at 30% - the rest is pure perfumers alcohol.</p>
+  <div class="concentrate-bar">
+    <span>Concentrate total</span>
+    <span class="pct" id="totalPct">0%</span>
+    <span class="limit">/ 30% max</span>
+  </div>
+</header>
+
+  <div class="bottle-side">
+    <div class="bottle-eyebrow">Your formula</div>
+    <div class="bottle-wrap">
+      <div class="bottle-glow" id="bottleGlow"></div>
+      <svg width="200" height="290" viewBox="0 0 140 230" id="bottleSvg" style="position:relative;z-index:1;">
+        <defs>
+          <clipPath id="liq">
+            <rect id="liqRect" x="24" y="230" width="92" height="0"/>
+          </clipPath>
+          <linearGradient id="glassShine" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0%" stop-color="white" stop-opacity="0.06"/>
+            <stop offset="30%" stop-color="white" stop-opacity="0.12"/>
+            <stop offset="100%" stop-color="white" stop-opacity="0"/>
+          </linearGradient>
+          <linearGradient id="capGrad" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#2a3a2a"/>
+            <stop offset="100%" stop-color="#141d15"/>
+          </linearGradient>
+        </defs>
+        <rect id="liqFill" x="24" y="65" width="92" height="155" rx="6"
+              fill="#8cc40f" opacity="0.25" clip-path="url(#liq)"
+              style="transition:fill 0.8s ease;"/>
+        <rect x="24" y="65" width="92" height="155" rx="6"
+              fill="rgba(255,255,255,0.03)" stroke="rgba(230,236,231,0.25)" stroke-width="1"/>
+        <rect x="24" y="65" width="92" height="155" rx="6" fill="url(#glassShine)"/>
+        <line x1="33" y1="72" x2="33" y2="210" stroke="rgba(255,255,255,0.1)" stroke-width="1.5" stroke-linecap="round"/>
+        <path d="M24 65 Q24 55 38 50 L102 50 Q116 55 116 65" fill="rgba(255,255,255,0.02)" stroke="rgba(230,236,231,0.2)" stroke-width="1" fill-rule="nonzero"/>
+        <rect x="52" y="30" width="36" height="22" rx="2" fill="rgba(255,255,255,0.03)" stroke="rgba(230,236,231,0.2)" stroke-width="1"/>
+        <rect x="48" y="10" width="44" height="22" rx="3" fill="url(#capGrad)" stroke="rgba(140,196,15,0.3)" stroke-width="1"/>
+        <line x1="52" y1="16" x2="88" y2="16" stroke="rgba(140,196,15,0.2)" stroke-width="0.5"/>
+        <line x1="52" y1="26" x2="88" y2="26" stroke="rgba(140,196,15,0.2)" stroke-width="0.5"/>
+        <!-- Alcohol fill — sits above concentrate, animates in on confirmation -->
+        <rect id="alcoholRect" x="24" y="65" width="92" height="0" rx="6"
+              fill="rgba(200,230,255,0.12)" style="transition:all 1.8s cubic-bezier(0.4,0,0.2,1);"/>
+        <text id="emptyLabel" x="70" y="148" text-anchor="middle"
+              font-family="'Cormorant Garamond', serif" font-size="11" fill="rgba(230,236,231,0.2)"
+              font-style="italic">empty</text>
+        <text id="fillLabel" x="70" y="148" text-anchor="middle"
+              font-family="'Jost', sans-serif" font-size="11" font-weight="500"
+              fill="rgba(230,236,231,0)" style="transition:fill 0.4s;"></text>
+      </svg>
+    </div>
+    <div class="formula-section">
+      <div class="formula-title">Composition</div>
+      <div id="formulaBody"><div class="formula-empty">Your accord awaits</div></div>
+      <div class="formula-pct-total" id="totalRow" style="display:none">
+        <span>Total concentrate</span>
+        <span id="totalPctBottom">0%</span>
+      </div>
+    </div>
+    <div class="price-block" id="priceBlock" style="display:none">
+      <span class="price-label">50ml Eau de Parfum</span>
+      <div class="price-value" id="priceValue">$0.00</div>
+    </div>
+    <button class="request-btn" id="requestBtn" disabled onclick="requestFormula()">
+      Select ingredients to begin
+    </button>
+    <button class="clear-link" onclick="clearAll()">clear formula</button>
+  </div>
+
+<div class="builder-main">
+  <div class="ingredients-side" id="ingredientsSide"></div>
+</div>
+
+<script>
+const INGREDIENTS = [
+  // TOP NOTES - alphabetical
+  {
+    id:'bergamot', name:'Bergamot', note:'Top', group:'top',
+    emoji:'🍋', color:'#c9c02a',
+    desc:'Bright citrus-floral, cold-pressed from Italian bergamot rind. Uplifting and balancing - a cornerstone of fine perfumery.',
+    warn:'⚠️ Phototoxic - contains furanocoumarins. Formulated in compliance with TGA and IFRA guidelines.',
+    cost:2.40
+  },
+  {
+    id:'black-spruce', name:'Black Spruce', note:'Top', group:'top',
+    emoji:'🌲', color:'#2a5a2a',
+    desc:'Clean, forest-fresh and instantly invigorating. Steam-distilled from Canadian black spruce - crisp, coniferous and bright.',
+    warn:null, cost:2.20
+  },
+  {
+    id:'cinnamon', name:'Cinnamon Bark', note:'Top · Heart', group:'top',
+    emoji:'🟤', color:'#a05a20',
+    desc:'Warm, spiced and sweetly enveloping. Adds immediate richness and depth - a natural fixative that anchors lighter notes.',
+    warn:'⚠️ Subject to TGA and IFRA regulatory limits for leave-on cosmetic products. Profound Naturals formulates in full compliance with all applicable guidelines.',
+    cost:2.60
+  },
+  {
+    id:'davana', name:'Davana', note:'Top · Heart', group:'top',
+    emoji:'🟤', color:'#c97a2a',
+    desc:'Boozy, fruity and animalic - davana shifts beautifully on skin, smelling different on every person who wears it.',
+    warn:null, cost:3.20
+  },
+  {
+    id:'galbanum', name:'Galbanum', note:'Top', group:'top',
+    emoji:'🟢', color:'#4a8c2a', rare:true,
+    desc:'Sharply green, resinous and mysterious. Used in perfumery since ancient Egypt - one of the oldest aromatic ingredients known.',
+    warn:null, cost:2.90
+  },
+  // HEART NOTES - alphabetical
+  {
+    id:'blue-cypress', name:'Blue Cypress', note:'Heart · Base', group:'heart',
+    emoji:'🔵', color:'#2a6bc9',
+    desc:'Australian native. Smoky, earthy and ancient - a deep blue oil steam-distilled from the Callitris tree of the Northern Territory.',
+    warn:null, cost:4.80
+  },
+  {
+    id:'jasmine', name:'Jasmine Absolute', note:'Heart', group:'heart',
+    emoji:'🌸', color:'#c97ab0', rare:true,
+    desc:'Rich, heady and intoxicating. One of the most prized florals in perfumery - complex, indolic and deeply feminine.',
+    warn:'⚠️ Regulated sensitiser. Profound Naturals formulates in full compliance with current TGA and IFRA standards.',
+    cost:8.50
+  },
+  {
+    id:'myrrh', name:'Myrrh', note:'Heart · Base', group:'heart',
+    emoji:'💧', color:'#8a6040',
+    desc:'Smoky, sacred and earthy. Used in ancient ritual and embalming - this is one of the oldest aromatic resins in human history.',
+    warn:null, cost:3.80
+  },
+  // BASE NOTES - alphabetical
+  {
+    id:'amber', name:'Baltic Amber', note:'Base', group:'base',
+    emoji:'🟡', color:'#c9a02a', rare:true,
+    desc:'40-70 million year old fossilised resin. Warm, earthy and resinous with subtle woody and smoky undertones.',
+    warn:null, cost:6.20
+  },
+  {
+    id:'labdanum', name:'Labdanum', note:'Base', group:'base',
+    emoji:'🟫', color:'#6b4c2a',
+    desc:'Dark, leathery, cistus-like. A warm, balsamic resinoid from the rock rose shrub - the original amber note in perfumery.',
+    warn:null, cost:3.50
+  },
+  {
+    id:'oakmoss', name:'Oakmoss', note:'Base', group:'base',
+    emoji:'🌿', color:'#4a6a3a',
+    desc:'Mossy, earthy, forest-floor. A classic chypre base note - deeply naturalistic with an unmistakable damp woodland quality. IFRA and TGA limit oakmoss to 0.1% of the finished formula - a little goes a very long way.',
+    warn:'⚠️ Subject to TGA and IFRA regulatory concentration limits. Profound Naturals formulates in full compliance with all applicable guidelines.',
+    maxPct: 0.33,
+    cost:4.10
+  },
+  {
+    id:'sandalwood', name:'Sandalwood', note:'Base', group:'base',
+    emoji:'🪵', color:'#a07040', rare:true,
+    desc:'Sacred and precious. Creamy, woody and warm with a soft sweetness that lingers on skin for hours.',
+    warn:null, cost:5.20
+  },
+  // ── NEW INGREDIENTS ──
+  // TOP NOTES
+  {
+    id:'ginger', name:'Ginger', note:'Top · Heart', group:'top',
+    emoji:'🫚', color:'#c9900a',
+    desc:'Warm, spicy and energising with a fresh, zesty edge - grounding yet invigorating with a rich, peppery warmth.',
+    warn:null, cost:2.80
+  },
+  {
+    id:'sweet-orange', name:'Sweet Orange', note:'Top', group:'top',
+    emoji:'🍊', color:'#e87020',
+    desc:'Warm, round and effortlessly cheerful. Cold-pressed from the peel of Citrus sinensis - rich, sweet and fruity.',
+    warn:'⚠️ Phototoxic - cold-pressed citrus. Formulated in compliance with TGA and IFRA guidelines.',
+    cost:1.60
+  },
+  {
+    id:'scots-pine', name:'Scots Pine', note:'Top · Heart', group:'top',
+    emoji:'🌲', color:'#2a6a2a',
+    desc:'Crisp, resinous and deeply forested. Steam-distilled from the needles of Pinus sylvestris - clean, sharp and invigorating.',
+    warn:null, cost:2.20
+  },
+  {
+    id:'clove-bud', name:'Clove Bud', note:'Top · Heart', group:'top',
+    emoji:'🌰', color:'#8a4020',
+    desc:'Intensely warm, spicy and deeply aromatic. One of the most powerful botanicals in natural perfumery - a little goes a very long way.',
+    warn:'⚠️ Subject to TGA and IFRA regulatory limits due to high eugenol content. Profound Naturals formulates in full compliance with all applicable guidelines.',
+    cost:1.80
+  },
+  // HEART NOTES
+  {
+    id:'clary-sage', name:'Clary Sage', note:'Heart · Base', group:'heart',
+    emoji:'🌿', color:'#6a8a3a',
+    desc:'Herbaceous, earthy and slightly musky with a warm, hay-like sweetness. Deeply relaxing and balancing - a classic in natural perfumery.',
+    warn:null, cost:2.60
+  },
+  {
+    id:'kunzea', name:'Kunzea', note:'Top · Heart', group:'heart',
+    emoji:'🌿', color:'#4a8a5a',
+    desc:'Fresh, earthy and medicinal with a clean, slightly woody edge. An Australian native from the coastal heathlands of south-eastern Australia. 🌿 Australian Native - icon to be updated.',
+    warn:null, cost:3.20
+  },
+  {
+    id:'nerolina', name:'Nerolina', note:'Top · Heart', group:'heart',
+    emoji:'🌿', color:'#5a9a6a',
+    desc:'Soft, floral and gently woody - a bridge between neroli and tea tree. This Australian native has a calm, clean sweetness that belies its therapeutic depth. 🌿 Australian Native - icon to be updated.',
+    warn:null, cost:3.00
+  },
+  {
+    id:'nutmeg', name:'Nutmeg', note:'Top · Heart', group:'heart',
+    emoji:'🌰', color:'#a07040',
+    desc:'Warm, spicy and sweetly woody with a rich, slightly camphoraceous depth. A classic perfumery spice note - familiar yet sophisticated.',
+    warn:null, cost:2.40
+  },
+  {
+    id:'rose-geranium', name:'Rose Geranium', note:'Heart', group:'heart',
+    emoji:'🌸', color:'#c06080',
+    desc:'Lush, rosy and softly green - a more complex and earthy alternative to rose absolute. Bridges the gap between florals and herbaceous.',
+    warn:null, cost:3.00
+  },
+  // BASE NOTES
+  {
+    id:'agarwood', name:'Agarwood (Indian Oud)', note:'Base', group:'base',
+    emoji:'🟤', color:'#6a3010', rare:true,
+    desc:'One of the most precious aromatic materials on earth. Dark, complex, woody and animalic with a smoky, balsamic depth that evolves continuously on skin.',
+    warn:null, cost:12.00
+  },
+  {
+    id:'ambrette', name:'Ambrette Seed', note:'Heart · Base', group:'base',
+    emoji:'🤍', color:'#c0a080', rare:true,
+    desc:'Velvety, musky and softly pear-like - one of the finest natural musk alternatives available. Warm and sensual, lingers beautifully on skin.',
+    warn:null, cost:6.50
+  },
+  {
+    id:'cocoa', name:'Cocoa', note:'Base', group:'base',
+    emoji:'🍫', color:'#6a3820', rare:true,
+    desc:'Rich, dark and indulgent. A certified organic cocoa absolute, clean-extracted and free from synthetic processes - deep, roasted and sweetly bittersweet.',
+    warn:null, cost:5.50
+  },
+  {
+    id:'ho-wood', name:'Ho Wood', note:'Heart · Base', group:'base',
+    emoji:'🪵', color:'#8a6848',
+    desc:'Soft, woody and quietly rosy with a clean freshness. A sustainable, high-linalool alternative to rosewood - grounding, calming and versatile.',
+    warn:null, cost:2.60
+  },
+  // ── BATCH 3 NEW ──
+  { id:'may-chang', name:'May Chang', note:'Top', group:'top', emoji:'🍋', color:'#c0c020', desc:'Bright, lemony and intensely fresh with a clean, almost lemon hard candy-like sweetness. More complex and fruity-floral than a straight citrus - a favourite in natural perfumery.', warn:null, cost:2.00 },
+  { id:'pink-grapefruit', name:'Pink Grapefruit', note:'Top', group:'top', emoji:'🍊', color:'#e8904a', desc:'Bright, juicy and uplifting. Cold-pressed from the peel of Citrus paradisi - an instant mood-lifter with a clean, slightly tart sweetness.', warn:'⚠️ Phototoxic - cold-pressed citrus. Formulated in compliance with TGA and IFRA guidelines.', cost:1.80 },
+  { id:'lime-distilled', name:'Lime Distilled', note:'Top', group:'top', emoji:'🍋', color:'#a0c020', desc:'Crisp, clean and vibrantly citrusy. Steam distillation gives this lime a brighter, more transparent character - refreshing and sharp.', warn:null, cost:1.80 },
+  { id:'ylang-1st', name:'Ylang Ylang 1st', note:'Top', group:'top', emoji:'🌼', color:'#c0a830', desc:'The boldest expression of ylang ylang - sharp, heady and euphoric with an almost narcotic sweetness. The most volatile and intensely floral fraction.', warn:null, cost:2.80 },
+  { id:'euca-citriodora', name:'Euca Citriodora', note:'Top', group:'top', emoji:'🌿', color:'#8ab020', desc:'An Australian native with a bright, lemon-fresh character and a distinctly airy, kerosene-like undertone. Widely used as a natural insect repellent. 🌿 Australian Native - icon to be updated.', warn:null, cost:2.00 },
+  { id:'cypress', name:'Cypress', note:'Heart · Base', group:'heart', emoji:'🌲', color:'#2a6a3a', desc:'Fresh, green and woody with a clean, resinous warmth. A Mediterranean classic with a crisp, forest-like character that grounds and clarifies.', warn:null, cost:2.40 },
+  { id:'geranium-bourbon', name:'Geranium Bourbon', note:'Heart', group:'heart', emoji:'🌸', color:'#c06080', desc:'The finest expression of geranium - rich, rosy and green with a complexity that far exceeds common geranium. A backbone ingredient in classical and natural perfumery.', warn:null, cost:3.20 },
+  { id:'rosemary', name:'Rosemary (Spanish)', note:'Top · Heart', group:'heart', emoji:'🌿', color:'#5a8a3a', desc:'Sharp, herbaceous and invigorating. Spanish rosemary has a particularly crisp, camphorous character with a resinous warmth that blends beautifully.', warn:null, cost:2.00 },
+  { id:'ylang-3rd', name:'Ylang Ylang 3rd', note:'Heart', group:'heart', emoji:'🌼', color:'#c0a020', desc:'Softer, rounder and more balsamic than the first fraction. Deeper and more creamy with a rubbery, slightly earthy warmth - the most versatile fraction for heart note blending.', warn:null, cost:2.40 },
+  { id:'ylang-complete', name:'Ylang Ylang Complete', note:'Heart · Base', group:'heart', emoji:'🌼', color:'#b89820', desc:'The unfractionated, full distillation of Cananga odorata. Balanced, rich and complex - bright floral top notes giving way to a creamy, balsamic depth. The most naturalistic representation of the living flower.', warn:null, cost:2.60 },
+  { id:'frangipani', name:'Frangipani', note:'Heart', group:'heart', emoji:'🌺', color:'#c070a0', rare:true, desc:'Exotic, tropical and deeply floral - carries the full warmth of the Plumeria flower with a creamy, slightly spiced sweetness. Evocative and sensual. Organic, hexane-free extraction.', warn:null, cost:8.00 },
+  { id:'magnolia', name:'Magnolia (White Champaca)', note:'Heart', group:'heart', emoji:'🌸', color:'#c0a0b0', rare:true, desc:'Heady, luminous and intoxicatingly floral with a warm, tea-like creaminess. One of the most revered florals in Asian perfumery. Organic, hexane-free extraction.', warn:null, cost:9.00 },
+  { id:'osmanthus', name:'Osmanthus', note:'Heart', group:'heart', emoji:'🌸', color:'#c09040', rare:true, desc:'Delicate, peachy and apricot-like with a distinctive dark cherry undertone. One of the most prized florals in Chinese perfumery. Organic, hexane-free extraction.', warn:null, cost:7.00 },
+  { id:'tuberose', name:'Tuberose', note:'Heart', group:'heart', emoji:'🤍', color:'#d0b0c0', rare:true, desc:'One of the most intensely floral botanicals in natural perfumery - rich, creamy and narcotic with a heady, waxy sweetness. A statement ingredient. Organic, hexane-free extraction.', warn:null, cost:11.00 },
+  { id:'euca-blue-mallee', name:'Euca Blue Mallee', note:'Top · Heart', group:'heart', emoji:'🌿', color:'#2a7a4a', desc:'An Australian native with a high 1,8-cineole content - sharper and more penetrating than Blue Gum. Clean, medicinal intensity. 🌿 Australian Native - icon to be updated.', warn:null, cost:2.00 },
+  { id:'tonka', name:'Tonka', note:'Base', group:'base', emoji:'🤎', color:'#a07840', rare:true, desc:'Warm, sweet and richly coumarinic with hints of almond, hay and tobacco. Tenacious and comforting - anchors sweet accords with an almost edible warmth. Organic, hexane-free extraction.', warn:null, cost:5.00 },
+];
+
+const GROUPS = [
+  { key:'top',   label:'Top Notes',   sub:'First impression - volatile, fresh, immediate' },
+  { key:'heart', label:'Heart Notes', sub:'The soul of the fragrance - develops after 10-30 minutes' },
+  { key:'base',  label:'Base Notes',  sub:'The foundation - rich, lasting, skin-warming' },
+];
+
+const BASE_PRICE = 48.00;
+const PRICE_PER_UNIT = 2.20;
+let formula = {};
+let flippedCard = null;
+let alcoholFilled = false; // tracks whether user confirmed and alcohol animation has run
+
+function renderIngredients() {
+  const side = document.getElementById('ingredientsSide');
+  side.innerHTML = GROUPS.map(g => {
+    const ings = INGREDIENTS.filter(i => i.group === g.key);
+    return `
+      <div class="note-section">
+        <div class="note-label">${g.label}</div>
+        <div class="cards-row">
+          ${ings.map(ing => cardHTML(ing)).join('')}
+        </div>
+      </div>`;
+  }).join('');
+}
+
+function cardHTML(ing) {
+  const slots = formula[ing.id] || 0;
+  const inFormula = slots > 0;
+  const rareClass = ing.rare ? 'rare-card' : '';
+  const totalSlots = Object.keys(formula).reduce((s, k) => s + (formula[k] || 0), 0);
+  const atGlobalMax = totalSlots >= 8;
+  const atIngMax = slots >= 3;
+  const warnSection = ing.warn ? `
+    <button class="warn-toggle" id="warn-toggle-${ing.id}" onclick="event.stopPropagation(); toggleWarn('${ing.id}')">
+      <span>ⓘ Regulatory Notice</span>
+      <span class="warn-chevron">▾</span>
+    </button>
+    <div class="warn-drawer" id="warn-drawer-${ing.id}">
+      <div class="warn-drawer-inner">${ing.warn}</div>
+    </div>` : '';
+  const actionHTML = inFormula ? `
+    <div class="slot-label">${slots === 1 ? '1 slot' : slots + ' slots'} · ${(30 / totalSlots * slots).toFixed(1)}%</div>
+    <div class="slot-stepper">
+      <button type="button" class="slot-btn minus" onclick="event.stopPropagation(); decrementSlot('${ing.id}')">−</button>
+      <span class="slot-count" id="slot-count-${ing.id}">${slots}</span>
+      <button type="button" class="slot-btn plus" id="slot-plus-${ing.id}" onclick="event.stopPropagation(); incrementSlot('${ing.id}')" ${atGlobalMax || atIngMax ? 'disabled' : ''}>+</button>
+    </div>
+    <button class="add-btn remove" onclick="event.stopPropagation(); removeIngredient('${ing.id}')">Remove</button>
+  ` : `
+    <button class="add-btn" onclick="event.stopPropagation(); addIngredient('${ing.id}')" ${atGlobalMax ? 'disabled' : ''}>+ Add to Bottle</button>
+  `;
+  return `
+    <div class="flip-card ${inFormula ? 'added' : ''} ${ing.warn ? 'warning' : ''} ${rareClass}" id="card-${ing.id}" onclick="flipCard('${ing.id}')">
+      <div class="flip-inner">
+        <div class="flip-front">
+          <div class="card-emoji">${ing.emoji}</div>
+          <div class="card-name">${ing.name}</div>
+          <div class="card-note">${ing.note}</div>
+          ${ing.rare ? '<div class="card-badge-rare" onclick="event.stopPropagation(); event.preventDefault(); openRareModal();">Rare</div>' : ''}
+          ${ing.warn ? '<div class="card-badge-warn">Regulated</div>' : ''}
+        </div>
+        <div class="flip-back">
+          <div class="back-name">${ing.name}</div>
+          <div class="back-note">${ing.note}</div>
+          <div class="back-desc">${ing.desc}</div>
+          ${warnSection}
+          <div class="card-action" id="card-action-${ing.id}">
+            ${actionHTML}
+          </div>
+        </div>
+      </div>
+    </div>`;
+}
+
+function toggleWarn(id) {
+  const toggle = document.getElementById('warn-toggle-' + id);
+  const drawer = document.getElementById('warn-drawer-' + id);
+  toggle.classList.toggle('open');
+  drawer.classList.toggle('open');
+}
+
+function flipCard(id) {
+  const card = document.getElementById('card-' + id);
+  if (flippedCard && flippedCard !== card) {
+    flippedCard.classList.remove('flipped');
+    closeWarnDrawer(flippedCard.id.replace('card-', ''));
+  }
+  card.classList.toggle('flipped');
+  if (!card.classList.contains('flipped')) {
+    closeWarnDrawer(id);
+  }
+  flippedCard = card.classList.contains('flipped') ? card : null;
+}
+
+function closeWarnDrawer(id) {
+  const toggle = document.getElementById('warn-toggle-' + id);
+  const drawer = document.getElementById('warn-drawer-' + id);
+  if (toggle) toggle.classList.remove('open');
+  if (drawer) drawer.classList.remove('open');
+}
+
+function totalSlots() {
+  return Object.keys(formula).reduce((s, k) => s + (formula[k] || 0), 0);
+}
+
+function refreshCardAction(id) {
+  const el = document.getElementById('card-action-' + id);
+  if (!el) return;
+  const ing = INGREDIENTS.find(i => i.id === id);
+  if (!ing) return;
+  const slots = formula[id] || 0;
+  const ts = totalSlots();
+  const atGlobalMax = ts >= 8;
+  const atIngMax = slots >= 3;
+  if (slots > 0) {
+    const pct = (30 / ts * slots).toFixed(1);
+    el.innerHTML = `
+      <div class="slot-label">${slots === 1 ? '1 slot' : slots + ' slots'} · ${pct}%</div>
+      <div class="slot-stepper">
+        <button type="button" class="slot-btn minus" onclick="event.stopPropagation(); decrementSlot('${id}')">−</button>
+        <span class="slot-count" id="slot-count-${id}">${slots}</span>
+        <button type="button" class="slot-btn plus" id="slot-plus-${id}" onclick="event.stopPropagation(); incrementSlot('${id}')" ${atGlobalMax || atIngMax ? 'disabled' : ''}>+</button>
+      </div>
+      <button class="add-btn remove" onclick="event.stopPropagation(); removeIngredient('${id}')">Remove</button>`;
+  } else {
+    el.innerHTML = `<button class="add-btn" onclick="event.stopPropagation(); addIngredient('${id}')" ${atGlobalMax ? 'disabled' : ''}>+ Add to Bottle</button>`;
+  }
+  // Refresh all other cards' add buttons disabled state
+  Object.keys(formula).forEach(k => {
+    if (k === id) return;
+    const otherEl = document.getElementById('card-action-' + k);
+    if (!otherEl) return;
+    const plusBtn = otherEl.querySelector('.slot-btn.plus');
+    if (plusBtn) plusBtn.disabled = totalSlots() >= 8 || (formula[k] || 0) >= 3;
+    const addBtn = otherEl.querySelector('.add-btn:not(.remove)');
+    if (addBtn) addBtn.disabled = totalSlots() >= 8;
+  });
+  // Also refresh non-formula cards
+  INGREDIENTS.forEach(i => {
+    if (formula[i.id]) return;
+    const a = document.getElementById('card-action-' + i.id);
+    if (!a) return;
+    const btn = a.querySelector('.add-btn');
+    if (btn) btn.disabled = totalSlots() >= 8;
+  });
+}
+
+function flyParticle(id, card) {
+  const ing = INGREDIENTS.find(i => i.id === id);
+  const isMob = window.innerWidth <= 768;
+  const bottleEl = document.getElementById(isMob ? 'mobBottleSvg' : 'bottleSvg');
+  const bottleRect = bottleEl ? bottleEl.getBoundingClientRect() : null;
+  const barEl = isMob ? document.getElementById('mobBar') : null;
+  const targetRect = (isMob && bottleRect && bottleRect.width === 0)
+    ? (barEl ? barEl.getBoundingClientRect() : null) : bottleRect;
+  const cardRect = card.getBoundingClientRect();
+  const bCx = targetRect ? targetRect.left + targetRect.width / 2 : cardRect.left;
+  const bCy = targetRect ? targetRect.top + targetRect.height * 0.4 : cardRect.top;
+  const fly = document.createElement('div');
+  fly.className = 'fly-particle';
+  fly.textContent = ing.emoji;
+  fly.style.cssText = `left:${cardRect.left + cardRect.width/2 - 10}px; top:${cardRect.top + cardRect.height/2 - 10}px; transition:none;`;
+  document.body.appendChild(fly);
+  requestAnimationFrame(() => requestAnimationFrame(() => {
+    fly.style.cssText += `transition:all 0.55s cubic-bezier(0.4,0,0.2,1); left:${bCx-10}px; top:${bCy-10}px; opacity:0; transform:scale(0.15);`;
+  }));
+  setTimeout(() => fly.remove(), 580);
+}
+
+function addIngredient(id) {
+  if (totalSlots() >= 8) return;
+  const card = document.getElementById('card-' + id);
+  flyParticle(id, card);
+  setTimeout(() => {
+    formula[id] = 1;
+    card.classList.add('added');
+    card.classList.remove('flipped');
+    flippedCard = null;
+    updateAll();
+    refreshCardAction(id);
+    // Auto-open mobile panel on first ingredient
+    const bar = document.getElementById('mobBar');
+    if (bar && Object.keys(formula).length === 1 && !bar.classList.contains('open')) {
+      bar.classList.add('open');
+    }
+  }, 560);
+}
+
+function removeIngredient(id) {
+  if (!formula[id]) return;
+  alcoholFilled = false;
+  capDismissed = false;
+  const alc = document.getElementById('alcoholRect');
+  if (alc) { alc.setAttribute('height','0'); }
+  const mobAlc = document.getElementById('mobAlcoholRect');
+  if (mobAlc) { mobAlc.setAttribute('height','0'); }
+  delete formula[id];
+  const card = document.getElementById('card-' + id);
+  if (card) { card.classList.remove('added', 'flipped'); flippedCard = null; }
+  updateAll();
+  refreshCardAction(id);
+}
+
+function incrementSlot(id) {
+  if (!formula[id] || formula[id] >= 3 || totalSlots() >= 8) return;
+  formula[id]++;
+  updateAll();
+  refreshCardAction(id);
+}
+
+function decrementSlot(id) {
+  if (!formula[id]) return;
+  if (formula[id] <= 1) { removeIngredient(id); return; }
+  formula[id]--;
+  updateAll();
+  refreshCardAction(id);
+}
+
+// Keep toggleIngredient for mobile chip strip compatibility
+function toggleIngredient(id) {
+  if (formula[id]) { removeIngredient(id); } else { addIngredient(id); }
+}
+
+function updateAll() {
+  const keys = Object.keys(formula);
+  const count = keys.length;
+  const ts = totalSlots();
+
+  // Option A: always 30% concentrate, distributed by slot count
+  // Each slot = 30 / totalSlots %. More slots on one ingredient = higher percentage.
+  const pctMap = {};
+  if (ts > 0) {
+    const pctPerSlot = 30 / ts;
+    keys.forEach(id => {
+      pctMap[id] = Math.round(pctPerSlot * formula[id] * 10) / 10;
+    });
+  }
+  const totalPct = ts > 0 ? 30 : 0;
+
+  const isOverflow = false; // always 30% with Option A
+  const isMaxed = ts >= 8;
+
+  document.getElementById('totalPct').textContent = ts > 0 ? '30%' : '0%';
+  document.getElementById('totalPctBottom').textContent = ts > 0 ? '30%' : '0%';
+  document.getElementById('totalRow').style.display = count > 0 ? 'flex' : 'none';
+
+  // Remove overflow warning if it exists (not needed with Option A)
+  const overflowWarn = document.getElementById('overflowWarn');
+  if (overflowWarn) overflowWarn.style.display = 'none';
+
+  updateBottle(keys, totalPct);
+  updateFormula(keys, pctMap);
+  updatePrice(keys);
+  updateRequestBtn(count, ts);
+
+  const mobileCost = BASE_PRICE + keys.reduce((sum, id) => {
+    const ing = INGREDIENTS.find(i => i.id === id);
+    return sum + ing.cost * PRICE_PER_UNIT * formula[id];
+  }, 0);
+  updateMobile(keys, totalPct, mobileCost, pctMap);
+}
+
+function updateBottle(keys, totalPct) {
+  const maxH = 155;
+  // Fixed concentrate zone — always 55% of bottle height when any ingredients present.
+  // Colour blends as ingredients are added; height stays constant.
+  // Alcohol animation fills the remaining 45% on formula request.
+  const CONC_H = Math.round(maxH * 0.55); // ~85px
+  const fillH = (keys.length > 0 && !alcoholFilled) ? CONC_H : (alcoholFilled ? CONC_H : 0);
+  const fillY = 220 - fillH;
+
+  const liqRect = document.getElementById('liqRect');
+  liqRect.setAttribute('y', fillY);
+  liqRect.setAttribute('height', fillH + 10);
+  liqRect.style.transition = 'all 0.6s ease';
+
+  const colors = keys.map(id => INGREDIENTS.find(i => i.id === id).color);
+  const blended = blendColors(colors);
+
+  const liqFill = document.getElementById('liqFill');
+  liqFill.setAttribute('fill', blended);
+
+  const glow = document.getElementById('bottleGlow');
+  glow.style.background = `radial-gradient(ellipse at center, ${keys.length > 0 ? hexToRgba(blended, 0.18) : 'rgba(140,196,15,0.06)'} 0%, transparent 70%)`;
+
+  const emptyLabel = document.getElementById('emptyLabel');
+  const fillLabel = document.getElementById('fillLabel');
+
+  if (keys.length === 0) {
+    emptyLabel.setAttribute('fill', 'rgba(230,236,231,0.2)');
+    fillLabel.setAttribute('fill', 'rgba(230,236,231,0)');
+  } else {
+    emptyLabel.setAttribute('fill', 'rgba(230,236,231,0)');
+    const ts = totalSlots();
+    const labelY = Math.max(fillY - 8, 82);
+    fillLabel.setAttribute('y', labelY);
+    fillLabel.textContent = alcoholFilled ? 'ready' : '30%';
+    fillLabel.setAttribute('fill', 'rgba(230,236,231,0.6)');
+  }
+}
+
+function updateFormula(keys, pctMap) {
+  const body = document.getElementById('formulaBody');
+  if (!keys.length) {
+    body.innerHTML = '<div class="formula-empty">Your accord awaits</div>';
+    return;
+  }
+  body.innerHTML = keys.map(id => {
+    const ing = INGREDIENTS.find(x => x.id === id);
+    const pct = pctMap[id];
+    return `<div class="formula-item">
+      <div class="formula-dot" style="background:${ing.color}"></div>
+      <div class="formula-name">${ing.name}</div>
+      <div class="formula-pct">${pct}%</div>
+    </div>`;
+  }).join('');
+}
+
+function updatePrice(keys) {
+  const block = document.getElementById('priceBlock');
+  const val = document.getElementById('priceValue');
+  if (!keys.length) { block.style.display = 'none'; return; }
+  block.style.display = 'block';
+  const cost = BASE_PRICE + keys.reduce((sum, id) => {
+    const ing = INGREDIENTS.find(i => i.id === id);
+    return sum + ing.cost * PRICE_PER_UNIT * formula[id];
+  }, 0);
+  val.textContent = '$' + cost.toFixed(2);
+}
+
+function updateRequestBtn(count, ts) {
+  const btn = document.getElementById('requestBtn');
+  if (count === 0) {
+    btn.disabled = true; btn.textContent = 'Select ingredients to begin';
+  } else if (count < 2) {
+    btn.disabled = true; btn.textContent = 'Add at least 2 ingredients';
+  } else {
+    btn.disabled = false; btn.textContent = 'Request This Formula →';
+  }
+}
+
+function requestFormula() {
+  const keys = Object.keys(formula);
+  if (keys.length < 2) return;
+  // Lock the request button immediately
+  const btn = document.getElementById('requestBtn');
+  const mobBtn = document.getElementById('mobRequestBtn');
+  if (btn) { btn.disabled = true; btn.textContent = 'Preparing your formula...'; }
+  if (mobBtn) { mobBtn.disabled = true; mobBtn.textContent = 'Preparing your formula...'; }
+  // Trigger alcohol fill animation
+  alcoholFilled = true;
+  fillAlcohol();
+  // After animation completes, show request modal
+  setTimeout(() => {
+    populateRequestSummary();
+    document.getElementById('reqModalOverlay').classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }, 1900);
+}
+
+function populateRequestSummary() {
+  const keys = Object.keys(formula);
+  const ts = totalSlots();
+  const pctPerSlot = ts > 0 ? 30 / ts : 0;
+  const cost = BASE_PRICE + keys.reduce((sum, id) => {
+    const ing = INGREDIENTS.find(i => i.id === id);
+    return sum + ing.cost * PRICE_PER_UNIT * formula[id];
+  }, 0);
+  const body = document.getElementById('reqSummaryBody');
+  body.innerHTML = keys.map(id => {
+    const ing = INGREDIENTS.find(i => i.id === id);
+    const slots = formula[id];
+    const pct = Math.round(pctPerSlot * slots * 10) / 10;
+    return `<div class="req-summary-row">
+      <div class="req-summary-dot" style="background:${ing.color}"></div>
+      <div class="req-summary-name">${ing.name}</div>
+      ${slots > 1 ? `<div class="req-summary-slots">×${slots}</div>` : ''}
+      <div class="req-summary-pct">${pct}%</div>
+    </div>`;
+  }).join('');
+  document.getElementById('reqSummaryTotal').textContent = '30%';
+  document.getElementById('reqSummaryPrice').textContent = '$' + cost.toFixed(2);
+}
+
+function closeReqModal(e) {
+  if (e && e.target !== document.getElementById('reqModalOverlay')) return;
+  document.getElementById('reqModalOverlay').classList.remove('open');
+  document.body.style.overflow = '';
+  // Re-enable request button
+  updateRequestBtn(Object.keys(formula).length, totalSlots());
+  const mobBtn = document.getElementById('mobRequestBtn');
+  if (mobBtn) { mobBtn.disabled = false; mobBtn.textContent = 'Request This Formula →'; }
+}
+
+async function sendFormulaRequest() {
+  const name   = document.getElementById('reqName').value.trim();
+  const email  = document.getElementById('reqEmail').value.trim();
+  const phone  = document.getElementById('reqPhone').value.trim();
+  const notes  = document.getElementById('reqNotes').value.trim();
+  const btn    = document.querySelector('.req-submit-btn');
+
+  if (!name)  { alert('Please enter your name'); return; }
+  if (!email || !email.includes('@')) { alert('Please enter a valid email address'); return; }
+
+  btn.textContent = 'Sending...';
+  btn.disabled = true;
+
+  const keys = Object.keys(formula);
+  const ts = totalSlots();
+  const pctPerSlot = ts > 0 ? 30 / ts : 0;
+  const cost = BASE_PRICE + keys.reduce((sum, id) => {
+    const ing = INGREDIENTS.find(i => i.id === id);
+    return sum + ing.cost * PRICE_PER_UNIT * formula[id];
+  }, 0);
+  const formulaLines = keys.map(id => {
+    const ing = INGREDIENTS.find(i => i.id === id);
+    const slots = formula[id];
+    const pct = Math.round(pctPerSlot * slots * 10) / 10;
+    return `${ing.name}${slots > 1 ? ' ×' + slots : ''} — ${pct}%`;
+  });
+
+  try {
+    const res = await fetch('/.netlify/functions/request-formula', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name, email, phone, notes, formula: formulaLines, price: cost.toFixed(2) })
+    });
+    if (res.ok) {
+      document.getElementById('reqModalOverlay').classList.remove('open');
+      document.body.style.overflow = '';
+      // Show confirmation state
+      const panel = document.getElementById('bottleSide') || document.querySelector('.bottle-side');
+      btn.textContent = 'Request Sent ✓';
+    } else {
+      throw new Error('Server error');
+    }
+  } catch {
+    btn.textContent = 'Try again';
+    btn.disabled = false;
+    setTimeout(() => { btn.textContent = 'Send Formula Request'; btn.disabled = false; }, 3000);
+  }
+}
+
+function clearAll() {
+  formula = {};
+  flippedCard = null;
+  alcoholFilled = false;
+  capModalShown = false;
+  capDismissed = false;
+  // Reset alcohol rects
+  const alc = document.getElementById('alcoholRect');
+  if (alc) { alc.setAttribute('height', '0'); }
+  const mobAlc = document.getElementById('mobAlcoholRect');
+  if (mobAlc) { mobAlc.setAttribute('height', '0'); }
+  updateAll();
+  renderIngredients();
+}
+
+// ═══════════════════════════════════════════════════════════════
+// 30% CAP CONFIRMATION + ALCOHOL FILL — JS
+// ═══════════════════════════════════════════════════════════════
+
+let capModalShown = false;
+let capDismissed = false; // true after user taps No — won't re-show unless they clear
+
+function showCapModal() {
+  if (capModalShown) return;
+  capModalShown = true;
+  document.getElementById('capModalOverlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function confirmCap() {
+  document.getElementById('capModalOverlay').classList.remove('open');
+  document.body.style.overflow = '';
+  capModalShown = false;
+  capDismissed = false;
+  alcoholFilled = true;
+  fillAlcohol();
+}
+
+function dismissCap() {
+  document.getElementById('capModalOverlay').classList.remove('open');
+  document.body.style.overflow = '';
+  capModalShown = false;
+  capDismissed = true; // don't show again until they clear and rebuild
+}
+
+function fillAlcohol() {
+  const maxH = 155;
+  const CONC_H = Math.round(maxH * 0.55);
+  const concY = 220 - CONC_H; // top of concentrate zone
+
+  // Desktop bottle — fill from top of bottle down to concentrate
+  const alcoholRect = document.getElementById('alcoholRect');
+  const fillLabel = document.getElementById('fillLabel');
+  if (alcoholRect) {
+    const alcHeight = concY - 65;
+    alcoholRect.setAttribute('y', '65');
+    alcoholRect.setAttribute('height', String(alcHeight));
+  }
+  if (fillLabel) {
+    fillLabel.textContent = 'ready';
+    fillLabel.setAttribute('fill', 'rgba(230,236,231,0.7)');
+  }
+
+  // Mobile bottle
+  const mobAlcRect = document.getElementById('mobAlcoholRect');
+  const mobFillLabel = document.getElementById('mobFillLabel');
+  if (mobAlcRect) {
+    const mobConcY = 220 - Math.round(155 * 0.55);
+    const mobAlcH = mobConcY - 65;
+    mobAlcRect.setAttribute('y', '65');
+    mobAlcRect.setAttribute('height', String(mobAlcH));
+  }
+  if (mobFillLabel) {
+    mobFillLabel.textContent = 'ready';
+    mobFillLabel.setAttribute('fill', 'rgba(230,236,231,0.7)');
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════
+// RARE COLLECTION MODAL — JS
+// ═══════════════════════════════════════════════════════════════
+
+function openRareModal() {
+  const overlay = document.getElementById('rareModalOverlay');
+  const body    = document.getElementById('rareModalBody');
+  if (!overlay || !body) return;
+
+  // Group rare ingredients by note
+  const groups = [
+    { label:'Top Notes',    ids: INGREDIENTS.filter(i => i.rare && i.group === 'top') },
+    { label:'Heart Notes',  ids: INGREDIENTS.filter(i => i.rare && i.group === 'heart') },
+    { label:'Base Notes',   ids: INGREDIENTS.filter(i => i.rare && i.group === 'base') },
+  ].filter(g => g.ids.length > 0);
+
+  body.innerHTML = groups.map(g => `
+    <div class="rare-modal-group">
+      <span class="rare-modal-group-label">${g.label}</span>
+      <div class="rare-modal-grid">
+        ${g.ids.map(ing => {
+          const isAdded = !!formula[ing.id];
+          return `<div class="rm-card ${isAdded ? 'added' : ''}" id="rm-card-${ing.id}">
+            <div class="rm-card-emoji">${ing.emoji}</div>
+            <div class="rm-card-name">${ing.name}</div>
+            <div class="rm-card-note">${ing.note}${ing.warn ? ' · Regulated' : ''}</div>
+            <div class="rm-card-desc">${ing.desc}</div>
+            <button type="button" class="rm-card-btn" onclick="rareToggle('${ing.id}')">
+              ${isAdded ? 'Remove from Formula' : 'Add to Formula'}
+            </button>
+          </div>`;
+        }).join('')}
+      </div>
+    </div>
+  `).join('');
+
+  overlay.classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeRareModal(e) {
+  if (e && e.target !== document.getElementById('rareModalOverlay')) return;
+  document.getElementById('rareModalOverlay').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+function rareToggle(id) {
+  const isAdded = !!formula[id];
+  if (isAdded) {
+    removeIngredient(id);
+  } else {
+    if (totalSlots() >= 8) return;
+    // Add without fly animation from rare modal context
+    formula[id] = 1;
+    const card = document.getElementById('card-' + id);
+    if (card) card.classList.add('added');
+    updateAll();
+    refreshCardAction(id);
+  }
+  // Update rare modal card state
+  const rmCard = document.getElementById('rm-card-' + id);
+  if (!rmCard) return;
+  const nowAdded = !!formula[id];
+  rmCard.classList.toggle('added', nowAdded);
+  const btn = rmCard.querySelector('.rm-card-btn');
+  if (btn) btn.textContent = nowAdded ? 'Remove from Formula' : 'Add to Formula';
+}
+
+// ═══════════════════════════════════════════════════════════════
+// MOBILE BOTTOM BAR — JS
+// Desktop updateAll() is untouched above. These functions mirror
+// the bottle/formula state into the mobile panel elements.
+// Only runs when mobile elements exist in the DOM.
+// ═══════════════════════════════════════════════════════════════
+
+function toggleMobPanel() {
+  const bar = document.getElementById('mobBar');
+  if (!bar) return;
+  bar.classList.toggle('open');
+}
+
+function updateMobile(keys, totalPct, cost, pctMap) {
+
+  // Only bother if mobile bar exists (it's always in DOM but hidden on desktop via CSS)
+  const isMobile = window.innerWidth <= 768;
+
+  // ── Auto-open panel when first ingredient added ──
+  const bar = document.getElementById('mobBar');
+  if (bar && keys.length === 1 && !bar.classList.contains('open')) {
+    bar.classList.add('open');
+  }
+  // Auto-close if all cleared
+  if (bar && keys.length === 0 && bar.classList.contains('open')) {
+    bar.classList.remove('open');
+  }
+
+  // ── Bottom bar slim state ──
+  const countEl = document.getElementById('mobBarCount');
+  const priceEl = document.getElementById('mobBarPrice');
+  const fillBar = document.getElementById('mobFillBar');
+  if (countEl) {
+    const ts = totalSlots();
+    countEl.textContent = keys.length + (keys.length === 1 ? ' ingredient' : ' ingredients') + (ts > keys.length ? ' (' + ts + ' slots)' : '');
+  }
+  if (priceEl) priceEl.textContent = keys.length ? '$' + cost.toFixed(2) : '—';
+  if (fillBar) {
+    const ts = totalSlots();
+    const pct = Math.min((ts / 8) * 100, 100);
+    fillBar.style.width = pct + '%';
+    fillBar.style.background = ts >= 6 ? 'rgba(212,160,23,0.9)' : 'rgba(160,217,22,0.9)';
+    fillBar.style.boxShadow = ts >= 6 ? '0 0 8px rgba(212,160,23,.5)' : '0 0 8px rgba(140,196,15,.5)';
+  }
+
+  // ── Mobile bottle SVG — fixed concentrate height, colour changes only ──
+  const maxH = 155;
+  const CONC_H = Math.round(maxH * 0.55);
+  const fillH = keys.length > 0 ? CONC_H : 0;
+  const fillY = 220 - fillH;
+  const mobLiqRect = document.getElementById('mobLiqRect');
+  const mobLiqFill = document.getElementById('mobLiqFill');
+  const mobEmptyLabel = document.getElementById('mobEmptyLabel');
+  const mobFillLabel  = document.getElementById('mobFillLabel');
+  const mobGlow       = document.getElementById('mobBottleGlow');
+
+  if (mobLiqRect) {
+    mobLiqRect.setAttribute('y', fillY);
+    mobLiqRect.setAttribute('height', fillH + 10);
+  }
+  if (mobLiqFill && keys.length) {
+    const colors = keys.map(id => INGREDIENTS.find(i => i.id === id).color);
+    const blended = blendColors(colors);
+    mobLiqFill.setAttribute('fill', blended);
+    if (mobGlow) {
+      mobGlow.style.setProperty('--mob-glow', hexToRgba(blended, 0.15));
+      mobGlow.style.background = `radial-gradient(ellipse at center, ${hexToRgba(blended, 0.18)} 0%, transparent 70%)`;
+    }
+    if (mobEmptyLabel) mobEmptyLabel.setAttribute('fill', 'rgba(230,236,231,0)');
+    if (mobFillLabel) {
+      const labelY = Math.max(fillY - 8, 82);
+      mobFillLabel.setAttribute('y', labelY);
+      mobFillLabel.textContent = Math.round((fillH / maxH) * 100) + '%';
+      mobFillLabel.setAttribute('fill', 'rgba(230,236,231,0.6)');
+    }
+  } else {
+    if (mobLiqFill) mobLiqFill.setAttribute('fill', '#8cc40f');
+    if (mobGlow) mobGlow.style.background = 'radial-gradient(ellipse at center, rgba(140,196,15,0.06) 0%, transparent 70%)';
+    if (mobEmptyLabel) mobEmptyLabel.setAttribute('fill', 'rgba(230,236,231,0.2)');
+    if (mobFillLabel) mobFillLabel.setAttribute('fill', 'rgba(230,236,231,0)');
+  }
+
+  // ── Mobile formula list ──
+  const mobBody = document.getElementById('mobFormulaBody');
+  const mobTotalRow = document.getElementById('mobTotalRow');
+  const mobTotalPct = document.getElementById('mobTotalPct');
+  if (mobBody) {
+    if (!keys.length) {
+      mobBody.innerHTML = '<div class="mob-formula-empty">Your accord awaits</div>';
+    } else {
+      mobBody.innerHTML = keys.map((id) => {
+        const ing = INGREDIENTS.find(x => x.id === id);
+        return `<div class="mob-formula-item">
+          <div class="mob-formula-dot" style="background:${ing.color}"></div>
+          <div class="mob-formula-name">${ing.name}</div>
+          <div class="mob-formula-pct">${pctMap[id]}%</div>
+        </div>`;
+      }).join('');
+    }
+  }
+  if (mobTotalRow) mobTotalRow.style.display = keys.length ? 'flex' : 'none';
+  if (mobTotalPct) mobTotalPct.textContent = totalPct + '%';
+
+  // ── Mobile price block ──
+  const mobPriceBlock = document.getElementById('mobPriceBlock');
+  const mobPriceValue = document.getElementById('mobPriceValue');
+  if (mobPriceBlock) mobPriceBlock.style.display = keys.length ? 'block' : 'none';
+  if (mobPriceValue) mobPriceValue.textContent = '$' + cost.toFixed(2);
+
+  const mobBtn = document.getElementById('mobRequestBtn');
+  if (mobBtn) {
+    if (keys.length === 0) {
+      mobBtn.disabled = true; mobBtn.textContent = 'Select ingredients to begin';
+    } else if (keys.length < 2) {
+      mobBtn.disabled = true; mobBtn.textContent = 'Add at least 2 ingredients';
+    } else {
+      mobBtn.disabled = false; mobBtn.textContent = 'Request This Formula →';
+    }
+  }
+
+  // ── Ingredient chip strip — renders all ingredients, tap to add/remove ──
+  const chipStrip = document.getElementById('mobChipStrip');
+  if (chipStrip) {
+    chipStrip.innerHTML = INGREDIENTS.map(ing => {
+      const isAdded = !!formula[ing.id];
+      const isRare  = ing.rare ? 'rare' : '';
+      return `<div class="mob-chip ${isAdded ? 'added' : ''} ${isRare}" id="mob-chip-${ing.id}">
+        <span class="mob-chip-emoji">${ing.emoji}</span>
+        <span>${ing.name}</span>
+        <button type="button" class="mob-chip-btn" onclick="toggleIngredient('${ing.id}')">${isAdded ? '✕' : '+'}</button>
+      </div>`;
+    }).join('');
+  }
+}
+
+function blendColors(hexColors) {
+  if (!hexColors.length) return '#8cc40f';
+  let r = 0, g = 0, b = 0;
+  hexColors.forEach(h => {
+    const n = parseInt(h.replace('#',''), 16);
+    r += (n >> 16) & 255;
+    g += (n >> 8) & 255;
+    b += n & 255;
+  });
+  return '#' + [r,g,b].map(v => Math.round(v/hexColors.length).toString(16).padStart(2,'0')).join('');
+}
+
+function hexToRgba(hex, a) {
+  const n = parseInt(hex.replace('#',''), 16);
+  return `rgba(${(n>>16)&255},${(n>>8)&255},${n&255},${a})`;
+}
+
+renderIngredients();
+</script>
+<!-- ═══════════════════════════════════════════════════════
+     30% CAP CONFIRMATION MODAL
+     ═══════════════════════════════════════════════════════ -->
+<div class="cap-modal-overlay" id="capModalOverlay">
+  <div class="cap-modal">
+    <div class="cap-modal-icon">🌿</div>
+    <div class="cap-modal-title">30% Concentrate Reached</div>
+    <div class="cap-modal-body">Is this your final ingredient?</div>
+    <div class="cap-modal-sub">Confirming will fill the remaining 70% with pure perfumers alcohol and lock your formula for request. You can still clear and start again.</div>
+    <div class="cap-modal-btns">
+      <button type="button" class="cap-modal-yes" onclick="confirmCap()">Yes, fill with alcohol</button>
+      <button type="button" class="cap-modal-no" onclick="dismissCap()">No, keep adding</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     RARE COLLECTION MODAL
+     Desktop and mobile — triggered by tapping any Rare badge
+     ═══════════════════════════════════════════════════════ -->
+<div class="rare-modal-overlay" id="rareModalOverlay" onclick="closeRareModal(event)">
+  <div class="rare-modal" id="rareModal">
+    <button type="button" class="rare-modal-close" onclick="closeRareModal()">&times;</button>
+    <div class="rare-modal-header">
+      <span class="rare-modal-eyebrow">Profound Naturals — Rare Collection</span>
+      <h2 class="rare-modal-title">Rare &amp; <em>Precious</em> Botanicals</h2>
+      <p class="rare-modal-sub">Exceptional ingredients — limited availability, uncompromising quality. Tap any to add to your formula.</p>
+    </div>
+    <div class="rare-modal-body" id="rareModalBody">
+      <!-- Populated by JS -->
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     MOBILE BOTTOM BAR — only shown on max-width:768px
+     Desktop users never see this element.
+     The bottle-side panel above handles desktop layout.
+     ═══════════════════════════════════════════════════════ -->
+<div class="mob-bar" id="mobBar">
+
+  <!-- Collapsed: always-visible slim bar -->
+  <div class="mob-bar-collapsed" id="mobBarCollapsed" onclick="toggleMobPanel()">
+    <div class="mob-fill-track">
+      <div class="mob-fill-bar" id="mobFillBar"></div>
+    </div>
+    <div class="mob-bar-info">
+      <span class="mob-bar-count" id="mobBarCount">0 ingredients</span>
+      <span class="mob-bar-price" id="mobBarPrice">—</span>
+    </div>
+    <span class="mob-bar-arrow" id="mobBarArrow">▲</span>
+  </div>
+
+  <!-- Expandable panel -->
+  <div class="mob-panel" id="mobPanel">
+    <button class="mob-panel-close" onclick="toggleMobPanel()" aria-label="Close panel">&times;</button>
+    <div class="mob-panel-inner">
+
+      <!-- Mini bottle -->
+      <div class="mob-bottle-wrap">
+        <div class="mob-bottle-glow" id="mobBottleGlow"></div>
+        <svg width="110" height="185" viewBox="0 0 140 230" id="mobBottleSvg" style="position:relative;z-index:1;">
+          <defs>
+            <clipPath id="mobLiq">
+              <rect id="mobLiqRect" x="24" y="230" width="92" height="0"/>
+            </clipPath>
+            <linearGradient id="mobGlassShine" x1="0" y1="0" x2="1" y2="0">
+              <stop offset="0%" stop-color="white" stop-opacity="0.06"/>
+              <stop offset="30%" stop-color="white" stop-opacity="0.12"/>
+              <stop offset="100%" stop-color="white" stop-opacity="0"/>
+            </linearGradient>
+            <linearGradient id="mobCapGrad" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#2a3a2a"/>
+              <stop offset="100%" stop-color="#141d15"/>
+            </linearGradient>
+          </defs>
+          <rect id="mobLiqFill" x="24" y="65" width="92" height="155" rx="6"
+                fill="#8cc40f" opacity="0.25" clip-path="url(#mobLiq)"
+                style="transition:fill 0.8s ease;"/>
+          <rect x="24" y="65" width="92" height="155" rx="6"
+                fill="rgba(255,255,255,0.03)" stroke="rgba(230,236,231,0.25)" stroke-width="1"/>
+          <rect x="24" y="65" width="92" height="155" rx="6" fill="url(#mobGlassShine)"/>
+          <line x1="33" y1="72" x2="33" y2="210" stroke="rgba(255,255,255,0.1)" stroke-width="1.5" stroke-linecap="round"/>
+          <path d="M24 65 Q24 55 38 50 L102 50 Q116 55 116 65" fill="rgba(255,255,255,0.02)" stroke="rgba(230,236,231,0.2)" stroke-width="1"/>
+          <rect x="52" y="30" width="36" height="22" rx="2" fill="rgba(255,255,255,0.03)" stroke="rgba(230,236,231,0.2)" stroke-width="1"/>
+          <rect x="48" y="10" width="44" height="22" rx="3" fill="url(#mobCapGrad)" stroke="rgba(140,196,15,0.3)" stroke-width="1"/>
+          <line x1="52" y1="16" x2="88" y2="16" stroke="rgba(140,196,15,0.2)" stroke-width="0.5"/>
+          <line x1="52" y1="26" x2="88" y2="26" stroke="rgba(140,196,15,0.2)" stroke-width="0.5"/>
+          <rect id="mobAlcoholRect" x="24" y="65" width="92" height="0" rx="6"
+                fill="rgba(200,230,255,0.12)" style="transition:all 1.8s cubic-bezier(0.4,0,0.2,1);"/>
+          <text id="mobEmptyLabel" x="70" y="148" text-anchor="middle"
+                font-family="'Cormorant Garamond', serif" font-size="11" fill="rgba(230,236,231,0.2)"
+                font-style="italic">empty</text>
+          <text id="mobFillLabel" x="70" y="148" text-anchor="middle"
+                font-family="'Jost', sans-serif" font-size="11" font-weight="500"
+                fill="rgba(230,236,231,0)" style="transition:fill 0.4s;"></text>
+        </svg>
+      </div>
+
+      <!-- Formula list -->
+      <div class="mob-formula-wrap">
+        <div class="mob-formula-title">Composition</div>
+        <div id="mobFormulaBody"><div class="mob-formula-empty">Your accord awaits</div></div>
+        <div class="mob-formula-total" id="mobTotalRow" style="display:none">
+          <span>Total concentrate</span>
+          <span id="mobTotalPct">0%</span>
+        </div>
+      </div>
+
+      <!-- Price -->
+      <div class="mob-price-block" id="mobPriceBlock" style="display:none">
+        <span class="mob-price-label">50ml Eau de Parfum</span>
+        <div class="mob-price-value" id="mobPriceValue">$0.00</div>
+        <div class="mob-price-size">Handcrafted to order · 2-3 week turnaround</div>
+      </div>
+
+      <!-- Request button -->
+      <button class="mob-request-btn" id="mobRequestBtn" disabled onclick="requestFormula()">
+        Select ingredients to begin
+      </button>
+      <button class="mob-clear-link" onclick="clearAll()">clear formula</button>
+
+      <!-- Ingredient chip strip — add/remove without closing panel -->
+      <div class="mob-chip-strip-wrap">
+        <span class="mob-chip-strip-label">Add or remove ingredients</span>
+        <div class="mob-chip-strip" id="mobChipStrip"></div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     REQUEST FORMULA MODAL
+     ═══════════════════════════════════════════════════════ -->
+<div class="req-modal-overlay" id="reqModalOverlay" onclick="closeReqModal(event)">
+  <div class="req-modal">
+    <button type="button" class="req-modal-close" onclick="closeReqModal()">&times;</button>
+    <div class="req-modal-header">
+      <span class="req-modal-eyebrow">Profound Naturals — Custom Scent</span>
+      <h2 class="req-modal-title">Request Your <em>Formula</em></h2>
+      <p class="req-modal-sub">Your accord is locked and ready. Share your details and we'll be in touch within 2 business days with a personalised quote and production timeline.</p>
+    </div>
+    <div class="req-modal-body">
+      <div class="req-formula-summary">
+        <div class="req-summary-label">Your Formula — 50ml Eau de Parfum · 30% Concentrate</div>
+        <div id="reqSummaryBody"></div>
+        <div class="req-summary-total">
+          <span>Total concentrate</span>
+          <span id="reqSummaryTotal">30%</span>
+        </div>
+        <div class="req-summary-price">
+          <span class="req-price-label">Estimated price</span>
+          <span class="req-price-value" id="reqSummaryPrice">$0.00</span>
+        </div>
+      </div>
+      <div class="req-fields">
+        <div class="req-field-row">
+          <input class="req-field" id="reqName" type="text" placeholder="Your name">
+          <input class="req-field" id="reqPhone" type="tel" placeholder="Phone (optional)">
+        </div>
+        <input class="req-field" id="reqEmail" type="email" placeholder="Email address">
+        <textarea class="req-textarea" id="reqNotes" placeholder="Any additional notes or preferences..."></textarea>
+      </div>
+      <button type="button" class="req-submit-btn" onclick="sendFormulaRequest()">Send Formula Request</button>
+      <p class="req-note">By submitting you agree to be contacted by Profound Naturals regarding your custom scent. Your formula details will be kept confidential.</p>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>
+ 
