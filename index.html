@@ -858,8 +858,11 @@
     .mob-price-size { font-size:.62rem; color:var(--white-dim); margin-top:3px; }
 
     /* Request button in panel */
+    .mob-btn-row {
+      display:flex; gap:10px; width:100%; align-items:stretch;
+    }
     .mob-request-btn {
-      width:100%; padding:16px;
+      flex:1; padding:16px;
       background:var(--green); color:var(--bg);
       border:none; cursor:pointer;
       font-family:var(--sans); font-size:.72rem;
@@ -872,12 +875,21 @@
       background:var(--surface-3); color:var(--white-dim);
       animation:none; cursor:default;
     }
-    .mob-clear-link {
-      font-size:.62rem; color:rgba(230,236,231,.25);
-      cursor:pointer; text-decoration:underline;
-      background:none; border:none; margin-bottom:4px;
+    .mob-clear-btn {
+      padding:12px 14px; flex-shrink:0;
+      background:transparent;
+      border:1px solid rgba(200,60,60,.55);
+      color:rgba(220,80,80,.85);
+      font-family:var(--sans); font-size:.62rem;
+      letter-spacing:.12em; text-transform:uppercase;
+      cursor:pointer;
+      transition:border-color .2s, color .2s, background .2s;
     }
-    .mob-clear-link:hover { color:var(--white-dim); }
+    .mob-clear-btn:hover {
+      border-color:rgba(200,60,60,.9);
+      color:rgba(230,90,90,1);
+      background:rgba(200,60,60,.08);
+    }
 
     /* Pct bar in header — hide on mobile, redundant with bottom bar */
     .concentrate-bar { display:none; }
@@ -2163,11 +2175,13 @@ renderIngredients();
         <div class="mob-price-size">Handcrafted to order · 2-3 week turnaround</div>
       </div>
 
-      <!-- Request button -->
-      <button class="mob-request-btn" id="mobRequestBtn" disabled onclick="requestFormula()">
-        Select ingredients to begin
-      </button>
-      <button class="mob-clear-link" onclick="clearAll()">clear formula</button>
+      <!-- Request + Clear row -->
+      <div class="mob-btn-row">
+        <button class="mob-request-btn" id="mobRequestBtn" disabled onclick="requestFormula()">
+          Select ingredients to begin
+        </button>
+        <button class="mob-clear-btn" onclick="clearAll()">Clear</button>
+      </div>
 
       <!-- Ingredient chip strip — add/remove without closing panel -->
       <div class="mob-chip-strip-wrap">
