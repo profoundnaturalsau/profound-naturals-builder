@@ -1466,7 +1466,7 @@ function updateBottle(keys, totalPct) {
   // Fixed concentrate zone — always 55% of bottle height when any ingredients present.
   // Colour blends as ingredients are added; height stays constant.
   // Alcohol animation fills the remaining 45% on formula request.
-  const CONC_H = Math.round(maxH * 0.55); // ~85px
+  const CONC_H = Math.round(maxH * 0.30); // 30% of bottle = concentrate zone
   const fillH = (keys.length > 0 && !alcoholFilled) ? CONC_H : (alcoholFilled ? CONC_H : 0);
   const fillY = 220 - fillH;
 
@@ -1492,8 +1492,7 @@ function updateBottle(keys, totalPct) {
     fillLabel.setAttribute('fill', 'rgba(230,236,231,0)');
   } else {
     emptyLabel.setAttribute('fill', 'rgba(230,236,231,0)');
-    const ts = totalSlots();
-    const labelY = Math.max(fillY - 8, 82);
+    const labelY = Math.min(Math.round(fillY + fillH * 0.5), 213);
     fillLabel.setAttribute('y', labelY);
     fillLabel.textContent = alcoholFilled ? 'ready' : totalPct + '%';
     fillLabel.setAttribute('fill', 'rgba(230,236,231,0.6)');
@@ -1709,7 +1708,7 @@ function dismissCap() {
 
 function fillAlcohol() {
   const maxH = 155;
-  const CONC_H = Math.round(maxH * 0.55);
+  const CONC_H = Math.round(maxH * 0.30);
   const concY = 220 - CONC_H; // top of concentrate zone
 
   // Desktop bottle — fill from top of bottle down to concentrate
@@ -1729,7 +1728,7 @@ function fillAlcohol() {
   const mobAlcRect = document.getElementById('mobAlcoholRect');
   const mobFillLabel = document.getElementById('mobFillLabel');
   if (mobAlcRect) {
-    const mobConcY = 220 - Math.round(155 * 0.55);
+    const mobConcY = 220 - Math.round(155 * 0.30);
     const mobAlcH = mobConcY - 65;
     mobAlcRect.setAttribute('y', '65');
     mobAlcRect.setAttribute('height', String(mobAlcH));
@@ -1859,7 +1858,7 @@ function updateMobile(keys, totalPct, cost, pctMap) {
 
   // ── Mobile bottle SVG — fixed concentrate height, colour changes only ──
   const maxH = 155;
-  const CONC_H = Math.round(maxH * 0.55);
+  const CONC_H = Math.round(maxH * 0.30); // 30% of bottle = concentrate zone
   const fillH = keys.length > 0 ? CONC_H : 0;
   const fillY = 220 - fillH;
   const mobLiqRect = document.getElementById('mobLiqRect');
@@ -1882,9 +1881,9 @@ function updateMobile(keys, totalPct, cost, pctMap) {
     }
     if (mobEmptyLabel) mobEmptyLabel.setAttribute('fill', 'rgba(230,236,231,0)');
     if (mobFillLabel) {
-      const labelY = Math.max(fillY - 8, 82);
+      const labelY = Math.min(Math.round(fillY + fillH * 0.5), 213);
       mobFillLabel.setAttribute('y', labelY);
-      mobFillLabel.textContent = Math.round((fillH / maxH) * 100) + '%';
+      mobFillLabel.textContent = totalPct > 0 ? totalPct + '%' : '';
       mobFillLabel.setAttribute('fill', 'rgba(230,236,231,0.6)');
     }
   } else {
