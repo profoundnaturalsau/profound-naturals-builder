@@ -585,19 +585,38 @@
     border-color:rgba(212,160,23,0.35);
     animation:chipAmberGlow 3.5s ease-in-out infinite;
   }
+  .chip-modal-overlay.rare .chip-modal-btn:not(.remove) {
+    color:var(--amber); border-color:rgba(212,160,23,0.7);
+  }
+  .chip-modal-overlay.rare .chip-modal-btn:not(.remove):hover {
+    background:var(--amber); color:#080d09; border-color:var(--amber);
+  }
   @keyframes chipAmberGlow {
     0%,100% { border-color:rgba(212,160,23,0.25); box-shadow:0 0 18px rgba(212,160,23,0.15), 0 0 60px rgba(0,0,0,.65); }
     50%     { border-color:rgba(212,160,23,0.65); box-shadow:0 0 32px rgba(212,160,23,0.38), 0 0 52px rgba(212,160,23,0.12), 0 0 80px rgba(0,0,0,.65); }
   }
 
-  /* Standard ingredient — subtle green glow */
+  /* Standard ingredient — green glow matching amber intensity */
   .chip-modal-overlay.standard .chip-modal {
-    border-color:rgba(140,196,15,0.2);
-    animation:chipGreenGlow 4s ease-in-out infinite;
+    border-color:rgba(140,196,15,0.25);
+    animation:chipGreenGlow 3.5s ease-in-out infinite;
   }
   @keyframes chipGreenGlow {
-    0%,100% { border-color:rgba(140,196,15,0.12); box-shadow:0 0 10px rgba(140,196,15,0.05), 0 0 60px rgba(0,0,0,.65); }
-    50%     { border-color:rgba(140,196,15,0.32); box-shadow:0 0 20px rgba(140,196,15,0.13), 0 0 60px rgba(0,0,0,.65); }
+    0%,100% { border-color:rgba(140,196,15,0.25); box-shadow:0 0 18px rgba(140,196,15,0.15), 0 0 60px rgba(0,0,0,.65); }
+    50%     { border-color:rgba(140,196,15,0.65); box-shadow:0 0 32px rgba(140,196,15,0.38), 0 0 52px rgba(140,196,15,0.12), 0 0 80px rgba(0,0,0,.65); }
+  }
+
+  /* Rare modal — amber Add button */
+  .chip-modal-overlay.rare .chip-modal-btn:not(.remove) {
+    color:var(--amber); border-color:var(--amber);
+    animation:chipBtnAmberGlow 3.5s ease-in-out infinite;
+  }
+  .chip-modal-overlay.rare .chip-modal-btn:not(.remove):hover {
+    background:var(--amber); color:#080d09;
+  }
+  @keyframes chipBtnAmberGlow {
+    0%,100% { box-shadow:0 0 6px rgba(212,160,23,0.15); border-color:rgba(212,160,23,0.6); }
+    50%     { box-shadow:0 0 14px rgba(212,160,23,0.45); border-color:rgba(212,160,23,1); }
   }
   .chip-modal-close {
     position:absolute; top:12px; right:14px;
@@ -2158,12 +2177,14 @@ function openChipModal(id) {
   btn.onclick = () => { toggleIngredient(id); closeChipModal(); };
 
   const overlay = document.getElementById('chipModalOverlay');
-  overlay.classList.remove('rare', 'standard', 'open');
-  void overlay.offsetHeight; // force reflow so removal commits before re-opening
+  const alreadyOpen = overlay.classList.contains('open');
+
+  overlay.classList.remove('rare', 'standard');
   overlay.classList.add(ing.rare ? 'rare' : 'standard');
-  requestAnimationFrame(() => {
-    overlay.classList.add('open');
-  });
+
+  if (!alreadyOpen) {
+    requestAnimationFrame(() => overlay.classList.add('open'));
+  }
   document.body.style.overflow = 'hidden';
 }
 
