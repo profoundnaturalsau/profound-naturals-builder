@@ -231,7 +231,7 @@
     width:100%; overflow:hidden; max-height:0;
     transition:max-height .3s ease, padding .3s ease;
   }
-  .warn-drawer.open { max-height:120px; }
+  .warn-drawer.open { max-height:200px; }
   .warn-drawer-inner {
     font-size:.6rem; color:rgba(212,160,23,.8); line-height:1.55;
     padding:6px 8px; background:rgba(212,160,23,.05);
@@ -576,6 +576,26 @@
     transform:scale(.95); transition:transform .25s;
   }
   .chip-modal-overlay.open .chip-modal { transform:scale(1); }
+
+  /* Rare ingredient — amber pulse glow */
+  .chip-modal-overlay.rare .chip-modal {
+    border-color:rgba(212,160,23,0.35);
+    animation:chipAmberGlow 3.5s ease-in-out infinite;
+  }
+  @keyframes chipAmberGlow {
+    0%,100% { border-color:rgba(212,160,23,0.25); box-shadow:0 0 18px rgba(212,160,23,0.15), 0 0 60px rgba(0,0,0,.65); }
+    50%     { border-color:rgba(212,160,23,0.65); box-shadow:0 0 32px rgba(212,160,23,0.38), 0 0 52px rgba(212,160,23,0.12), 0 0 80px rgba(0,0,0,.65); }
+  }
+
+  /* Standard ingredient — subtle green glow */
+  .chip-modal-overlay.standard .chip-modal {
+    border-color:rgba(140,196,15,0.2);
+    animation:chipGreenGlow 4s ease-in-out infinite;
+  }
+  @keyframes chipGreenGlow {
+    0%,100% { border-color:rgba(140,196,15,0.12); box-shadow:0 0 10px rgba(140,196,15,0.05), 0 0 60px rgba(0,0,0,.65); }
+    50%     { border-color:rgba(140,196,15,0.32); box-shadow:0 0 20px rgba(140,196,15,0.13), 0 0 60px rgba(0,0,0,.65); }
+  }
   .chip-modal-close {
     position:absolute; top:12px; right:14px;
     background:none; border:none; color:var(--white-dim);
@@ -1048,7 +1068,7 @@ const INGREDIENTS = [
     id:'bergamot', name:'Bergamot', note:'Top', group:'top',
     emoji:'🍋', color:'#c9c02a',
     desc:'Bright citrus-floral, cold-pressed from Italian bergamot rind. Uplifting and balancing - a cornerstone of fine perfumery.',
-    warn:'⚠️ Phototoxic - contains furanocoumarins. Formulated in compliance with TGA and IFRA guidelines.',
+    warn:'⚠️ Phototoxic — furanocoumarins present. IFRA & TGA limits apply. Formulated in full compliance.',
     cost:2.40
   },
   {
@@ -1088,7 +1108,7 @@ const INGREDIENTS = [
     id:'jasmine', name:'Jasmine Absolute', note:'Heart', group:'heart',
     emoji:'🌸', color:'#c97ab0', rare:true,
     desc:'Rich, heady and intoxicating. One of the most prized florals in perfumery - complex, indolic and deeply feminine.',
-    warn:'⚠️ Regulated sensitiser. Profound Naturals formulates in full compliance with current TGA and IFRA standards.',
+    warn:'⚠️ Regulated sensitiser — IFRA & TGA limits apply. Capped at 2%. Formulated in full compliance.',
     restricted: true, fixedPct: 2.0,
     cost:8.50
   },
@@ -1115,7 +1135,7 @@ const INGREDIENTS = [
     id:'oakmoss', name:'Oakmoss', note:'Base', group:'base',
     emoji:'🌿', color:'#4a6a3a',
     desc:'Mossy, earthy, forest-floor. A classic chypre base note - deeply naturalistic with an unmistakable damp woodland quality. IFRA and TGA restrict oakmoss to 0.1% of the finished formula — a trace amount that still contributes character.',
-    warn:'⚠️ Subject to mandatory TGA and IFRA regulatory concentration limits. Profound Naturals formulates in full compliance with all applicable guidelines.',
+    warn:'⚠️ Mandatory IFRA & TGA concentration limits apply. Capped at 0.1% of finished formula. Formulated in full compliance.',
     restricted: true,
     fixedPct: 0.1,
     cost:4.10
@@ -1152,7 +1172,7 @@ const INGREDIENTS = [
     id:'clove-bud', name:'Clove Bud', note:'Top · Heart', group:'top',
     emoji:'🌰', color:'#8a4020',
     desc:'Intensely warm, spicy and deeply aromatic. One of the most powerful botanicals in natural perfumery - a little goes a very long way.',
-    warn:'⚠️ Subject to TGA and IFRA regulatory limits due to high eugenol content. Profound Naturals formulates in full compliance with all applicable guidelines.',
+    warn:'⚠️ IFRA & TGA limits apply — high eugenol content. Capped at 0.1%. Formulated in full compliance.',
     restricted: true, fixedPct: 2.0,
     cost:1.80
   },
@@ -1218,7 +1238,7 @@ const INGREDIENTS = [
   { id:'lime-distilled', name:'Lime Distilled', note:'Top', group:'top', emoji:'🍋', color:'#a0c020', desc:'Crisp, clean and vibrantly citrusy. Steam distillation gives this lime a brighter, more transparent character - refreshing and sharp.', warn:null, cost:1.80 },
   { id:'lemon', name:'Lemon EO', note:'Top', group:'top', emoji:'🍋', color:'#e8e040',
     desc:'Bright, clean and unmistakably fresh. Cold-pressed from the peel of Citrus limon — sharp, zesty and instantly uplifting with a sparkling, slightly floral character. One of the most versatile top notes in natural perfumery.',
-    warn:'⚠️ Phototoxic — cold-pressed citrus. Profound Naturals formulates in full compliance with TGA and IFRA guidelines.',
+    warn:'⚠️ Phototoxic — cold-pressed citrus. IFRA & TGA limits apply. Capped at 2%. Formulated in full compliance.',
     restricted: true, fixedPct: 2.0, cost:1.80 },
   { id:'ylang-1st', name:'Ylang Ylang 1st', note:'Top', group:'top', emoji:'🌼', color:'#c0a830', desc:'The boldest expression of ylang ylang - sharp, heady and euphoric with an almost narcotic sweetness. The most volatile and intensely floral fraction.', warn:null, cost:2.80 },
   { id:'euca-citriodora', name:'Euca Citriodora', note:'Top', group:'top', emoji:'🌿', color:'#8ab020', desc:'An Australian native with a bright, lemon-fresh character and a distinctly airy, kerosene-like undertone. Widely used as a natural insect repellent. 🌿 Australian Native - icon to be updated.', warn:null, cost:2.00 },
@@ -1384,6 +1404,11 @@ function toggleWarn(id) {
 }
 
 function flipCard(id) {
+  // On mobile use the centered modal — more room, no cutoff issues
+  if (window.innerWidth <= 768) {
+    openChipModal(id);
+    return;
+  }
   const card = document.getElementById('card-' + id);
   if (flippedCard && flippedCard !== card) {
     flippedCard.classList.remove('flipped');
@@ -2108,7 +2133,7 @@ function openChipModal(id) {
   document.getElementById('chipModalEmoji').textContent = ing.emoji;
   document.getElementById('chipModalName').textContent = ing.name;
   const noteEl = document.getElementById('chipModalNote');
-  noteEl.textContent = ing.note + (ing.rare ? ' · Rare' : '') + (ing.restricted ? ' · IFRA Regulated' : '');
+  noteEl.textContent = ing.note + (ing.rare ? ' · Rare' : '') + (ing.restricted && ing.warn ? ' · IFRA Regulated' : '');
   noteEl.className = 'chip-modal-note' + (ing.rare ? ' rare' : '');
   document.getElementById('chipModalDesc').textContent = ing.desc;
 
@@ -2121,14 +2146,18 @@ function openChipModal(id) {
     btn.textContent = 'Remove from Formula';
     btn.className = 'chip-modal-btn remove';
   } else {
-    btn.textContent = ing.restricted
-      ? `+ Add to Bottle — IFRA capped at ${ing.fixedPct}%`
-      : '+ Add to Bottle';
+    const capNote = ing.restricted
+      ? (ing.warn ? ` — IFRA capped at ${ing.fixedPct}%` : ` — capped at ${ing.fixedPct}%`)
+      : '';
+    btn.textContent = `+ Add to Bottle${capNote}`;
     btn.className = 'chip-modal-btn';
   }
   btn.onclick = () => { toggleIngredient(id); closeChipModal(); };
 
-  document.getElementById('chipModalOverlay').classList.add('open');
+  const overlay = document.getElementById('chipModalOverlay');
+  overlay.classList.remove('rare', 'standard');
+  overlay.classList.add(ing.rare ? 'rare' : 'standard');
+  overlay.classList.add('open');
   document.body.style.overflow = 'hidden';
 }
 
