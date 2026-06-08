@@ -2147,6 +2147,8 @@ function hexToRgba(hex, a) {
 // ═══════════════════════════════════════════════════════════════
 // CHIP DESCRIPTION MODAL — mobile ingredient strip
 // ═══════════════════════════════════════════════════════════════
+let chipModalOpenTime = 0;
+
 function openChipModal(id) {
   const ing = INGREDIENTS.find(i => i.id === id);
   if (!ing) return;
@@ -2183,6 +2185,7 @@ function openChipModal(id) {
   overlay.classList.add(ing.rare ? 'rare' : 'standard');
 
   if (!alreadyOpen) {
+    chipModalOpenTime = Date.now();
     requestAnimationFrame(() => overlay.classList.add('open'));
   }
   document.body.style.overflow = 'hidden';
@@ -2190,6 +2193,7 @@ function openChipModal(id) {
 
 function closeChipModal(e) {
   if (e && e.target !== document.getElementById('chipModalOverlay')) return;
+  if (Date.now() - chipModalOpenTime < 400) return; // ignore tap that opened the modal
   document.getElementById('chipModalOverlay').classList.remove('open');
   document.body.style.overflow = '';
 }
