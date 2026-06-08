@@ -565,25 +565,21 @@
 
   /* ── CHIP DESCRIPTION MODAL ── */
   .chip-modal-overlay {
-    position:fixed; inset:0; background:rgba(0,0,0,.82);
-    z-index:900; display:flex; align-items:center; justify-content:center;
-    opacity:0; pointer-events:none; transition:opacity .2s;
-    padding:24px; will-change:opacity;
+    position:fixed; inset:0; background:rgba(0,0,0,.88);
+    z-index:900; display:none; align-items:center; justify-content:center;
+    padding:24px;
   }
   .chip-modal-overlay.open {
-    opacity:1; pointer-events:all;
-    backdrop-filter:blur(3px);
+    display:flex;
   }
   .chip-modal {
     background:var(--surface); border:1px solid var(--border);
     box-shadow:0 0 60px rgba(0,0,0,.65);
     width:min(360px, 92vw); padding:28px 24px 22px;
     position:relative; display:flex; flex-direction:column; gap:12px;
-    transform:scale(.95);
   }
   .chip-modal-overlay.open .chip-modal {
-    transform:scale(1);
-    transition:transform .25s;
+    transform:none;
   }
 
   /* Rare ingredient — amber pulse glow */
@@ -1098,6 +1094,7 @@ const INGREDIENTS = [
     emoji:'🍋', color:'#c9c02a',
     desc:'Bright citrus-floral, cold-pressed from Italian bergamot rind. Uplifting and balancing - a cornerstone of fine perfumery.',
     warn:'⚠️ Phototoxic — furanocoumarins present. IFRA & TGA limits apply. Formulated in full compliance.',
+    restricted: true, fixedPct: 3.0,
     cost:2.40
   },
   {
@@ -1131,7 +1128,7 @@ const INGREDIENTS = [
     id:'blue-cypress', name:'Blue Cypress', note:'Heart · Base', group:'heart',
     emoji:'🔵', color:'#2a6bc9',
     desc:'Australian native. Smoky, earthy and ancient - a deep blue oil steam-distilled from the Callitris tree of the Northern Territory.',
-    warn:null, restricted: true, fixedPct: 14.0, cost:4.80
+    warn:null, maxPct: 14.0, cost:4.80
   },
   {
     id:'jasmine', name:'Jasmine Absolute', note:'Heart', group:'heart',
@@ -1187,8 +1184,7 @@ const INGREDIENTS = [
     id:'sweet-orange', name:'Sweet Orange', note:'Top', group:'top',
     emoji:'🍊', color:'#e87020',
     desc:'Warm, round and effortlessly cheerful. Cold-pressed from the peel of Citrus sinensis - rich, sweet and fruity.',
-    warn: null,
-    restricted: true, fixedPct: 5.0,
+    warn: null, maxPct: 5.0,
     cost:1.60
   },
   {
@@ -1210,19 +1206,19 @@ const INGREDIENTS = [
     id:'clary-sage', name:'Clary Sage', note:'Heart · Base', group:'heart',
     emoji:'🌿', color:'#6a8a3a',
     desc:'Herbaceous, earthy and slightly musky with a warm, hay-like sweetness. Deeply relaxing and balancing - a classic in natural perfumery.',
-    warn:null, restricted: true, fixedPct: 17.0, cost:2.60
+    warn:null, maxPct: 17.0, cost:2.60
   },
   {
     id:'kunzea', name:'Kunzea', note:'Top · Heart', group:'heart',
     emoji:'🌿', color:'#4a8a5a',
     desc:'Fresh, earthy and medicinal with a clean, slightly woody edge. An Australian native from the coastal heathlands of south-eastern Australia. 🌿 Australian Native - icon to be updated.',
-    warn:null, restricted: true, fixedPct: 9.0, cost:3.20
+    warn:null, maxPct: 9.0, cost:3.20
   },
   {
     id:'nerolina', name:'Nerolina', note:'Top · Heart', group:'heart',
     emoji:'🌿', color:'#5a9a6a',
     desc:'Soft, floral and gently woody - a bridge between neroli and tea tree. This Australian native has a calm, clean sweetness that belies its therapeutic depth. 🌿 Australian Native - icon to be updated.',
-    warn:null, restricted: true, fixedPct: 10.0, cost:3.00
+    warn:null, maxPct: 10.0, cost:3.00
   },
   {
     id:'nutmeg', name:'Nutmeg', note:'Top · Heart', group:'heart',
@@ -1247,7 +1243,7 @@ const INGREDIENTS = [
     id:'ambrette', name:'Ambrette Seed', note:'Heart · Base', group:'base',
     emoji:'🤍', color:'#c0a080', rare:true,
     desc:'Velvety, musky and softly pear-like - one of the finest natural musk alternatives available. Warm and sensual, lingers beautifully on skin.',
-    warn:null, restricted: true, fixedPct: 15.0, cost:6.50
+    warn:null, maxPct: 15.0, cost:6.50
   },
   {
     id:'cocoa', name:'Cocoa', note:'Base', group:'base',
@@ -1259,7 +1255,7 @@ const INGREDIENTS = [
     id:'ho-wood', name:'Ho Wood', note:'Heart · Base', group:'base',
     emoji:'🪵', color:'#8a6848',
     desc:'Soft, woody and quietly rosy with a clean freshness. A sustainable, high-linalool alternative to rosewood - grounding, calming and versatile.',
-    warn:null, restricted: true, fixedPct: 14.0, cost:2.60
+    warn:null, maxPct: 14.0, cost:2.60
   },
   // ── BATCH 3 NEW ──
   { id:'may-chang', name:'May Chang', note:'Top', group:'top', emoji:'🍋', color:'#c0c020', desc:'Bright, lemony and intensely fresh with a clean, almost lemon hard candy-like sweetness. More complex and fruity-floral than a straight citrus - a favourite in natural perfumery.', warn:null, cost:2.00 },
@@ -1271,8 +1267,8 @@ const INGREDIENTS = [
     restricted: true, fixedPct: 2.0, cost:1.80 },
   { id:'ylang-1st', name:'Ylang Ylang 1st', note:'Top', group:'top', emoji:'🌼', color:'#c0a830', desc:'The boldest expression of ylang ylang - sharp, heady and euphoric with an almost narcotic sweetness. The most volatile and intensely floral fraction.', warn:null, cost:2.80 },
   { id:'euca-citriodora', name:'Euca Citriodora', note:'Top', group:'top', emoji:'🌿', color:'#8ab020', desc:'An Australian native with a bright, lemon-fresh character and a distinctly airy, kerosene-like undertone. Widely used as a natural insect repellent. 🌿 Australian Native - icon to be updated.', warn:null, cost:2.00 },
-  { id:'cypress', name:'Cypress', note:'Heart · Base', group:'heart', emoji:'🌲', color:'#2a6a3a', desc:'Fresh, green and woody with a clean, resinous warmth. A Mediterranean classic with a crisp, forest-like character that grounds and clarifies.', warn:null, restricted: true, fixedPct: 15.0, cost:2.40 },
-  { id:'geranium-bourbon', name:'Geranium Bourbon', note:'Heart', group:'heart', emoji:'🌸', color:'#c06080', desc:'The finest expression of geranium - rich, rosy and green with a complexity that far exceeds common geranium. A backbone ingredient in classical and natural perfumery.', warn:null, restricted: true, fixedPct: 11.0, cost:3.20 },
+  { id:'cypress', name:'Cypress', note:'Heart · Base', group:'heart', emoji:'🌲', color:'#2a6a3a', desc:'Fresh, green and woody with a clean, resinous warmth. A Mediterranean classic with a crisp, forest-like character that grounds and clarifies.', warn:null, maxPct: 15.0, cost:2.40 },
+  { id:'geranium-bourbon', name:'Geranium Bourbon', note:'Heart', group:'heart', emoji:'🌸', color:'#c06080', desc:'The finest expression of geranium - rich, rosy and green with a complexity that far exceeds common geranium. A backbone ingredient in classical and natural perfumery.', warn:null, maxPct: 11.0, cost:3.20 },
   { id:'rosemary', name:'Rosemary (Spanish)', note:'Top · Heart', group:'heart', emoji:'🌿', color:'#5a8a3a', desc:'Sharp, herbaceous and invigorating. Spanish rosemary has a particularly crisp, camphorous character with a resinous warmth that blends beautifully.', warn:null, cost:2.00 },
   { id:'ylang-3rd', name:'Ylang Ylang 3rd', note:'Heart', group:'heart', emoji:'🌼', color:'#c0a020', desc:'Softer, rounder and more balsamic than the first fraction. Deeper and more creamy with a rubbery, slightly earthy warmth - the most versatile fraction for heart note blending.', warn:null, cost:2.40 },
   { id:'ylang-complete', name:'Ylang Ylang Complete', note:'Heart · Base', group:'heart', emoji:'🌼', color:'#b89820', desc:'The unfractionated, full distillation of Cananga odorata. Balanced, rich and complex - bright floral top notes giving way to a creamy, balsamic depth. The most naturalistic representation of the living flower.', warn:null, cost:2.60 },
@@ -1281,8 +1277,8 @@ const INGREDIENTS = [
     desc:'One of the rarest botanicals in natural perfumery. From Boronia megastigma — a small flowering shrub native to Western Australia. Extraordinarily complex — rich and earthy with fresh fruity-sweet, tea-like facets, soft cinnamon and tobacco nuances, and a warm woody-sweet depth. Organic, hexane-free extraction. 🌿 Australian Native.',
     warn:null, cost:14.00 },
   { id:'magnolia', name:'Magnolia (White Champaca)', note:'Heart', group:'heart', emoji:'🌸', color:'#c0a0b0', rare:true, desc:'Heady, luminous and intoxicatingly floral with a warm, tea-like creaminess. One of the most revered florals in Asian perfumery. Organic, hexane-free extraction.', warn:null, cost:9.00 },
-  { id:'osmanthus', name:'Osmanthus', note:'Heart', group:'heart', emoji:'🌸', color:'#c09040', rare:true, desc:'Delicate, peachy and apricot-like with a distinctive dark cherry undertone. One of the most prized florals in Chinese perfumery. Organic, hexane-free extraction.', warn:null, restricted: true, fixedPct: 14.0, cost:7.00 },
-  { id:'tuberose', name:'Tuberose', note:'Heart', group:'heart', emoji:'🤍', color:'#d0b0c0', rare:true, desc:'One of the most intensely floral botanicals in natural perfumery - rich, creamy and narcotic with a heady, waxy sweetness. A statement ingredient. Organic, hexane-free extraction.', warn:null, restricted: true, fixedPct: 13.0, cost:11.00 },
+  { id:'osmanthus', name:'Osmanthus', note:'Heart', group:'heart', emoji:'🌸', color:'#c09040', rare:true, desc:'Delicate, peachy and apricot-like with a distinctive dark cherry undertone. One of the most prized florals in Chinese perfumery. Organic, hexane-free extraction.', warn:null, maxPct: 14.0, cost:7.00 },
+  { id:'tuberose', name:'Tuberose', note:'Heart', group:'heart', emoji:'🤍', color:'#d0b0c0', rare:true, desc:'One of the most intensely floral botanicals in natural perfumery - rich, creamy and narcotic with a heady, waxy sweetness. A statement ingredient. Organic, hexane-free extraction.', warn:null, maxPct: 13.0, cost:11.00 },
   { id:'euca-blue-mallee', name:'Euca Blue Mallee', note:'Top · Heart', group:'heart', emoji:'🌿', color:'#2a7a4a', desc:'An Australian native with a high 1,8-cineole content - sharper and more penetrating than Blue Gum. Clean, medicinal intensity. 🌿 Australian Native - icon to be updated.', warn:null, cost:2.00 },
   { id:'tonka', name:'Tonka', note:'Base', group:'base', emoji:'🤎', color:'#a07840', rare:true, desc:'Warm, sweet and richly coumarinic with hints of almond, hay and tobacco. Tenacious and comforting - anchors sweet accords with an almost edible warmth. Organic, hexane-free extraction.', warn:null, cost:5.00 },
 ];
@@ -1568,8 +1564,10 @@ function removeIngredient(id) {
 
 function incrementSlot(id) {
   const ing = INGREDIENTS.find(i => i.id === id);
-  if (ing && ing.restricted) return; // fixed percentage — slots don't apply
-  if (!formula[id] || formula[id] >= 3 || totalSlots() >= 8) return;
+  if (ing && ing.restricted) return;
+  const ts = totalSlots();
+  if (!formula[id] || formula[id] >= 3 || ts >= 8) return;
+  if (wouldExceedMaxPct(id, formula[id], ts)) return;
   formula[id]++;
   updateAll();
   refreshCardAction(id);
@@ -1686,13 +1684,14 @@ function updateFormula(keys, pctMap) {
 
     const atGlobalMax = ts >= 8;
     const atIngMax = slots >= 3;
+    const atMaxPct = wouldExceedMaxPct(id, slots, ts);
     return `<div class="formula-item">
       <div class="formula-dot" style="background:${ing.color}"></div>
       <div class="formula-name">${ing.name}</div>
       <div class="formula-stepper">
         <button class="fml-btn minus" onclick="decrementSlot('${id}')">−</button>
         <span class="fml-slots">${slots}</span>
-        <button class="fml-btn plus" ${atGlobalMax || atIngMax ? 'disabled' : ''} onclick="incrementSlot('${id}')">+</button>
+        <button class="fml-btn plus" ${atGlobalMax || atIngMax || atMaxPct ? 'disabled' : ''} onclick="incrementSlot('${id}')">+</button>
       </div>
       <div class="formula-pct">${pct}%</div>
     </div>`;
@@ -2074,6 +2073,7 @@ function updateMobile(keys, totalPct, cost, pctMap) {
         const slots = formula[id];
         const atGlobalMax = ts >= 8;
         const atIngMax = slots >= 3;
+        const atMaxPct = wouldExceedMaxPct(id, slots, ts);
         if (ing.restricted) {
           const badge = ing.warn
             ? `<span class="formula-ifra-tag">⚠ IFRA</span>`
@@ -2091,7 +2091,7 @@ function updateMobile(keys, totalPct, cost, pctMap) {
           <div class="formula-stepper">
             <button class="fml-btn minus" onclick="decrementSlot('${id}')">−</button>
             <span class="fml-slots">${slots}</span>
-            <button class="fml-btn plus" ${atGlobalMax || atIngMax ? 'disabled' : ''} onclick="incrementSlot('${id}')">+</button>
+            <button class="fml-btn plus" ${atGlobalMax || atIngMax || atMaxPct ? 'disabled' : ''} onclick="incrementSlot('${id}')">+</button>
           </div>
           <div class="mob-formula-pct">${pctMap[id]}%</div>
         </div>`;
@@ -2244,12 +2244,62 @@ function getPctMap() {
   const remainingPct = 30 - restrictedTotal;
   const ts = normalKeys.reduce((s, k) => s + (formula[k] || 0), 0);
   const pctMap = {};
+
+  // IFRA restricted: always fixed
   restrictedKeys.forEach(k => { const i = INGREDIENTS.find(x => x.id === k); pctMap[k] = i.fixedPct; });
+
   if (ts > 0) {
-    const pctPerSlot = remainingPct / ts;
-    normalKeys.forEach(k => { pctMap[k] = Math.round(pctPerSlot * formula[k] * 10) / 10; });
+    // Iterative slot distribution with maxPct capping.
+    // Each pass: distribute freely, find violators, cap them, repeat with remainder.
+    const cappedKeys = new Set();
+    let cappedPctTotal = 0;
+
+    for (let iter = 0; iter < normalKeys.length; iter++) {
+      const freeKeys = normalKeys.filter(k => !cappedKeys.has(k));
+      const freeSlots = freeKeys.reduce((s, k) => s + (formula[k] || 0), 0);
+      if (freeSlots === 0) break;
+
+      const freeRemaining = remainingPct - cappedPctTotal;
+      const pctPerSlot = freeRemaining / freeSlots;
+      let newCapFound = false;
+
+      freeKeys.forEach(k => {
+        const i = INGREDIENTS.find(x => x.id === k);
+        const pct = pctPerSlot * formula[k];
+        if (i.maxPct && pct > i.maxPct) {
+          pctMap[k] = i.maxPct;
+          cappedPctTotal += i.maxPct;
+          cappedKeys.add(k);
+          newCapFound = true;
+        }
+      });
+
+      if (!newCapFound) {
+        freeKeys.forEach(k => {
+          pctMap[k] = Math.round(pctPerSlot * formula[k] * 10) / 10;
+        });
+        break;
+      }
+    }
+
+    // Safety: any uncapped key still missing gets 0
+    normalKeys.filter(k => pctMap[k] === undefined).forEach(k => { pctMap[k] = 0; });
   }
+
   return pctMap;
+}
+
+// Returns true if adding one more slot to id would push it over its maxPct
+function wouldExceedMaxPct(id, currentSlots, ts) {
+  const ing = INGREDIENTS.find(i => i.id === id);
+  if (!ing || !ing.maxPct) return false;
+  const restrictedTotal = Object.keys(formula).reduce((s, k) => {
+    const i = INGREDIENTS.find(x => x.id === k);
+    return i && i.restricted ? s + (i.fixedPct || 0) : s;
+  }, 0);
+  const nextTs = ts + 1;
+  const nextPct = (30 - restrictedTotal) / nextTs * (currentSlots + 1);
+  return nextPct > ing.maxPct;
 }
 
 // ═══════════════════════════════════════════════════════════════
