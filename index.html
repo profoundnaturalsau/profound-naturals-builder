@@ -573,9 +573,12 @@
     box-shadow:0 0 60px rgba(0,0,0,.65);
     width:min(360px, 92vw); padding:28px 24px 22px;
     position:relative; display:flex; flex-direction:column; gap:12px;
-    transform:scale(.95); transition:transform .25s;
+    transform:scale(.95);
   }
-  .chip-modal-overlay.open .chip-modal { transform:scale(1); }
+  .chip-modal-overlay.open .chip-modal {
+    transform:scale(1);
+    transition:transform .25s;
+  }
 
   /* Rare ingredient — amber pulse glow */
   .chip-modal-overlay.rare .chip-modal {
@@ -2155,9 +2158,12 @@ function openChipModal(id) {
   btn.onclick = () => { toggleIngredient(id); closeChipModal(); };
 
   const overlay = document.getElementById('chipModalOverlay');
-  overlay.classList.remove('rare', 'standard');
+  overlay.classList.remove('rare', 'standard', 'open');
+  void overlay.offsetHeight; // force reflow so removal commits before re-opening
   overlay.classList.add(ing.rare ? 'rare' : 'standard');
-  overlay.classList.add('open');
+  requestAnimationFrame(() => {
+    overlay.classList.add('open');
+  });
   document.body.style.overflow = 'hidden';
 }
 
