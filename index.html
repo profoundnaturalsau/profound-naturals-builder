@@ -958,7 +958,8 @@
     /* Pct bar in header — hide on mobile, redundant with bottom bar */
     .concentrate-bar { display:none; }
 
-  /* ── INGREDIENT CHIP STRIP ── */
+  .flip-card { touch-action:manipulation; }
+  .mob-chip  { touch-action:manipulation; }
     .mob-chip-strip-wrap {
       position:sticky; bottom:0;
       width:100%;
@@ -2208,6 +2209,14 @@ function openChipModal(id) {
   if (!alreadyOpen) {
     chipModalOpenTime = Date.now();
     overlay.classList.add('open');
+    // Chrome mobile fires a ghost click at the same screen coords as the tap that
+    // opened the modal. Intercept it in the capture phase before it reaches the overlay.
+    const absorbGhostClick = (e) => {
+      e.stopImmediatePropagation();
+      document.removeEventListener('click', absorbGhostClick, true);
+    };
+    document.addEventListener('click', absorbGhostClick, true);
+    setTimeout(() => document.removeEventListener('click', absorbGhostClick, true), 700);
   }
   document.body.style.overflow = 'hidden';
 }
