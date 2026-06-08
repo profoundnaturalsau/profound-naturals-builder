@@ -1,5 +1,5 @@
 [build]
-  command = "npm install --prefix profound-naturals-builder"
+  command = "npm install"
   functions = "profound-naturals-builder/netlify/functions"
   publish = "profound-naturals-builder"
 
