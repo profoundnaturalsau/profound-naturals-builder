@@ -562,14 +562,14 @@
 
   /* ── CHIP DESCRIPTION MODAL ── */
   .chip-modal-overlay {
-    position:fixed; inset:0; background:rgba(0,0,0,.78);
+    position:fixed; inset:0; background:rgba(0,0,0,.82);
     z-index:900; display:flex; align-items:center; justify-content:center;
-    opacity:0; pointer-events:none; transition:opacity .25s;
-    padding:24px;
+    opacity:0; pointer-events:none; transition:opacity .2s;
+    padding:24px; will-change:opacity;
   }
   .chip-modal-overlay.open {
     opacity:1; pointer-events:all;
-    backdrop-filter:blur(6px);
+    backdrop-filter:blur(3px);
   }
   .chip-modal {
     background:var(--surface); border:1px solid var(--border);
@@ -2152,6 +2152,24 @@ function hexToRgba(hex, a) {
 // ═══════════════════════════════════════════════════════════════
 let chipModalOpenTime = 0;
 
+// Use touchend for backdrop dismiss — absorbs the phantom click that mobile fires after a tap
+document.addEventListener('DOMContentLoaded', () => {
+  const overlay = document.getElementById('chipModalOverlay');
+  if (overlay) {
+    overlay.addEventListener('touchend', (e) => {
+      if (e.target === overlay && Date.now() - chipModalOpenTime > 500) {
+        e.preventDefault();
+        closeChipModal();
+      }
+    }, { passive: false });
+    overlay.addEventListener('click', (e) => {
+      if (e.target === overlay && Date.now() - chipModalOpenTime > 500) {
+        closeChipModal();
+      }
+    });
+  }
+});
+
 function openChipModal(id) {
   const ing = INGREDIENTS.find(i => i.id === id);
   if (!ing) return;
@@ -2421,8 +2439,8 @@ renderIngredients();
      CHIP DESCRIPTION MODAL
      Mobile only — triggered by tapping an ingredient chip
      ═══════════════════════════════════════════════════════ -->
-<div class="chip-modal-overlay" id="chipModalOverlay" onclick="closeChipModal(event)">
-  <div class="chip-modal">
+<div class="chip-modal-overlay" id="chipModalOverlay">
+  <div class="chip-modal" onclick="event.stopPropagation()">
     <button class="chip-modal-close" onclick="closeChipModal()">&times;</button>
     <div class="chip-modal-emoji" id="chipModalEmoji"></div>
     <div>
