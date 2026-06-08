@@ -1109,7 +1109,8 @@ const INGREDIENTS = [
     warn:null, cost:2.20
   },
   {
-    id:'cinnamon', name:'Cinnamon Bark', note:'Top · Heart', group:'top',
+    id:'cinnamon',
+    img:'cinnamon-bark.png', name:'Cinnamon Bark', note:'Top · Heart', group:'top',
     emoji:'🟤', color:'#a05a20',
     desc:'Warm, spiced and sweetly enveloping. Adds immediate richness and depth - a natural fixative that anchors lighter notes.',
     warn:'⚠️ Subject to TGA and IFRA regulatory limits for leave-on cosmetic products. Profound Naturals formulates in full compliance with all applicable guidelines.',
@@ -1117,7 +1118,8 @@ const INGREDIENTS = [
     cost:2.60
   },
   {
-    id:'davana', name:'Davana', note:'Top · Heart', group:'top',
+    id:'davana',
+    img:'davana.png', name:'Davana', note:'Top · Heart', group:'top',
     emoji:'🟤', color:'#c97a2a',
     desc:'Boozy, fruity and animalic - davana shifts beautifully on skin, smelling different on every person who wears it.',
     warn:null, cost:3.20
@@ -1186,26 +1188,30 @@ const INGREDIENTS = [
   // ── NEW INGREDIENTS ──
   // TOP NOTES
   {
-    id:'ginger', name:'Ginger', note:'Top · Heart', group:'top',
+    id:'ginger',
+    img:'ginger.png', name:'Ginger', note:'Top · Heart', group:'top',
     emoji:'🫚', color:'#c9900a',
     desc:'Warm, spicy and energising with a fresh, zesty edge - grounding yet invigorating with a rich, peppery warmth.',
     warn:null, cost:2.80
   },
   {
-    id:'sweet-orange', name:'Sweet Orange', note:'Top', group:'top',
+    id:'sweet-orange',
+    img:'sweet-orange.png', name:'Sweet Orange', note:'Top', group:'top',
     emoji:'🍊', color:'#e87020',
     desc:'Warm, round and effortlessly cheerful. Cold-pressed from the peel of Citrus sinensis - rich, sweet and fruity.',
     warn: null, maxPct: 5.0,
     cost:1.60
   },
   {
-    id:'scots-pine', name:'Scots Pine', note:'Top · Heart', group:'top',
+    id:'scots-pine',
+    img:'scotch-pine.png', name:'Scots Pine', note:'Top · Heart', group:'top',
     emoji:'🌲', color:'#2a6a2a',
     desc:'Crisp, resinous and deeply forested. Steam-distilled from the needles of Pinus sylvestris - clean, sharp and invigorating.',
     warn:null, cost:2.20
   },
   {
-    id:'clove-bud', name:'Clove Bud', note:'Top · Heart', group:'top',
+    id:'clove-bud',
+    img:'clove-bud.png', name:'Clove Bud', note:'Top · Heart', group:'top',
     emoji:'🌰', color:'#8a4020',
     desc:'Intensely warm, spicy and deeply aromatic. One of the most powerful botanicals in natural perfumery - a little goes a very long way.',
     warn:'⚠️ IFRA & TGA limits apply — high eugenol content. Capped at 0.1%. Formulated in full compliance.',
@@ -1272,9 +1278,11 @@ const INGREDIENTS = [
   // ── BATCH 3 NEW ──
   { id:'may-chang',
     img:'may-chang.png', name:'May Chang', note:'Top', group:'top', emoji:'🍋', color:'#c0c020', desc:'Bright, lemony and intensely fresh with a clean, almost lemon hard candy-like sweetness. More complex and fruity-floral than a straight citrus - a favourite in natural perfumery.', warn:null, cost:2.00 },
-  { id:'pink-grapefruit', name:'Pink Grapefruit', note:'Top', group:'top', emoji:'🍊', color:'#e8904a', desc:'Bright, juicy and uplifting. Cold-pressed from the peel of Citrus paradisi - an instant mood-lifter with a clean, slightly tart sweetness.', warn:'⚠️ Phototoxic - cold-pressed citrus. Formulated in compliance with TGA and IFRA guidelines.', restricted: true, fixedPct: 4.0, cost:1.80 },
+  { id:'pink-grapefruit',
+    img:'pink-grapefruit.png', name:'Pink Grapefruit', note:'Top', group:'top', emoji:'🍊', color:'#e8904a', desc:'Bright, juicy and uplifting. Cold-pressed from the peel of Citrus paradisi - an instant mood-lifter with a clean, slightly tart sweetness.', warn:'⚠️ Phototoxic - cold-pressed citrus. Formulated in compliance with TGA and IFRA guidelines.', restricted: true, fixedPct: 4.0, cost:1.80 },
   { id:'lime-distilled', name:'Lime Distilled', note:'Top', group:'top', emoji:'🍋', color:'#a0c020', desc:'Crisp, clean and vibrantly citrusy. Steam distillation gives this lime a brighter, more transparent character - refreshing and sharp.', warn:null, cost:1.80 },
-  { id:'lemon', name:'Lemon EO', note:'Top', group:'top', emoji:'🍋', color:'#e8e040',
+  { id:'lemon',
+    img:'lemon.png', name:'Lemon EO', note:'Top', group:'top', emoji:'🍋', color:'#e8e040',
     desc:'Bright, clean and unmistakably fresh. Cold-pressed from the peel of Citrus limon — sharp, zesty and instantly uplifting with a sparkling, slightly floral character. One of the most versatile top notes in natural perfumery.',
     warn:'⚠️ Phototoxic — cold-pressed citrus. IFRA & TGA limits apply. Capped at 2%. Formulated in full compliance.',
     restricted: true, fixedPct: 2.0, cost:1.80 },
