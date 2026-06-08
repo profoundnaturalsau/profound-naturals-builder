@@ -2,6 +2,7 @@
   "name": "profound-naturals-builder",
   "version": "1.0.0",
   "dependencies": {
-    "nodemailer": "^6.9.0"
+    "nodemailer": "^6.9.0",
+    "stripe": "^14.0.0"
   }
 }
