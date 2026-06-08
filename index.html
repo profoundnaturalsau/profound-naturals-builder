@@ -670,6 +670,7 @@
   .toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
   .toast.warn { border-color:var(--amber); color:var(--amber); background:rgba(212,160,23,.07); }
   .toast.error { border-color:rgba(220,80,80,.7); color:rgba(220,100,100,.9); background:rgba(220,80,80,.07); }
+  .toast.success { border-color:var(--green); color:var(--green-lt); background:rgba(140,196,15,.07); }
 
   /* ── REQUEST FORMULA MODAL ── */
   .req-modal-overlay {
@@ -1806,7 +1807,7 @@ async function sendFormulaRequest() {
   if (!name)  { alert('Please enter your name'); return; }
   if (!email || !email.includes('@')) { alert('Please enter a valid email address'); return; }
 
-  btn.textContent = 'Sending...';
+  btn.textContent = 'Preparing checkout...';
   btn.disabled = true;
 
   const keys = Object.keys(formula);
@@ -1820,24 +1821,26 @@ async function sendFormulaRequest() {
   });
 
   try {
-    const res = await fetch('/.netlify/functions/request-formula', {
+    const res = await fetch('/.netlify/functions/formula-checkout', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ name, email, phone, notes, formulaName, formula: formulaLines, price: cost.toFixed(2) })
     });
-    if (res.ok) {
-      document.getElementById('reqModalOverlay').classList.remove('open');
-      document.body.style.overflow = '';
-      // Show confirmation state
-      const panel = document.getElementById('bottleSide') || document.querySelector('.bottle-side');
-      btn.textContent = 'Request Sent ✓';
+
+    const data = await res.json();
+
+    if (res.ok && data.url) {
+      // Redirect to Stripe checkout
+      btn.textContent = 'Redirecting to checkout...';
+      window.location.href = data.url;
     } else {
-      throw new Error('Server error');
+      throw new Error(data.error || 'Server error');
     }
-  } catch {
+  } catch (err) {
+    console.error('Checkout error:', err);
     btn.textContent = 'Try again';
     btn.disabled = false;
-    setTimeout(() => { btn.textContent = 'Send Request'; btn.disabled = false; }, 3000);
+    setTimeout(() => { btn.textContent = 'Continue to Checkout →'; btn.disabled = false; }, 3000);
   }
 }
 
@@ -2185,6 +2188,15 @@ let chipModalOpenTime = 0;
 
 // Use touchend for backdrop dismiss — absorbs the phantom click that mobile fires after a tap
 document.addEventListener('DOMContentLoaded', () => {
+  // Handle Stripe redirect responses
+  const params = new URLSearchParams(window.location.search);
+  if (params.get('order_success') === '1') {
+    showToast('Order placed — your formula is on its way to us. Thank you!', 'success');
+    window.history.replaceState({}, '', window.location.pathname);
+  } else if (params.get('order_cancelled') === '1') {
+    showToast('Checkout cancelled — your formula is still saved.', 'warn');
+    window.history.replaceState({}, '', window.location.pathname);
+  }
   const overlay = document.getElementById('chipModalOverlay');
   if (overlay) {
     overlay.addEventListener('touchend', (e) => {
