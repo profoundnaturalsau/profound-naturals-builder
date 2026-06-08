@@ -1082,7 +1082,7 @@ const INGREDIENTS = [
     id:'blue-cypress', name:'Blue Cypress', note:'Heart · Base', group:'heart',
     emoji:'🔵', color:'#2a6bc9',
     desc:'Australian native. Smoky, earthy and ancient - a deep blue oil steam-distilled from the Callitris tree of the Northern Territory.',
-    warn:null, cost:4.80
+    warn:null, restricted: true, fixedPct: 14.0, cost:4.80
   },
   {
     id:'jasmine', name:'Jasmine Absolute', note:'Heart', group:'heart',
@@ -1161,19 +1161,19 @@ const INGREDIENTS = [
     id:'clary-sage', name:'Clary Sage', note:'Heart · Base', group:'heart',
     emoji:'🌿', color:'#6a8a3a',
     desc:'Herbaceous, earthy and slightly musky with a warm, hay-like sweetness. Deeply relaxing and balancing - a classic in natural perfumery.',
-    warn:null, cost:2.60
+    warn:null, restricted: true, fixedPct: 17.0, cost:2.60
   },
   {
     id:'kunzea', name:'Kunzea', note:'Top · Heart', group:'heart',
     emoji:'🌿', color:'#4a8a5a',
     desc:'Fresh, earthy and medicinal with a clean, slightly woody edge. An Australian native from the coastal heathlands of south-eastern Australia. 🌿 Australian Native - icon to be updated.',
-    warn:null, cost:3.20
+    warn:null, restricted: true, fixedPct: 9.0, cost:3.20
   },
   {
     id:'nerolina', name:'Nerolina', note:'Top · Heart', group:'heart',
     emoji:'🌿', color:'#5a9a6a',
     desc:'Soft, floral and gently woody - a bridge between neroli and tea tree. This Australian native has a calm, clean sweetness that belies its therapeutic depth. 🌿 Australian Native - icon to be updated.',
-    warn:null, cost:3.00
+    warn:null, restricted: true, fixedPct: 10.0, cost:3.00
   },
   {
     id:'nutmeg', name:'Nutmeg', note:'Top · Heart', group:'heart',
@@ -1198,7 +1198,7 @@ const INGREDIENTS = [
     id:'ambrette', name:'Ambrette Seed', note:'Heart · Base', group:'base',
     emoji:'🤍', color:'#c0a080', rare:true,
     desc:'Velvety, musky and softly pear-like - one of the finest natural musk alternatives available. Warm and sensual, lingers beautifully on skin.',
-    warn:null, cost:6.50
+    warn:null, restricted: true, fixedPct: 15.0, cost:6.50
   },
   {
     id:'cocoa', name:'Cocoa', note:'Base', group:'base',
@@ -1210,7 +1210,7 @@ const INGREDIENTS = [
     id:'ho-wood', name:'Ho Wood', note:'Heart · Base', group:'base',
     emoji:'🪵', color:'#8a6848',
     desc:'Soft, woody and quietly rosy with a clean freshness. A sustainable, high-linalool alternative to rosewood - grounding, calming and versatile.',
-    warn:null, cost:2.60
+    warn:null, restricted: true, fixedPct: 14.0, cost:2.60
   },
   // ── BATCH 3 NEW ──
   { id:'may-chang', name:'May Chang', note:'Top', group:'top', emoji:'🍋', color:'#c0c020', desc:'Bright, lemony and intensely fresh with a clean, almost lemon hard candy-like sweetness. More complex and fruity-floral than a straight citrus - a favourite in natural perfumery.', warn:null, cost:2.00 },
@@ -1222,8 +1222,8 @@ const INGREDIENTS = [
     restricted: true, fixedPct: 2.0, cost:1.80 },
   { id:'ylang-1st', name:'Ylang Ylang 1st', note:'Top', group:'top', emoji:'🌼', color:'#c0a830', desc:'The boldest expression of ylang ylang - sharp, heady and euphoric with an almost narcotic sweetness. The most volatile and intensely floral fraction.', warn:null, cost:2.80 },
   { id:'euca-citriodora', name:'Euca Citriodora', note:'Top', group:'top', emoji:'🌿', color:'#8ab020', desc:'An Australian native with a bright, lemon-fresh character and a distinctly airy, kerosene-like undertone. Widely used as a natural insect repellent. 🌿 Australian Native - icon to be updated.', warn:null, cost:2.00 },
-  { id:'cypress', name:'Cypress', note:'Heart · Base', group:'heart', emoji:'🌲', color:'#2a6a3a', desc:'Fresh, green and woody with a clean, resinous warmth. A Mediterranean classic with a crisp, forest-like character that grounds and clarifies.', warn:null, cost:2.40 },
-  { id:'geranium-bourbon', name:'Geranium Bourbon', note:'Heart', group:'heart', emoji:'🌸', color:'#c06080', desc:'The finest expression of geranium - rich, rosy and green with a complexity that far exceeds common geranium. A backbone ingredient in classical and natural perfumery.', warn:null, cost:3.20 },
+  { id:'cypress', name:'Cypress', note:'Heart · Base', group:'heart', emoji:'🌲', color:'#2a6a3a', desc:'Fresh, green and woody with a clean, resinous warmth. A Mediterranean classic with a crisp, forest-like character that grounds and clarifies.', warn:null, restricted: true, fixedPct: 15.0, cost:2.40 },
+  { id:'geranium-bourbon', name:'Geranium Bourbon', note:'Heart', group:'heart', emoji:'🌸', color:'#c06080', desc:'The finest expression of geranium - rich, rosy and green with a complexity that far exceeds common geranium. A backbone ingredient in classical and natural perfumery.', warn:null, restricted: true, fixedPct: 11.0, cost:3.20 },
   { id:'rosemary', name:'Rosemary (Spanish)', note:'Top · Heart', group:'heart', emoji:'🌿', color:'#5a8a3a', desc:'Sharp, herbaceous and invigorating. Spanish rosemary has a particularly crisp, camphorous character with a resinous warmth that blends beautifully.', warn:null, cost:2.00 },
   { id:'ylang-3rd', name:'Ylang Ylang 3rd', note:'Heart', group:'heart', emoji:'🌼', color:'#c0a020', desc:'Softer, rounder and more balsamic than the first fraction. Deeper and more creamy with a rubbery, slightly earthy warmth - the most versatile fraction for heart note blending.', warn:null, cost:2.40 },
   { id:'ylang-complete', name:'Ylang Ylang Complete', note:'Heart · Base', group:'heart', emoji:'🌼', color:'#b89820', desc:'The unfractionated, full distillation of Cananga odorata. Balanced, rich and complex - bright floral top notes giving way to a creamy, balsamic depth. The most naturalistic representation of the living flower.', warn:null, cost:2.60 },
@@ -1232,8 +1232,8 @@ const INGREDIENTS = [
     desc:'One of the rarest botanicals in natural perfumery. From Boronia megastigma — a small flowering shrub native to Western Australia. Extraordinarily complex — rich and earthy with fresh fruity-sweet, tea-like facets, soft cinnamon and tobacco nuances, and a warm woody-sweet depth. Organic, hexane-free extraction. 🌿 Australian Native.',
     warn:null, cost:14.00 },
   { id:'magnolia', name:'Magnolia (White Champaca)', note:'Heart', group:'heart', emoji:'🌸', color:'#c0a0b0', rare:true, desc:'Heady, luminous and intoxicatingly floral with a warm, tea-like creaminess. One of the most revered florals in Asian perfumery. Organic, hexane-free extraction.', warn:null, cost:9.00 },
-  { id:'osmanthus', name:'Osmanthus', note:'Heart', group:'heart', emoji:'🌸', color:'#c09040', rare:true, desc:'Delicate, peachy and apricot-like with a distinctive dark cherry undertone. One of the most prized florals in Chinese perfumery. Organic, hexane-free extraction.', warn:null, cost:7.00 },
-  { id:'tuberose', name:'Tuberose', note:'Heart', group:'heart', emoji:'🤍', color:'#d0b0c0', rare:true, desc:'One of the most intensely floral botanicals in natural perfumery - rich, creamy and narcotic with a heady, waxy sweetness. A statement ingredient. Organic, hexane-free extraction.', warn:null, cost:11.00 },
+  { id:'osmanthus', name:'Osmanthus', note:'Heart', group:'heart', emoji:'🌸', color:'#c09040', rare:true, desc:'Delicate, peachy and apricot-like with a distinctive dark cherry undertone. One of the most prized florals in Chinese perfumery. Organic, hexane-free extraction.', warn:null, restricted: true, fixedPct: 14.0, cost:7.00 },
+  { id:'tuberose', name:'Tuberose', note:'Heart', group:'heart', emoji:'🤍', color:'#d0b0c0', rare:true, desc:'One of the most intensely floral botanicals in natural perfumery - rich, creamy and narcotic with a heady, waxy sweetness. A statement ingredient. Organic, hexane-free extraction.', warn:null, restricted: true, fixedPct: 13.0, cost:11.00 },
   { id:'euca-blue-mallee', name:'Euca Blue Mallee', note:'Top · Heart', group:'heart', emoji:'🌿', color:'#2a7a4a', desc:'An Australian native with a high 1,8-cineole content - sharper and more penetrating than Blue Gum. Clean, medicinal intensity. 🌿 Australian Native - icon to be updated.', warn:null, cost:2.00 },
   { id:'tonka', name:'Tonka', note:'Base', group:'base', emoji:'🤎', color:'#a07840', rare:true, desc:'Warm, sweet and richly coumarinic with hints of almond, hay and tobacco. Tenacious and comforting - anchors sweet accords with an almost edible warmth. Organic, hexane-free extraction.', warn:null, cost:5.00 },
 ];
@@ -1252,6 +1252,7 @@ let alcoholFilled = false; // tracks whether user confirmed and alcohol animatio
 let lastActualTotal = 0;  // last calculated concentrate total — used by fillAlcohol
 let mobFillAnimFrame = null; // rAF handle for mobile fill animation
 let mobFillCurrentH  = 0;   // current animated height — persists between calls
+let chipOrder = null;        // shuffled ingredient order for chip strip — set once on load
 
 // ── Mobile fill animator — JS-driven for reliable cross-browser animation ──
 function animateMobileFill(targetH, delay) {
@@ -1318,7 +1319,8 @@ function renderIngredients() {
   // Populate mobile chip strip on load so it's ready before any ingredient is added
   const chipStrip = document.getElementById('mobChipStrip');
   if (chipStrip) {
-    chipStrip.innerHTML = INGREDIENTS.map(ing => {
+    if (!chipOrder) chipOrder = shuffle(INGREDIENTS);
+    chipStrip.innerHTML = chipOrder.map(ing => {
       const isAdded = !!formula[ing.id];
       const isRare  = ing.rare ? 'rare' : '';
       return `<div class="mob-chip ${isAdded ? 'added' : ''} ${isRare}" id="mob-chip-${ing.id}" onclick="openChipModal('${ing.id}')">
@@ -1617,11 +1619,13 @@ function updateFormula(keys, pctMap) {
     const slots = formula[id];
 
     if (ing.restricted) {
-      // IFRA-capped ingredient: fixed %, no stepper
+      const badge = ing.warn
+        ? `<span class="formula-ifra-tag">⚠ IFRA</span>`
+        : '';
       return `<div class="formula-item">
         <div class="formula-dot" style="background:${ing.color}"></div>
         <div class="formula-name">${ing.name}</div>
-        <span class="formula-ifra-tag">⚠ IFRA</span>
+        ${badge}
         <div class="formula-pct">${pct}%</div>
       </div>`;
     }
@@ -2017,10 +2021,13 @@ function updateMobile(keys, totalPct, cost, pctMap) {
         const atGlobalMax = ts >= 8;
         const atIngMax = slots >= 3;
         if (ing.restricted) {
+          const badge = ing.warn
+            ? `<span class="formula-ifra-tag">⚠ IFRA</span>`
+            : '';
           return `<div class="mob-formula-item">
             <div class="mob-formula-dot" style="background:${ing.color}"></div>
             <div class="mob-formula-name">${ing.name}</div>
-            <span class="formula-ifra-tag">⚠ IFRA</span>
+            ${badge}
             <div class="mob-formula-pct">${pctMap[id]}%</div>
           </div>`;
         }
@@ -2060,7 +2067,8 @@ function updateMobile(keys, totalPct, cost, pctMap) {
   // ── Ingredient chip strip — renders all ingredients, tap to add/remove ──
   const chipStrip = document.getElementById('mobChipStrip');
   if (chipStrip) {
-    chipStrip.innerHTML = INGREDIENTS.map(ing => {
+    if (!chipOrder) chipOrder = shuffle(INGREDIENTS);
+    chipStrip.innerHTML = chipOrder.map(ing => {
       const isAdded = !!formula[ing.id];
       const isRare  = ing.rare ? 'rare' : '';
       return `<div class="mob-chip ${isAdded ? 'added' : ''} ${isRare}" id="mob-chip-${ing.id}" onclick="openChipModal('${ing.id}')">
