@@ -1088,6 +1088,7 @@ const INGREDIENTS = [
     emoji:'🌸', color:'#c97ab0', rare:true,
     desc:'Rich, heady and intoxicating. One of the most prized florals in perfumery - complex, indolic and deeply feminine.',
     warn:'⚠️ Regulated sensitiser. Profound Naturals formulates in full compliance with current TGA and IFRA standards.',
+    restricted: true, fixedPct: 2.0,
     cost:8.50
   },
   {
@@ -1136,7 +1137,8 @@ const INGREDIENTS = [
     id:'sweet-orange', name:'Sweet Orange', note:'Top', group:'top',
     emoji:'🍊', color:'#e87020',
     desc:'Warm, round and effortlessly cheerful. Cold-pressed from the peel of Citrus sinensis - rich, sweet and fruity.',
-    warn:'⚠️ Phototoxic - cold-pressed citrus. Formulated in compliance with TGA and IFRA guidelines.',
+    warn: null,
+    restricted: true, fixedPct: 5.0,
     cost:1.60
   },
   {
@@ -1150,6 +1152,7 @@ const INGREDIENTS = [
     emoji:'🌰', color:'#8a4020',
     desc:'Intensely warm, spicy and deeply aromatic. One of the most powerful botanicals in natural perfumery - a little goes a very long way.',
     warn:'⚠️ Subject to TGA and IFRA regulatory limits due to high eugenol content. Profound Naturals formulates in full compliance with all applicable guidelines.',
+    restricted: true, fixedPct: 2.0,
     cost:1.80
   },
   // HEART NOTES
@@ -1210,8 +1213,12 @@ const INGREDIENTS = [
   },
   // ── BATCH 3 NEW ──
   { id:'may-chang', name:'May Chang', note:'Top', group:'top', emoji:'🍋', color:'#c0c020', desc:'Bright, lemony and intensely fresh with a clean, almost lemon hard candy-like sweetness. More complex and fruity-floral than a straight citrus - a favourite in natural perfumery.', warn:null, cost:2.00 },
-  { id:'pink-grapefruit', name:'Pink Grapefruit', note:'Top', group:'top', emoji:'🍊', color:'#e8904a', desc:'Bright, juicy and uplifting. Cold-pressed from the peel of Citrus paradisi - an instant mood-lifter with a clean, slightly tart sweetness.', warn:'⚠️ Phototoxic - cold-pressed citrus. Formulated in compliance with TGA and IFRA guidelines.', cost:1.80 },
+  { id:'pink-grapefruit', name:'Pink Grapefruit', note:'Top', group:'top', emoji:'🍊', color:'#e8904a', desc:'Bright, juicy and uplifting. Cold-pressed from the peel of Citrus paradisi - an instant mood-lifter with a clean, slightly tart sweetness.', warn:'⚠️ Phototoxic - cold-pressed citrus. Formulated in compliance with TGA and IFRA guidelines.', restricted: true, fixedPct: 4.0, cost:1.80 },
   { id:'lime-distilled', name:'Lime Distilled', note:'Top', group:'top', emoji:'🍋', color:'#a0c020', desc:'Crisp, clean and vibrantly citrusy. Steam distillation gives this lime a brighter, more transparent character - refreshing and sharp.', warn:null, cost:1.80 },
+  { id:'lemon', name:'Lemon EO', note:'Top', group:'top', emoji:'🍋', color:'#e8e040',
+    desc:'Bright, clean and unmistakably fresh. Cold-pressed from the peel of Citrus limon — sharp, zesty and instantly uplifting with a sparkling, slightly floral character. One of the most versatile top notes in natural perfumery.',
+    warn:'⚠️ Phototoxic — cold-pressed citrus. Profound Naturals formulates in full compliance with TGA and IFRA guidelines.',
+    restricted: true, fixedPct: 2.0, cost:1.80 },
   { id:'ylang-1st', name:'Ylang Ylang 1st', note:'Top', group:'top', emoji:'🌼', color:'#c0a830', desc:'The boldest expression of ylang ylang - sharp, heady and euphoric with an almost narcotic sweetness. The most volatile and intensely floral fraction.', warn:null, cost:2.80 },
   { id:'euca-citriodora', name:'Euca Citriodora', note:'Top', group:'top', emoji:'🌿', color:'#8ab020', desc:'An Australian native with a bright, lemon-fresh character and a distinctly airy, kerosene-like undertone. Widely used as a natural insect repellent. 🌿 Australian Native - icon to be updated.', warn:null, cost:2.00 },
   { id:'cypress', name:'Cypress', note:'Heart · Base', group:'heart', emoji:'🌲', color:'#2a6a3a', desc:'Fresh, green and woody with a clean, resinous warmth. A Mediterranean classic with a crisp, forest-like character that grounds and clarifies.', warn:null, cost:2.40 },
