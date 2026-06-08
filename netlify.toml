@@ -1,6 +1,7 @@
 [build]
-  command = "npm install"
-  functions = "netlify/functions"
+  command = "npm install --prefix profound-naturals-builder"
+  functions = "profound-naturals-builder/netlify/functions"
+  publish = "profound-naturals-builder"
 
 [functions]
   node_bundler = "esbuild"
