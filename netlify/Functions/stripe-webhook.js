@@ -41,15 +41,15 @@ function customerEmail({ formulaName, ingredients, totalPrice, shippingAddress }
   return `<!DOCTYPE html>
 <html lang="en">
 <head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head>
-<body style="margin:0;padding:0;background-color:#080d09;">
-  <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#080d09;">
-    <tr><td align="center" style="padding:40px 16px 48px;">
-      <table width="560" cellpadding="0" cellspacing="0" border="0" style="max-width:560px;width:100%;background-color:#0f1510;border:1px solid #2a2e2b;border-radius:3px;">
+<body style="margin:0;padding:0;background-color:#080d09 !important;">
+  <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#080d09 !important;">
+    <tr><td align="center" style="padding:40px 16px 48px;background-color:#080d09 !important;">
+      <table width="560" cellpadding="0" cellspacing="0" border="0" style="max-width:560px;width:100%;background-color:#0f1510 !important;border:1px solid #2a2e2b;border-radius:3px;">
 
-        <tr><td style="padding:36px 40px 28px;">
+        <tr><td style="padding:36px 40px 28px;background-color:#0f1510 !important;">
           <p style="margin:0 0 10px;font-family:Georgia,serif;font-size:10px;letter-spacing:0.22em;text-transform:uppercase;color:#8cc40f;">Profound Naturals — Your Order</p>
           <h1 style="margin:0 0 10px;font-family:Georgia,serif;font-size:28px;font-weight:400;color:#d4a017;">Payment Confirmed</h1>
-          <p style="margin:0;font-family:Georgia,serif;font-size:14px;color:#a0a098;font-style:italic;">Your formula has been received — we will begin crafting it shortly.</p>
+          <p style="margin:0;font-family:Georgia,serif;font-size:14px;color:#a0a098;font-style:italic;">Your formula has been received — crafting begins shortly.</p>
         </td></tr>
 
         <tr><td style="padding:0;line-height:0;font-size:0;"><div style="height:1px;background:linear-gradient(to right,#080d09,#d4a017 30%,#d4a017 70%,#080d09);opacity:0.35;"></div></td></tr>
@@ -78,7 +78,7 @@ function customerEmail({ formulaName, ingredients, totalPrice, shippingAddress }
 
         <tr><td style="padding:0;line-height:0;font-size:0;"><div style="height:1px;background:linear-gradient(to right,#080d09,#d4a017 30%,#d4a017 70%,#080d09);opacity:0.35;"></div></td></tr>
 
-        <tr><td style="padding:20px 40px 28px;background-color:#080d09;border-top:1px solid #1a201b;border-radius:0 0 3px 3px;">
+        <tr><td style="padding:20px 40px 28px;background-color:#080d09 !important;border-top:1px solid #1a201b;border-radius:0 0 3px 3px;">
           <p style="margin:0;font-family:Georgia,serif;font-size:12px;color:#3a3e3b;line-height:1.9;">
             Questions? Reply to this email or write to hello@profoundnaturals.com.au<br>
             <span style="color:#606460;">Profound Naturals · profoundnaturals.com.au</span>
@@ -99,12 +99,12 @@ function internalEmail({ customerEmail: custEmail, formulaName, ingredients, tot
   return `<!DOCTYPE html>
 <html lang="en">
 <head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head>
-<body style="margin:0;padding:0;background-color:#080d09;">
-  <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#080d09;">
-    <tr><td align="center" style="padding:40px 16px 48px;">
-      <table width="560" cellpadding="0" cellspacing="0" border="0" style="max-width:560px;width:100%;background-color:#0f1510;border:1px solid #2a2e2b;border-radius:3px;">
+<body style="margin:0;padding:0;background-color:#080d09 !important;">
+  <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#080d09 !important;">
+    <tr><td align="center" style="padding:40px 16px 48px;background-color:#080d09 !important;">
+      <table width="560" cellpadding="0" cellspacing="0" border="0" style="max-width:560px;width:100%;background-color:#0f1510 !important;border:1px solid #2a2e2b;border-radius:3px;">
 
-        <tr><td style="padding:36px 40px 28px;">
+        <tr><td style="padding:36px 40px 28px;background-color:#0f1510 !important;">
           <p style="margin:0 0 10px;font-family:Georgia,serif;font-size:10px;letter-spacing:0.22em;text-transform:uppercase;color:#8cc40f;">Builder — New Order</p>
           <h1 style="margin:0 0 10px;font-family:Georgia,serif;font-size:28px;font-weight:400;color:#d4a017;">Formula Order Received</h1>
           <p style="margin:0;font-family:Georgia,serif;font-size:14px;color:#a0a098;font-style:italic;">Payment confirmed via Stripe. Ready to fulfil.</p>
@@ -132,7 +132,7 @@ function internalEmail({ customerEmail: custEmail, formulaName, ingredients, tot
           <p style="margin:0;font-family:Georgia,serif;font-size:14px;color:#a0a098;">Order total <span style="color:#d4a017;font-size:17px;margin-left:10px;">$${Number(totalPrice).toFixed(2)} <span style="font-size:11px;color:#606460;">AUD</span></span></p>
         </td></tr>
 
-        <tr><td style="padding:20px 40px 28px;background-color:#080d09;border-top:1px solid #1a201b;border-radius:0 0 3px 3px;">
+        <tr><td style="padding:20px 40px 28px;background-color:#080d09 !important;border-top:1px solid #1a201b;border-radius:0 0 3px 3px;">
           <p style="margin:0;font-family:Georgia,serif;font-size:12px;color:#3a3e3b;line-height:1.9;">
             Internal notification — do not reply.<br>
             <span style="color:#606460;">Profound Naturals Builder · profoundnaturals.online</span>
