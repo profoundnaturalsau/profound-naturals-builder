@@ -1608,9 +1608,13 @@ function removeIngredient(id) {
   alcoholFilled = false;
   capDismissed = false;
   const alc = document.getElementById('alcoholRect');
-  if (alc) { alc.setAttribute('height','0'); }
+  if (alc) { alc.setAttribute('height','0'); alc.style.opacity = '0'; }
   const mobAlc = document.getElementById('mobAlcoholRect');
-  if (mobAlc) { mobAlc.setAttribute('height','0'); }
+  if (mobAlc) { mobAlc.setAttribute('height','0'); mobAlc.style.opacity = '0'; }
+  const liqFillR = document.getElementById('liqFill');
+  if (liqFillR) { liqFillR.style.transition = 'none'; liqFillR.style.opacity = '0.25'; }
+  const mobLiqFillR = document.getElementById('mobLiqFill');
+  if (mobLiqFillR) { mobLiqFillR.style.transition = 'none'; mobLiqFillR.style.opacity = '0.25'; }
   delete formula[id];
   const card = document.getElementById('card-' + id);
   if (card) { card.classList.remove('added', 'flipped'); flippedCard = null; }
@@ -1784,12 +1788,12 @@ function requestFormula() {
   // Trigger alcohol fill animation
   alcoholFilled = true;
   fillAlcohol();
-  // After animation completes, show request modal
+  // After animation completes, show request modal — delay lets bottle colour transition finish
   setTimeout(() => {
     populateRequestSummary();
     document.getElementById('reqModalOverlay').classList.add('open');
     document.body.style.overflow = 'hidden';
-  }, 1900);
+  }, 3200);
 }
 
 function populateRequestSummary() {
@@ -1883,9 +1887,14 @@ function clearAll() {
   mobFillCurrentH = 0;
   // Reset alcohol rects
   const alc = document.getElementById('alcoholRect');
-  if (alc) { alc.setAttribute('height', '0'); }
+  if (alc) { alc.setAttribute('height', '0'); alc.style.opacity = '0'; }
   const mobAlc = document.getElementById('mobAlcoholRect');
-  if (mobAlc) { mobAlc.setAttribute('height', '0'); }
+  if (mobAlc) { mobAlc.setAttribute('height', '0'); mobAlc.style.opacity = '0'; }
+  // Reset concentrate fill colour and opacity
+  const liqFill = document.getElementById('liqFill');
+  if (liqFill) { liqFill.style.transition = 'none'; liqFill.style.opacity = '0.25'; }
+  const mobLiqFill = document.getElementById('mobLiqFill');
+  if (mobLiqFill) { mobLiqFill.style.transition = 'none'; mobLiqFill.style.opacity = '0.25'; }
   updateAll();
   renderIngredients();
 }
@@ -1920,20 +1929,69 @@ function dismissCap() {
   capDismissed = true; // don't show again until they clear and rebuild
 }
 
+// Palette of base colours for the final blended bottle colour
+const BLEND_PALETTE = [
+  '#7b4fa6', // violet
+  '#c47a1e', // amber
+  '#1e7a6e', // teal
+  '#a63d3d', // deep rose
+  '#3d6ea6', // steel blue
+  '#6ea63d', // forest green
+  '#a6703d', // warm ochre
+  '#3d3da6', // indigo
+  '#a63d7b', // dusty pink
+  '#3da67b', // sage
+];
+
 function fillAlcohol() {
   const maxH = 155;
-  // Use the actual concentrate height so alcohol fills from there up to bottle top
   const CONC_H = lastActualTotal > 0 ? Math.max(4, Math.round(maxH * lastActualTotal / 100)) : Math.round(maxH * 0.30);
-  const concY = 220 - CONC_H; // top of concentrate zone
+  const concY = 220 - CONC_H;
 
-  // Desktop bottle — fill from top of bottle down to concentrate
+  // Pick a random blend colour for this confirmation
+  const finalColour = BLEND_PALETTE[Math.floor(Math.random() * BLEND_PALETTE.length)];
+
+  // Desktop bottle
   const alcoholRect = document.getElementById('alcoholRect');
+  const liqFill = document.getElementById('liqFill');
+  const liqRect = document.getElementById('liqRect');
   const fillLabel = document.getElementById('fillLabel');
+  const glow = document.getElementById('bottleGlow');
+
   if (alcoholRect) {
+    // Fill alcohol from concentrate line upward — same direction as concentrate
     const alcHeight = concY - 65;
-    alcoholRect.setAttribute('y', '65');
+    alcoholRect.setAttribute('y', String(concY - alcHeight));
     alcoholRect.setAttribute('height', String(alcHeight));
+    // Make alcohol match final colour initially transparent
+    alcoholRect.setAttribute('fill', finalColour);
+    alcoholRect.style.opacity = '0';
   }
+
+  // After alcohol starts filling (short delay), transition everything to final colour
+  setTimeout(() => {
+    // Expand liqRect to cover entire bottle — removes the concentrate/alcohol line
+    if (liqRect) {
+      liqRect.setAttribute('y', '65');
+      liqRect.setAttribute('height', '155');
+    }
+    // Transition concentrate fill to final colour
+    if (liqFill) {
+      liqFill.style.transition = 'fill 1.6s ease';
+      liqFill.setAttribute('fill', finalColour);
+      liqFill.style.opacity = '0.55';
+    }
+    // Fade in alcohol rect to same colour — no visible seam
+    if (alcoholRect) {
+      alcoholRect.style.transition = 'opacity 1.6s ease';
+      alcoholRect.style.opacity = '0.0';
+    }
+    // Update glow to match
+    if (glow) {
+      glow.style.background = `radial-gradient(ellipse at center, ${finalColour}30 0%, transparent 70%)`;
+    }
+  }, 400);
+
   if (fillLabel) {
     fillLabel.textContent = 'ready';
     fillLabel.setAttribute('fill', 'rgba(230,236,231,0.7)');
@@ -1941,12 +1999,38 @@ function fillAlcohol() {
 
   // Mobile bottle
   const mobAlcRect = document.getElementById('mobAlcoholRect');
+  const mobLiqFill = document.getElementById('mobLiqFill');
+  const mobLiqRect = document.getElementById('mobLiqRect');
   const mobFillLabel = document.getElementById('mobFillLabel');
+  const mobGlow = document.getElementById('mobBottleGlow');
+
   if (mobAlcRect) {
     const mobAlcH = concY - 65;
-    mobAlcRect.setAttribute('y', '65');
+    mobAlcRect.setAttribute('y', String(concY - mobAlcH));
     mobAlcRect.setAttribute('height', String(mobAlcH));
+    mobAlcRect.setAttribute('fill', finalColour);
+    mobAlcRect.style.opacity = '0';
   }
+
+  setTimeout(() => {
+    if (mobLiqRect) {
+      mobLiqRect.setAttribute('y', '65');
+      mobLiqRect.setAttribute('height', '155');
+    }
+    if (mobLiqFill) {
+      mobLiqFill.style.transition = 'fill 1.6s ease';
+      mobLiqFill.setAttribute('fill', finalColour);
+      mobLiqFill.style.opacity = '0.55';
+    }
+    if (mobAlcRect) {
+      mobAlcRect.style.transition = 'opacity 1.6s ease';
+      mobAlcRect.style.opacity = '0.0';
+    }
+    if (mobGlow) {
+      mobGlow.style.background = `radial-gradient(ellipse at center, ${finalColour}30 0%, transparent 70%)`;
+    }
+  }, 400);
+
   if (mobFillLabel) {
     mobFillLabel.textContent = 'ready';
     mobFillLabel.setAttribute('fill', 'rgba(230,236,231,0.7)');
