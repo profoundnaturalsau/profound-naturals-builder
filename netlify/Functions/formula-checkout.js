@@ -113,8 +113,8 @@ exports.handler = async (event) => {
       mode: "payment",
       metadata,
 
-      success_url: `${process.env.URL}/success?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${process.env.URL}/`,
+      success_url: `https://profoundnaturals.online/?payment=success&session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `https://profoundnaturals.online/`,
     });
 
     return {
