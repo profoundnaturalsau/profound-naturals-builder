@@ -1104,7 +1104,7 @@ const INGREDIENTS = [
     cost:2.40
   },
   {
-    id:'black-spruce', name:'Black Spruce', note:'Top', group:'top',
+    id:'black-spruce', img:'black-spruce.png', name:'Black Spruce', note:'Top', group:'top',
     emoji:'🌲', color:'#2a5a2a',
     desc:'Clean, forest-fresh and instantly invigorating. Steam-distilled from Canadian black spruce - crisp, coniferous and bright.',
     warn:null, cost:2.20
@@ -1127,14 +1127,14 @@ const INGREDIENTS = [
   },
   {
     id:'galbanum',
-    img:'galbanum.png', name:'Galbanum', note:'Top', group:'top',
+    img:'galbanum-1.png', name:'Galbanum', note:'Top', group:'top',
     emoji:'🟢', color:'#4a8c2a', rare:true,
     desc:'Sharply green, resinous and mysterious. Used in perfumery since ancient Egypt - one of the oldest aromatic ingredients known.',
     warn:null, cost:2.90
   },
   // HEART NOTES - alphabetical
   {
-    id:'blue-cypress', name:'Blue Cypress', note:'Heart · Base', group:'heart',
+    id:'blue-cypress', img:'blue-cypress.png', name:'Blue Cypress', note:'Heart · Base', group:'heart',
     emoji:'🔵', color:'#2a6bc9',
     desc:'Australian native. Smoky, earthy and ancient - a deep blue oil steam-distilled from the Callitris tree of the Northern Territory.',
     warn:null, maxPct: 14.0, cost:4.80
@@ -1221,13 +1221,13 @@ const INGREDIENTS = [
   },
   // HEART NOTES
   {
-    id:'clary-sage', name:'Clary Sage', note:'Heart · Base', group:'heart',
+    id:'clary-sage', img:'clary-sage.png', name:'Clary Sage', note:'Heart · Base', group:'heart',
     emoji:'🌿', color:'#6a8a3a',
     desc:'Herbaceous, earthy and slightly musky with a warm, hay-like sweetness. Deeply relaxing and balancing - a classic in natural perfumery.',
     warn:null, maxPct: 17.0, cost:2.60
   },
   {
-    id:'kunzea', name:'Kunzea', note:'Top · Heart', group:'heart',
+    id:'kunzea', img:'kunzea.png', name:'Kunzea', note:'Top · Heart', group:'heart',
     emoji:'🌿', color:'#4a8a5a',
     desc:'Fresh, earthy and medicinal with a clean, slightly woody edge. An Australian native from the coastal heathlands of south-eastern Australia. 🌿 Australian Native - icon to be updated.',
     warn:null, maxPct: 9.0, cost:3.20
@@ -1239,7 +1239,7 @@ const INGREDIENTS = [
     warn:null, maxPct: 10.0, cost:3.00
   },
   {
-    id:'nutmeg', name:'Nutmeg', note:'Top · Heart', group:'heart',
+    id:'nutmeg', img:'nutmeg.png', name:'Nutmeg', note:'Top · Heart', group:'heart',
     emoji:'🌰', color:'#a07040',
     desc:'Warm, spicy and sweetly woody with a rich, slightly camphoraceous depth. A classic perfumery spice note - familiar yet sophisticated.',
     warn:null, cost:2.40
@@ -1252,13 +1252,13 @@ const INGREDIENTS = [
   },
   // BASE NOTES
   {
-    id:'agarwood', name:'Agarwood (Indian Oud)', note:'Base', group:'base',
+    id:'agarwood', img:'agarwood-indian-oud.png', name:'Agarwood (Indian Oud)', note:'Base', group:'base',
     emoji:'🟤', color:'#6a3010', rare:true,
     desc:'One of the most precious aromatic materials on earth. Dark, complex, woody and animalic with a smoky, balsamic depth that evolves continuously on skin.',
     warn:null, cost:12.00
   },
   {
-    id:'ambrette', name:'Ambrette Seed', note:'Heart · Base', group:'base',
+    id:'ambrette', img:'ambrette.png', name:'Ambrette Seed', note:'Heart · Base', group:'base',
     emoji:'🤍', color:'#c0a080', rare:true,
     desc:'Velvety, musky and softly pear-like - one of the finest natural musk alternatives available. Warm and sensual, lingers beautifully on skin.',
     warn:null, maxPct: 15.0, cost:6.50
@@ -1271,7 +1271,7 @@ const INGREDIENTS = [
     warn:null, cost:5.50
   },
   {
-    id:'ho-wood', name:'Ho Wood', note:'Heart · Base', group:'base',
+    id:'ho-wood', img:'ho-wood.png', name:'Ho Wood', note:'Heart · Base', group:'base',
     emoji:'🪵', color:'#8a6848',
     desc:'Soft, woody and quietly rosy with a clean freshness. A sustainable, high-linalool alternative to rosewood - grounding, calming and versatile.',
     warn:null, maxPct: 14.0, cost:2.60
@@ -1281,34 +1281,58 @@ const INGREDIENTS = [
     img:'may-chang.png', name:'May Chang', note:'Top', group:'top', emoji:'🍋', color:'#c0c020', desc:'Bright, lemony and intensely fresh with a clean, almost lemon hard candy-like sweetness. More complex and fruity-floral than a straight citrus - a favourite in natural perfumery.', warn:null, cost:2.00 },
   { id:'pink-grapefruit',
     img:'pink-grapefruit.png', name:'Pink Grapefruit', note:'Top', group:'top', emoji:'🍊', color:'#e8904a', desc:'Bright, juicy and uplifting. Cold-pressed from the peel of Citrus paradisi - an instant mood-lifter with a clean, slightly tart sweetness.', warn:'⚠️ Phototoxic - cold-pressed citrus. Formulated in compliance with TGA and IFRA guidelines.', restricted: true, fixedPct: 4.0, cost:1.80 },
-  { id:'lime-distilled', name:'Lime Distilled', note:'Top', group:'top', emoji:'🍋', color:'#a0c020', desc:'Crisp, clean and vibrantly citrusy. Steam distillation gives this lime a brighter, more transparent character - refreshing and sharp.', warn:null, cost:1.80 },
+  { id:'lime-distilled', img:'lime-distilled.png', name:'Lime Distilled', note:'Top', group:'top', emoji:'🍋', color:'#a0c020', desc:'Crisp, clean and vibrantly citrusy. Steam distillation gives this lime a brighter, more transparent character - refreshing and sharp.', warn:null, cost:1.80 },
   { id:'lemon',
     img:'lemon.png', name:'Lemon EO', note:'Top', group:'top', emoji:'🍋', color:'#e8e040',
     desc:'Bright, clean and unmistakably fresh. Cold-pressed from the peel of Citrus limon — sharp, zesty and instantly uplifting with a sparkling, slightly floral character. One of the most versatile top notes in natural perfumery.',
     warn:'⚠️ Phototoxic — cold-pressed citrus. IFRA & TGA limits apply. Capped at 2%. Formulated in full compliance.',
     restricted: true, fixedPct: 2.0, cost:1.80 },
-  { id:'ylang-1st', name:'Ylang Ylang 1st', note:'Top', group:'top', emoji:'🌼', color:'#c0a830', desc:'The boldest expression of ylang ylang - sharp, heady and euphoric with an almost narcotic sweetness. The most volatile and intensely floral fraction.', warn:null, cost:2.80 },
-  { id:'euca-citriodora', name:'Euca Citriodora', note:'Top', group:'top', emoji:'🌿', color:'#8ab020', desc:'An Australian native with a bright, lemon-fresh character and a distinctly airy, kerosene-like undertone. Widely used as a natural insect repellent. 🌿 Australian Native - icon to be updated.', warn:null, cost:2.00 },
+  { id:'ylang-1st', img:'ylangylang-1st.png', name:'Ylang Ylang 1st', note:'Top', group:'top', emoji:'🌼', color:'#c0a830', desc:'The boldest expression of ylang ylang - sharp, heady and euphoric with an almost narcotic sweetness. The most volatile and intensely floral fraction.', warn:null, cost:2.80 },
+  { id:'euca-citriodora', img:'euca-citadora.png', name:'Euca Citriodora', note:'Top', group:'top', emoji:'🌿', color:'#8ab020', desc:'An Australian native with a bright, lemon-fresh character and a distinctly airy, kerosene-like undertone. Widely used as a natural insect repellent. 🌿 Australian Native - icon to be updated.', warn:null, cost:2.00 },
   { id:'cypress',
     img:'cypress.png', name:'Cypress', note:'Heart · Base', group:'heart', emoji:'🌲', color:'#2a6a3a', desc:'Fresh, green and woody with a clean, resinous warmth. A Mediterranean classic with a crisp, forest-like character that grounds and clarifies.', warn:null, maxPct: 15.0, cost:2.40 },
-  { id:'geranium-bourbon', name:'Geranium Bourbon', note:'Heart', group:'heart', emoji:'🌸', color:'#c06080', desc:'The finest expression of geranium - rich, rosy and green with a complexity that far exceeds common geranium. A backbone ingredient in classical and natural perfumery.', warn:null, maxPct: 11.0, cost:3.20 },
-  { id:'rosemary', name:'Rosemary (Spanish)', note:'Top · Heart', group:'heart', emoji:'🌿', color:'#5a8a3a', desc:'Sharp, herbaceous and invigorating. Spanish rosemary has a particularly crisp, camphorous character with a resinous warmth that blends beautifully.', warn:null, cost:2.00 },
-  { id:'ylang-3rd', name:'Ylang Ylang 3rd', note:'Heart', group:'heart', emoji:'🌼', color:'#c0a020', desc:'Softer, rounder and more balsamic than the first fraction. Deeper and more creamy with a rubbery, slightly earthy warmth - the most versatile fraction for heart note blending.', warn:null, cost:2.40 },
-  { id:'ylang-complete', name:'Ylang Ylang Complete', note:'Heart · Base', group:'heart', emoji:'🌼', color:'#b89820', desc:'The unfractionated, full distillation of Cananga odorata. Balanced, rich and complex - bright floral top notes giving way to a creamy, balsamic depth. The most naturalistic representation of the living flower.', warn:null, cost:2.60 },
+  { id:'geranium-bourbon', img:'geranium-bourbon.png', name:'Geranium Bourbon', note:'Heart', group:'heart', emoji:'🌸', color:'#c06080', desc:'The finest expression of geranium - rich, rosy and green with a complexity that far exceeds common geranium. A backbone ingredient in classical and natural perfumery.', warn:null, maxPct: 11.0, cost:3.20 },
+  { id:'rosemary', img:'rosemary-spanish.png', name:'Rosemary (Spanish)', note:'Top · Heart', group:'heart', emoji:'🌿', color:'#5a8a3a', desc:'Sharp, herbaceous and invigorating. Spanish rosemary has a particularly crisp, camphorous character with a resinous warmth that blends beautifully.', warn:null, cost:2.00 },
+  { id:'ylang-3rd', img:'ylangylang-3rd.png', name:'Ylang Ylang 3rd', note:'Heart', group:'heart', emoji:'🌼', color:'#c0a020', desc:'Softer, rounder and more balsamic than the first fraction. Deeper and more creamy with a rubbery, slightly earthy warmth - the most versatile fraction for heart note blending.', warn:null, cost:2.40 },
+  { id:'ylang-complete', img:'ylangylang-3rd.png', name:'Ylang Ylang Complete', note:'Heart · Base', group:'heart', emoji:'🌼', color:'#b89820', desc:'The unfractionated, full distillation of Cananga odorata. Balanced, rich and complex - bright floral top notes giving way to a creamy, balsamic depth. The most naturalistic representation of the living flower.', warn:null, cost:2.60 },
   { id:'frangipani',
     img:'frangipani.png', name:'Frangipani', note:'Heart', group:'heart', emoji:'🌺', color:'#c070a0', rare:true, desc:'Exotic, tropical and deeply floral - carries the full warmth of the Plumeria flower with a creamy, slightly spiced sweetness. Evocative and sensual. Organic, hexane-free extraction.', warn:null, cost:8.00 },
   { id:'boronia',
     img:'boronia.png', name:'Boronia Absolute', note:'Heart', group:'heart', emoji:'🌿', color:'#8a5070', rare:true,
     desc:'One of the rarest botanicals in natural perfumery. From Boronia megastigma — a small flowering shrub native to Western Australia. Extraordinarily complex — rich and earthy with fresh fruity-sweet, tea-like facets, soft cinnamon and tobacco nuances, and a warm woody-sweet depth. Organic, hexane-free extraction. 🌿 Australian Native.',
     warn:null, cost:14.00 },
-  { id:'magnolia', name:'Magnolia (White Champaca)', note:'Heart', group:'heart', emoji:'🌸', color:'#c0a0b0', rare:true, desc:'Heady, luminous and intoxicatingly floral with a warm, tea-like creaminess. One of the most revered florals in Asian perfumery. Organic, hexane-free extraction.', warn:null, cost:9.00 },
+  { id:'magnolia', img:'magnolia-white-champaca.png', name:'Magnolia (White Champaca)', note:'Heart', group:'heart', emoji:'🌸', color:'#c0a0b0', rare:true, desc:'Heady, luminous and intoxicatingly floral with a warm, tea-like creaminess. One of the most revered florals in Asian perfumery. Organic, hexane-free extraction.', warn:null, cost:9.00 },
   { id:'osmanthus',
     img:'osmanthus.png', name:'Osmanthus', note:'Heart', group:'heart', emoji:'🌸', color:'#c09040', rare:true, desc:'Delicate, peachy and apricot-like with a distinctive dark cherry undertone. One of the most prized florals in Chinese perfumery. Organic, hexane-free extraction.', warn:null, maxPct: 14.0, cost:7.00 },
   { id:'tuberose',
     img:'tuberose.png', name:'Tuberose', note:'Heart', group:'heart', emoji:'🤍', color:'#d0b0c0', rare:true, desc:'One of the most intensely floral botanicals in natural perfumery - rich, creamy and narcotic with a heady, waxy sweetness. A statement ingredient. Organic, hexane-free extraction.', warn:null, maxPct: 13.0, cost:11.00 },
-  { id:'euca-blue-mallee', name:'Euca Blue Mallee', note:'Top · Heart', group:'heart', emoji:'🌿', color:'#2a7a4a', desc:'An Australian native with a high 1,8-cineole content - sharper and more penetrating than Blue Gum. Clean, medicinal intensity. 🌿 Australian Native - icon to be updated.', warn:null, cost:2.00 },
+  { id:'euca-blue-mallee', img:'euca-blue-malle.png', name:'Euca Blue Mallee', note:'Top · Heart', group:'heart', emoji:'🌿', color:'#2a7a4a', desc:'An Australian native with a high 1,8-cineole content - sharper and more penetrating than Blue Gum. Clean, medicinal intensity. 🌿 Australian Native - icon to be updated.', warn:null, cost:2.00 },
   { id:'tonka',
     img:'tonka-bean.png', name:'Tonka', note:'Base', group:'base', emoji:'🤎', color:'#a07840', rare:true, desc:'Warm, sweet and richly coumarinic with hints of almond, hay and tobacco. Tenacious and comforting - anchors sweet accords with an almost edible warmth. Organic, hexane-free extraction.', warn:null, cost:5.00 },
+  { id:'vanilla',
+    img:'vanilla.png', name:'Vanilla Oleoresin', note:'Base', group:'base', emoji:'🤍', color:'#c8a870', rare:true,
+    desc:'Rich, creamy and deeply comforting — vanilla oleoresin is one of the most beloved base notes in natural perfumery. Solvent-extracted from Vanilla planifolia pods, it carries a warm, balsamic sweetness with subtle woody and floral undertones that develop slowly on skin. A natural fixative that anchors and softens everything around it. Organic, hexane-free extraction.',
+    warn:null, cost:4.50 },
+  { id:'honeysuckle',
+    img:'honeysuckle.png', name:'Honeysuckle Absolute', note:'Heart', group:'heart', emoji:'🌼', color:'#d4b840', rare:true,
+    desc:'Intensely sweet, floral and luminous — honeysuckle absolute captures the full intoxicating richness of the flower in a way no distillation can. Solvent-extracted from Lonicera caprifolium blossoms, it opens with a heady, almost narcotic sweetness before revealing softer, honey-like depth. Rare and prized in natural perfumery. Organic, hexane-free extraction.',
+    warn:null, cost:6.00 },
+  { id:'elemi',
+    img:'elemi.png', name:'Elemi', note:'Top · Heart', group:'top', emoji:'🌿', color:'#8ab040',
+    desc:'Bright, resinous and refreshingly complex — elemi opens with a sharp citrus-green freshness reminiscent of frankincense before drying down to a soft, woody balsamic depth with a hint of spice. Steam-distilled from the oleo-resin of Canarium luzonicum, a member of the Burseraceae family alongside myrrh and frankincense. One of the most versatile top-to-heart transitions in natural perfumery.',
+    warn:null, cost:2.20 },
+  { id:'benzoin',
+    img:'benzoin.png', name:'Benzoin', note:'Base', group:'base', emoji:'🍯', color:'#c09040',
+    desc:'Warm, sweet and richly balsamic with a distinctive vanilla-like creaminess and a subtle incense depth. A resinoid produced from the bark resin of Styrax benzoin — one of the oldest aromatic materials used in perfumery, medicine and sacred ritual. Exceptionally tenacious as a base note and natural fixative, it rounds and softens accords with a powdery, resinous warmth.',
+    warn:null, cost:3.00 },
+  { id:'cade',
+    img:'cade.png', name:'Cade', note:'Base', group:'base', emoji:'🪵', color:'#604828', rare:true,
+    desc:'Smoky, tarry and intensely leathery — cade is one of the most arresting base notes in natural perfumery. Dry-distilled from the wood and twigs of Juniperus oxycedrus, it carries a dark, phenolic smokiness with burnt wood, tobacco and leather facets and a subtle sweet undertone that prevents it from being harsh. Used sparingly, it adds extraordinary depth and an almost primal character to woody, leather and fougère compositions.',
+    warn:null, cost:3.50 },
+  { id:'aussie-mint',
+    img:'aussie-mint.png', name:'Aussie Mint', note:'Top', group:'top', emoji:'🌿', color:'#5ab870',
+    desc:'Clean, crisp and invigoratingly fresh with a bright, green mintiness that is distinctly softer and more herbal than peppermint. Steam-distilled from native Australian mint species, it carries a cool, clean openness with subtle earthy undertones that ground its freshness. A versatile top note that lifts and clarifies without overpowering. 🌿 Australian Native.',
+    warn:null, cost:2.40 },
 ];
 
 const GROUPS = [
@@ -1813,21 +1837,18 @@ async function sendFormulaRequest() {
   const keys = Object.keys(formula);
   const pctMap = getPctMap();
   const cost = getTotalCost();
-  const ingredients = keys.map(id => {
+  const formulaLines = keys.map(id => {
     const ing = INGREDIENTS.find(i => i.id === id);
     const slots = formula[id];
     const pct = pctMap[id];
-    const price = ing.restricted
-      ? ing.cost * PRICE_PER_UNIT * (ing.fixedPct / 30)
-      : ing.cost * PRICE_PER_UNIT * slots;
-    return { name: ing.name, pct: pct, price: parseFloat(price.toFixed(2)) };
+    return `${ing.name}${ing.restricted ? ' [IFRA capped]' : (slots > 1 ? ' ×' + slots : '')} — ${pct}%`;
   });
 
   try {
     const res = await fetch('/.netlify/functions/formula-checkout', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ customerEmail: email, formulaName, ingredients, totalPrice: cost })
+      body: JSON.stringify({ name, email, phone, notes, formulaName, formula: formulaLines, price: cost.toFixed(2) })
     });
 
     const data = await res.json();
