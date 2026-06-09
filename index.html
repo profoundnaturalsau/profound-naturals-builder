@@ -1813,18 +1813,21 @@ async function sendFormulaRequest() {
   const keys = Object.keys(formula);
   const pctMap = getPctMap();
   const cost = getTotalCost();
-  const formulaLines = keys.map(id => {
+  const ingredients = keys.map(id => {
     const ing = INGREDIENTS.find(i => i.id === id);
     const slots = formula[id];
     const pct = pctMap[id];
-    return `${ing.name}${ing.restricted ? ' [IFRA capped]' : (slots > 1 ? ' ×' + slots : '')} — ${pct}%`;
+    const price = ing.restricted
+      ? ing.cost * PRICE_PER_UNIT * (ing.fixedPct / 30)
+      : ing.cost * PRICE_PER_UNIT * slots;
+    return { name: ing.name, pct: pct, price: parseFloat(price.toFixed(2)) };
   });
 
   try {
     const res = await fetch('/.netlify/functions/formula-checkout', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name, email, phone, notes, formulaName, formula: formulaLines, price: cost.toFixed(2) })
+      body: JSON.stringify({ customerEmail: email, formulaName, ingredients, totalPrice: cost })
     });
 
     const data = await res.json();
