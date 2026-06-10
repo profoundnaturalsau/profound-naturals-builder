@@ -1281,6 +1281,12 @@ const INGREDIENTS = [
     img:'may-chang.png', name:'May Chang', note:'Top', group:'top', emoji:'🍋', color:'#c0c020', desc:'Bright, lemony and intensely fresh with a clean, almost lemon hard candy-like sweetness. More complex and fruity-floral than a straight citrus - a favourite in natural perfumery.', warn:null, cost:2.00 },
   { id:'pink-grapefruit',
     img:'pink-grapefruit.png', name:'Pink Grapefruit', note:'Top', group:'top', emoji:'🍊', color:'#e8904a', desc:'Bright, juicy and uplifting. Cold-pressed from the peel of Citrus paradisi - an instant mood-lifter with a clean, slightly tart sweetness.', warn:'⚠️ Phototoxic - cold-pressed citrus. Formulated in compliance with TGA and IFRA guidelines.', restricted: true, fixedPct: 4.0, cost:1.80 },
+  { id:'virginian-cedarwood', img:'virginian-cedarwood.png', name:'Virginian Cedarwood', note:'Base', group:'base', emoji:'🪵', color:'#8a6030',
+    desc:'Dry, pencil-shaving cedarwood with a clean, almost transparent woody warmth. Steam-distilled from Juniperus virginiana - lighter and crisper than Atlas cedarwood with a subtle sweetness and excellent tenacity. A grounding base note that adds structure without heaviness.',
+    warn:null, cost:3.40 },
+  { id:'mandarin', img:'mandarin.png', name:'Mandarin', note:'Top', group:'top', emoji:'🍊', color:'#e07820',
+    desc:'Sweet, soft and warmly citrusy - cold-pressed mandarin is the gentlest and most rounded of the citrus top notes. Rich with a slightly floral, almost honeyed depth that sets it apart from orange or lime. Uplifting and approachable.',
+    warn:'⚠️ Phototoxic — cold-pressed citrus. IFRA & TGA limits apply. Capped at 0.8%. Formulated in full compliance.', restricted:true, fixedPct:0.8, cost:2.60 },
   { id:'lime-distilled', img:'lime-distilled.png', name:'Lime Distilled', note:'Top', group:'top', emoji:'🍋', color:'#a0c020', desc:'Crisp, clean and vibrantly citrusy. Steam distillation gives this lime a brighter, more transparent character - refreshing and sharp.', warn:null, cost:1.80 },
   { id:'lemon',
     img:'lemon.png', name:'Lemon EO', note:'Top', group:'top', emoji:'🍋', color:'#e8e040',
@@ -1593,7 +1599,7 @@ function addIngredient(id) {
     refreshCardAction(id);
     // Amber toast for IFRA-restricted ingredients
     if (ing.restricted) {
-      showToast(`Oakmoss added — IFRA regulated · fixed at ${ing.fixedPct}% of formula`, 'warn');
+      showToast(`${ing.name} added — IFRA regulated · fixed at ${ing.fixedPct}% of formula${ing.warn ? ' · ' + ing.warn.replace('⚠️ ','') : ''}`, 'warn');
     }
     // Auto-open mobile panel on first ingredient
     const bar = document.getElementById('mobBar');
@@ -2097,7 +2103,7 @@ function rareToggle(id) {
     updateAll();
     refreshCardAction(id);
     if (ing && ing.restricted) {
-      showToast(`Oakmoss added — IFRA regulated · fixed at ${ing.fixedPct}% of formula`, 'warn');
+      showToast(`${ing.name} added — IFRA regulated · fixed at ${ing.fixedPct}% of formula${ing.warn ? ' · ' + ing.warn.replace('⚠️ ','') : ''}`, 'warn');
     }
   }
   // Update rare modal card state
