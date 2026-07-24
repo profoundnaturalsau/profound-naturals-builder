@@ -8,7 +8,7 @@
 <title>Custom Scent Builder - Profound Naturals</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@300;400;500&family=Cinzel:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@300;400;500&family=Cinzel:wght@400;500&family=Sora:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
   :root {
     color-scheme: dark;
@@ -382,6 +382,33 @@
   .fly-particle { position:fixed; pointer-events:none; font-size:20px; z-index:9999; }
 
   /* ── CONFIRM CAP MODAL ── */
+  /* Scent-tier intro modal (reuses .cap-modal-overlay / .cap-modal) */
+  .intro-tiers { display:flex; flex-direction:column; gap:9px; margin-top:2px; }
+  .intro-tier {
+    display:grid; grid-template-columns:1fr auto; gap:2px 10px; text-align:left;
+    padding:11px 14px; background:var(--surface-2); border:1px solid var(--border);
+    border-radius:10px; cursor:pointer; transition:border-color .2s, background .2s;
+  }
+  .intro-tier:hover { border-color:rgba(140,196,15,.5); background:var(--surface-3); }
+  .intro-tier-name  { font-family:var(--serif); font-size:1rem; color:var(--white); }
+  .intro-tier-pct   { font-family:var(--sans); font-size:.7rem; font-weight:600; color:var(--green-lt); align-self:center; }
+  .intro-tier-blurb { grid-column:1 / -1; font-size:.66rem; color:var(--white-dim); line-height:1.4; }
+  .intro-notsure {
+    margin-top:6px; padding:15px; background:var(--green); color:var(--bg); border:none;
+    border-radius:4px 20px 4px 20px; cursor:pointer; font-family:var(--sans);
+    font-size:.72rem; font-weight:600; letter-spacing:.12em; text-transform:uppercase;
+    box-shadow:0 2px 14px rgba(140,196,15,.4);
+  }
+  .intro-notsure:hover { background:var(--green-lt); }
+
+  /* Target-strength guide (shown when a tier is chosen in the intro) */
+  .scent-guide {
+    margin-top:10px; padding:9px 16px; border-radius:999px;
+    background:var(--green-pale); border:1px solid rgba(212,160,23,.35);
+    color:var(--amber); font-size:.72rem; letter-spacing:.03em; text-align:center;
+  }
+  .scent-guide b { color:var(--green-lt); font-weight:600; }
+
   .cap-modal-overlay {
     position:fixed; inset:0; background:rgba(0,0,0,.75);
     z-index:700; display:flex; align-items:center; justify-content:center;
@@ -660,17 +687,24 @@
   /* ── TOAST ── */
   .toast {
     position:fixed; bottom:28px; left:50%; transform:translateX(-50%) translateY(6px);
-    background:var(--surface-2); border:1px solid var(--green);
-    color:var(--white); padding:11px 22px;
+    background:var(--green-pale); border:1px solid var(--border-sub);
+    color:var(--green-lt); padding:11px 22px; border-radius:999px;
     font-family:var(--sans); font-size:.72rem; letter-spacing:.05em;
     z-index:1300; opacity:0; pointer-events:none;
     transition:opacity .3s ease, transform .3s ease;
-    white-space:nowrap; max-width:90vw;
+    white-space:nowrap; overflow:hidden; max-width:min(90vw,440px);
+    box-shadow:0 14px 34px rgba(0,0,0,.55);
   }
   .toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
-  .toast.warn { border-color:var(--amber); color:var(--amber); background:rgba(212,160,23,.07); }
-  .toast.error { border-color:rgba(220,80,80,.7); color:rgba(220,100,100,.9); background:rgba(220,80,80,.07); }
-  .toast.success { border-color:var(--green); color:var(--green-lt); background:rgba(140,196,15,.07); }
+  /* Regulated-cap warnings (Jasmine, Oakmoss…): amber text + border on the solid dark-green pill */
+  .toast.warn    { border-color:rgba(212,160,23,.45); color:var(--amber); background:var(--green-pale); }
+  .toast.success { border-color:rgba(160,217,22,.45); color:var(--green-lt); background:var(--green-pale); }
+  /* Failures stay red — red text + glow on dark red, like the pill's no-results state */
+  .toast.error   { border-color:rgba(255,92,92,.5); color:#ff5c5c; background:#170d0d; text-shadow:0 0 9px rgba(255,60,60,.65); }
+  /* Long messages scroll inside the pill instead of breaking its border */
+  .toast__text { display:inline-block; will-change:transform; }
+  .toast.is-scroll .toast__text { animation:toast-marquee var(--sd,7s) ease-in-out forwards; }
+  @keyframes toast-marquee { 0%,16% { transform:translateX(0); } 84%,100% { transform:translateX(var(--sx,0)); } }
 
   /* ── REQUEST FORMULA MODAL ── */
   .req-modal-overlay {
@@ -768,6 +802,9 @@
      mobile-only. The bottle moves into a sticky bottom drawer
      so ingredients fill the screen and the bottle stays visible.
      ═══════════════════════════════════════════════════════════════ */
+  /* Mobile bottom bar is desktop-hidden by default; the media query reveals it. */
+  .mob-bar { display:none; }
+
   @media(max-width:768px) {
 
     /* ── Hide the desktop bottle-side entirely on mobile ── */
@@ -777,7 +814,7 @@
     .builder-main {
       margin-left:0;
       min-height:unset;
-      padding-bottom:280px;
+      padding-bottom:calc(128px + env(safe-area-inset-bottom));
     }
     .builder-header { margin-left:0; }
 
@@ -1011,6 +1048,129 @@
 
     /* Pct bar in header — hide on mobile, redundant with bottom bar */
     .concentrate-bar { display:none; }
+
+    /* ══════════════════════════════════════════
+       INDEX2 mobile revamp — seated live bottle,
+       one-tap card add, bigger targets, suggestions
+       ══════════════════════════════════════════ */
+
+    /* Collapsed bar now carries the always-visible live bottle */
+    .mob-bar-collapsed {
+      height:auto; min-height:112px; gap:12px; align-items:center;
+      padding:8px 14px calc(8px + env(safe-area-inset-bottom)) 12px;
+    }
+    .bar-bottle-wrap {
+      position:relative; width:58px; height:94px; flex-shrink:0;
+      display:flex; align-items:center; justify-content:center;
+    }
+    .bar-bottle-wrap svg { width:100%; height:100%; display:block; }
+    /* Bottle grows into a showpiece while the expanded menu is open (instant, no animation) */
+    .mob-bar.open .bar-bottle-wrap { width:78px; height:128px; }
+    .bar-bottle-glow {
+      position:absolute; inset:-10px; border-radius:50%;
+      background:radial-gradient(ellipse at center, var(--mob-glow, rgba(140,196,15,0.14)) 0%, transparent 70%);
+      pointer-events:none; transition:background .8s ease;
+    }
+    .mob-bar-info { align-items:flex-start; flex:0 0 auto; min-width:0; }
+    .mob-bar-count { font-size:.6rem; }
+    .mob-bar-price { font-size:1.15rem; }
+    .mob-bar-arrow { font-size:1rem; padding:6px; }
+
+    /* Compact added-ingredient list in the bar's open space: thumb + name + % per
+       row, thumbnails down the left (no overlap), %s down the right. Sora font. */
+    .mob-bar-list {
+      flex:1 1 auto; min-width:0; padding-left:14px;
+      display:flex; flex-direction:column; justify-content:center; gap:var(--bgap,3px);
+      max-height:106px; overflow-y:auto; scrollbar-width:none;
+      font-family:'Sora','Jost',sans-serif;
+    }
+    .mob-bar-list::-webkit-scrollbar { display:none; }
+    .mob-bar-litem {
+      display:flex; align-items:center; gap:7px;
+      font-size:var(--bfont,.7rem); line-height:1.1;
+    }
+    .mob-bar-lthumb {
+      width:var(--bthumb,22px); height:var(--bthumb,22px); border-radius:50%; flex-shrink:0;
+      object-fit:cover; background:var(--surface-3);
+      border:1px solid var(--border);
+    }
+    .mob-bar-lthumb--emoji {
+      display:flex; align-items:center; justify-content:center;
+      font-size:calc(var(--bthumb,22px) * 0.6);
+    }
+    .mob-bar-lname {
+      flex:1 1 auto; min-width:0; color:var(--white-dim);
+      white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+    }
+    .mob-bar-lpct {
+      flex-shrink:0; color:var(--green-lt); font-weight:600;
+      font-variant-numeric:tabular-nums;
+    }
+
+    /* Finish chip (replaces the ▲ arrow) */
+    .mob-bar-finish {
+      flex-shrink:0; align-self:center;
+      font-family:'Sora','Jost',sans-serif;
+      font-size:.72rem; font-weight:600; letter-spacing:.08em; text-transform:uppercase;
+      color:#08130a; background:var(--green); border:none; border-radius:4px 20px 4px 20px;
+      padding:9px 18px; cursor:pointer; box-shadow:0 2px 10px rgba(140,196,15,.35);
+    }
+    .mob-bar-finish:active { background:var(--green-lt); }
+
+    /* Bigger, thumb-friendly steppers in the formula list */
+    .mob-formula-item .fml-btn   { width:34px; height:32px; font-size:1rem; }
+    .mob-formula-item .fml-slots { width:26px; height:32px; font-size:.72rem; }
+
+    /* Regulated badge is hidden on the card face on mobile - the notice still
+       appears when the ingredient is opened (in the description modal). */
+    .card-badge-warn { display:none; }
+
+    /* Smart suggestion strip (replaces the all-ingredients chip dump) */
+    .mob-suggest-wrap {
+      width:100%; border-top:1px solid var(--border-sub);
+      padding:14px 0 4px; margin-top:4px;
+    }
+    .mob-suggest-label {
+      font-family:var(--cinzel); font-size:.55rem; letter-spacing:.2em;
+      text-transform:uppercase; color:var(--amber);
+      margin-bottom:12px; display:block;
+    }
+    .mob-suggest-row {
+      display:flex; gap:10px; overflow-x:auto; padding-bottom:8px;
+      -webkit-overflow-scrolling:touch; scrollbar-width:none;
+    }
+    .mob-suggest-row::-webkit-scrollbar { display:none; }
+    .mob-suggest-empty {
+      font-size:.75rem; color:var(--white-dim); font-style:italic;
+      font-family:var(--serif); padding:4px 0 12px;
+    }
+    .mob-suggest-chip {
+      flex-shrink:0; width:120px;
+      display:flex; flex-direction:column; align-items:center; gap:6px;
+      padding:12px 10px; border:1px solid var(--border);
+      background:var(--surface-3); border-radius:10px; cursor:pointer;
+    }
+    .mob-suggest-chip.rare { border-color:rgba(212,160,23,.45); }
+    .mob-suggest-chip-img { width:42px; height:42px; object-fit:contain; }
+    .mob-suggest-chip-name {
+      font-family:var(--serif); font-size:.92rem; color:var(--white);
+      text-align:center; line-height:1.15;
+    }
+    .mob-suggest-chip-note {
+      font-size:.5rem; letter-spacing:.1em; text-transform:uppercase;
+      color:var(--green-lt); text-align:center;
+    }
+    .mob-suggest-chip.rare .mob-suggest-chip-note { color:var(--amber); }
+    .mob-suggest-add {
+      margin-top:2px; width:100%; padding:9px 0;
+      background:transparent; border:1px solid var(--green);
+      color:var(--green-lt); border-radius:6px;
+      font-family:var(--sans); font-size:.6rem; font-weight:600;
+      letter-spacing:.1em; text-transform:uppercase; cursor:pointer;
+    }
+    .mob-suggest-add:active { background:var(--green); color:var(--bg); }
+    .mob-suggest-chip.rare .mob-suggest-add { border-color:rgba(212,160,23,.6); color:var(--amber); }
+    .mob-suggest-chip.rare .mob-suggest-add:active { background:var(--amber); color:#080d09; }
   }
 </style>
 </head>
@@ -1025,6 +1185,7 @@
     <span class="pct" id="totalPct">0%</span>
     <span class="limit">/ 30% max</span>
   </div>
+  <div class="scent-guide" id="scentGuide" style="display:none"></div>
 </header>
 
   <div class="bottle-side">
@@ -1079,7 +1240,7 @@
       </div>
     </div>
     <div class="price-block" id="priceBlock" style="display:none">
-      <span class="price-label">50ml Eau de Parfum</span>
+      <span class="price-label" id="priceLabel">50ml Eau de Parfum</span>
       <div class="price-value" id="priceValue">$0.00</div>
     </div>
     <button class="request-btn" id="requestBtn" disabled onclick="requestFormula()">
@@ -1107,7 +1268,7 @@ const INGREDIENTS = [
     id:'black-spruce', img:'black-spruce.png', name:'Black Spruce', note:'Top', group:'top',
     emoji:'🌲', color:'#2a5a2a',
     desc:'Clean, forest-fresh and instantly invigorating. Steam-distilled from Canadian black spruce - crisp, coniferous and bright.',
-    warn:null, cost:2.20
+    warn:null, cost:2.20, wholesale:40
   },
   {
     id:'cinnamon',
@@ -1123,21 +1284,21 @@ const INGREDIENTS = [
     img:'davana.png', name:'Davana', note:'Top · Heart', group:'top',
     emoji:'🟤', color:'#c97a2a',
     desc:'Boozy, fruity and animalic - davana shifts beautifully on skin, smelling different on every person who wears it.',
-    warn:null, cost:3.20
+    warn:null, cost:3.20, wholesale:70
   },
   {
     id:'galbanum',
     img:'galbanum.png', name:'Galbanum', note:'Top', group:'top',
     emoji:'🟢', color:'#4a8c2a', rare:true,
     desc:'Sharply green, resinous and mysterious. Used in perfumery since ancient Egypt - one of the oldest aromatic ingredients known.',
-    warn:null, cost:2.90
+    warn:null, cost:2.90, wholesale:70
   },
   // HEART NOTES - alphabetical
   {
     id:'blue-cypress', img:'blue-cypress.png', name:'Blue Cypress', note:'Heart · Base', group:'heart',
     emoji:'🔵', color:'#2a6bc9',
     desc:'Australian native. Smoky, earthy and ancient - a deep blue oil steam-distilled from the Callitris tree of the Northern Territory.',
-    warn:null, maxPct: 14.0, cost:4.80
+    warn:null, maxPct: 14.0, cost:4.80, wholesale:80
   },
   {
     id:'jasmine',
@@ -1146,14 +1307,14 @@ const INGREDIENTS = [
     desc:'Rich, heady and intoxicating. One of the most prized florals in perfumery - complex, indolic and deeply feminine.',
     warn:'⚠️ Regulated sensitiser — IFRA & TGA limits apply. Capped at 2%. Formulated in full compliance.',
     restricted: true, fixedPct: 2.0,
-    cost:8.50
+    cost:8.50, wholesale:80
   },
   {
     id:'myrrh',
     img:'myrrh.png', name:'Myrrh', note:'Heart · Base', group:'heart',
     emoji:'💧', color:'#8a6040',
     desc:'Smoky, sacred and earthy. Used in ancient ritual and embalming - this is one of the oldest aromatic resins in human history.',
-    warn:null, cost:3.80
+    warn:null, cost:3.80, wholesale:79.99
   },
   // BASE NOTES - alphabetical
   {
@@ -1161,14 +1322,14 @@ const INGREDIENTS = [
     img:'amber.png', name:'Baltic Amber', note:'Base', group:'base',
     emoji:'🟡', color:'#c9a02a', rare:true,
     desc:'40-70 million year old fossilised resin. Warm, earthy and resinous with subtle woody and smoky undertones.',
-    warn:null, cost:6.20
+    warn:null, cost:6.20, wholesale:115
   },
   {
     id:'labdanum',
     img:'labdanum.png', name:'Labdanum', note:'Base', group:'base',
     emoji:'🟫', color:'#6b4c2a',
     desc:'Dark, leathery, cistus-like. A warm, balsamic resinoid from the rock rose shrub - the original amber note in perfumery.',
-    warn:null, cost:3.50
+    warn:null, cost:3.50, wholesale:69
   },
   {
     id:'oakmoss',
@@ -1178,13 +1339,13 @@ const INGREDIENTS = [
     warn:'⚠️ Mandatory IFRA & TGA concentration limits apply. Capped at 0.1% of finished formula. Formulated in full compliance.',
     restricted: true,
     fixedPct: 0.1,
-    cost:4.10
+    cost:4.10, wholesale:130
   },
   {
     id:'sandalwood', img:'sandalwood.png', name:'Sandalwood', note:'Base', group:'base',
     emoji:'🪵', color:'#a07040', rare:true,
     desc:'Sacred and precious. Creamy, woody and warm with a soft sweetness that lingers on skin for hours.',
-    warn:null, cost:5.20
+    warn:null, cost:5.20, wholesale:115
   },
   // ── NEW INGREDIENTS ──
   // TOP NOTES
@@ -1193,7 +1354,7 @@ const INGREDIENTS = [
     img:'ginger.png', name:'Ginger', note:'Top · Heart', group:'top',
     emoji:'🫚', color:'#c9900a',
     desc:'Warm, spicy and energising with a fresh, zesty edge - grounding yet invigorating with a rich, peppery warmth.',
-    warn:null, cost:2.80
+    warn:null, cost:2.80, wholesale:26.50
   },
   {
     id:'sweet-orange',
@@ -1201,14 +1362,14 @@ const INGREDIENTS = [
     emoji:'🍊', color:'#e87020',
     desc:'Warm, round and effortlessly cheerful. Cold-pressed from the peel of Citrus sinensis - rich, sweet and fruity.',
     warn: null, maxPct: 5.0,
-    cost:1.60
+    cost:1.60, wholesale:11.55
   },
   {
     id:'scots-pine',
     img:'scotch-pine.png', name:'Scots Pine', note:'Top · Heart', group:'top',
     emoji:'🌲', color:'#2a6a2a',
     desc:'Crisp, resinous and deeply forested. Steam-distilled from the needles of Pinus sylvestris - clean, sharp and invigorating.',
-    warn:null, cost:2.20
+    warn:null, cost:2.20, wholesale:18.70
   },
   {
     id:'clove-bud',
@@ -1224,125 +1385,129 @@ const INGREDIENTS = [
     id:'clary-sage', img:'clary-sage.png', name:'Clary Sage', note:'Heart · Base', group:'heart',
     emoji:'🌿', color:'#6a8a3a',
     desc:'Herbaceous, earthy and slightly musky with a warm, hay-like sweetness. Deeply relaxing and balancing - a classic in natural perfumery.',
-    warn:null, maxPct: 17.0, cost:2.60
+    warn:null, maxPct: 17.0, cost:2.60, wholesale:36.99
   },
   {
     id:'kunzea', img:'kunzea.png', name:'Kunzea', note:'Top · Heart', group:'heart',
     emoji:'🌿', color:'#4a8a5a',
     desc:'Fresh, earthy and medicinal with a clean, slightly woody edge. An Australian native from the coastal heathlands of south-eastern Australia. 🌿 Australian Native - icon to be updated.',
-    warn:null, maxPct: 9.0, cost:3.20
+    warn:null, maxPct: 9.0, cost:3.20, wholesale:77.45
   },
   {
     id:'nerolina', img:'nerolina.png', name:'Nerolina', note:'Top · Heart', group:'heart',
     emoji:'🌿', color:'#5a9a6a',
     desc:'Soft, floral and gently woody - a bridge between neroli and tea tree. This Australian native has a calm, clean sweetness that belies its therapeutic depth. 🌿 Australian Native - icon to be updated.',
-    warn:null, maxPct: 10.0, cost:3.00
+    warn:null, maxPct: 10.0, cost:3.00, wholesale:19.25
   },
   {
     id:'nutmeg', img:'nutmeg.png', name:'Nutmeg', note:'Top · Heart', group:'heart',
     emoji:'🌰', color:'#a07040',
     desc:'Warm, spicy and sweetly woody with a rich, slightly camphoraceous depth. A classic perfumery spice note - familiar yet sophisticated.',
-    warn:null, cost:2.40
+    warn:null, cost:2.40, wholesale:29.99
   },
   {
     id:'rose-geranium', img:'rose-geranium.png', name:'Rose Geranium', note:'Heart', group:'heart',
     emoji:'🌸', color:'#c06080',
     desc:'Lush, rosy and softly green - a more complex and earthy alternative to rose absolute. Bridges the gap between florals and herbaceous.',
-    warn:null, cost:3.00
+    warn:null, cost:3.00, wholesale:34.10
   },
   // BASE NOTES
   {
     id:'agarwood', img:'agarwood-indian-oud.png', name:'Agarwood (Indian Oud)', note:'Base', group:'base',
     emoji:'🟤', color:'#6a3010', rare:true,
     desc:'One of the most precious aromatic materials on earth. Dark, complex, woody and animalic with a smoky, balsamic depth that evolves continuously on skin.',
-    warn:null, cost:12.00
+    warn:null, cost:12.00, wholesale:200
   },
   {
     id:'ambrette', img:'ambrette.png', name:'Ambrette Seed', note:'Heart · Base', group:'base',
     emoji:'🤍', color:'#c0a080', rare:true,
     desc:'Velvety, musky and softly pear-like - one of the finest natural musk alternatives available. Warm and sensual, lingers beautifully on skin.',
-    warn:null, maxPct: 15.0, cost:6.50
+    warn:null, maxPct: 15.0, cost:6.50, wholesale:100
   },
   {
     id:'cocoa',
     img:'cocoa.png', name:'Cocoa', note:'Base', group:'base',
     emoji:'🍫', color:'#6a3820', rare:true,
     desc:'Rich, dark and indulgent. A certified organic cocoa absolute, clean-extracted and free from synthetic processes - deep, roasted and sweetly bittersweet.',
-    warn:null, cost:5.50
+    warn:null, cost:5.50, wholesale:54.99
   },
   {
     id:'ho-wood', img:'ho-wood.png', name:'Ho Wood', note:'Heart · Base', group:'base',
     emoji:'🪵', color:'#8a6848',
     desc:'Soft, woody and quietly rosy with a clean freshness. A sustainable, high-linalool alternative to rosewood - grounding, calming and versatile.',
-    warn:null, maxPct: 14.0, cost:2.60
+    warn:null, maxPct: 14.0, cost:2.60, wholesale:15.95
   },
   // ── BATCH 3 NEW ──
   { id:'may-chang',
-    img:'may-chang.png', name:'May Chang', note:'Top', group:'top', emoji:'🍋', color:'#c0c020', desc:'Bright, lemony and intensely fresh with a clean, almost lemon hard candy-like sweetness. More complex and fruity-floral than a straight citrus - a favourite in natural perfumery.', warn:null, cost:2.00 },
+    img:'may-chang.png', name:'May Chang', note:'Top', group:'top', emoji:'🍋', color:'#c0c020', desc:'Bright, lemony and intensely fresh with a clean, almost lemon hard candy-like sweetness. More complex and fruity-floral than a straight citrus - a favourite in natural perfumery.', warn:null, cost:2.00, wholesale:35 },
   { id:'pink-grapefruit',
     img:'pink-grapefruit.png', name:'Pink Grapefruit', note:'Top', group:'top', emoji:'🍊', color:'#e8904a', desc:'Bright, juicy and uplifting. Cold-pressed from the peel of Citrus paradisi - an instant mood-lifter with a clean, slightly tart sweetness.', warn:'⚠️ Phototoxic - cold-pressed citrus. Formulated in compliance with TGA and IFRA guidelines.', restricted: true, fixedPct: 4.0, cost:1.80 },
   { id:'virginian-cedarwood', img:'virginian-cedarwood.png', name:'Virginian Cedarwood', note:'Base', group:'base', emoji:'🪵', color:'#8a6030',
     desc:'Dry, pencil-shaving cedarwood with a clean, almost transparent woody warmth. Steam-distilled from Juniperus virginiana - lighter and crisper than Atlas cedarwood with a subtle sweetness and excellent tenacity. A grounding base note that adds structure without heaviness.',
-    warn:null, cost:3.40 },
+    warn:null, cost:3.40, wholesale:17.50 },
   { id:'mandarin', img:'mandarin.png', name:'Mandarin', note:'Top', group:'top', emoji:'🍊', color:'#e07820',
     desc:'Sweet, soft and warmly citrusy - cold-pressed mandarin is the gentlest and most rounded of the citrus top notes. Rich with a slightly floral, almost honeyed depth that sets it apart from orange or lime. Uplifting and approachable.',
     warn:'⚠️ Phototoxic — cold-pressed citrus. IFRA & TGA limits apply. Capped at 0.8%. Formulated in full compliance.', restricted:true, fixedPct:0.8, cost:2.60 },
-  { id:'lime-distilled', img:'lime-distilled.png', name:'Lime Distilled', note:'Top', group:'top', emoji:'🍋', color:'#a0c020', desc:'Crisp, clean and vibrantly citrusy. Steam distillation gives this lime a brighter, more transparent character - refreshing and sharp.', warn:null, cost:1.80 },
+  { id:'lime-distilled', img:'lime-distilled.png', name:'Lime Distilled', note:'Top', group:'top', emoji:'🍋', color:'#a0c020', desc:'Crisp, clean and vibrantly citrusy. Steam distillation gives this lime a brighter, more transparent character - refreshing and sharp.', warn:null, cost:1.80, wholesale:33 },
   { id:'lemon',
     img:'lemon.png', name:'Lemon EO', note:'Top', group:'top', emoji:'🍋', color:'#e8e040',
     desc:'Bright, clean and unmistakably fresh. Cold-pressed from the peel of Citrus limon — sharp, zesty and instantly uplifting with a sparkling, slightly floral character. One of the most versatile top notes in natural perfumery.',
     warn:'⚠️ Phototoxic — cold-pressed citrus. IFRA & TGA limits apply. Capped at 2%. Formulated in full compliance.',
     restricted: true, fixedPct: 2.0, cost:1.80 },
-  { id:'ylang-1st', img:'ylangylang-1st.png', name:'Ylang Ylang 1st', note:'Top', group:'top', emoji:'🌼', color:'#c0a830', desc:'The boldest expression of ylang ylang - sharp, heady and euphoric with an almost narcotic sweetness. The most volatile and intensely floral fraction.', warn:null, cost:2.80 },
-  { id:'euca-citriodora', img:'euca-citriodora.png', name:'Euca Citriodora', note:'Top', group:'top', emoji:'🌿', color:'#8ab020', desc:'An Australian native with a bright, lemon-fresh character and a distinctly airy, kerosene-like undertone. Widely used as a natural insect repellent. 🌿 Australian Native - icon to be updated.', warn:null, cost:2.00 },
+  { id:'ylang-1st', img:'ylangylang-1st.png', name:'Ylang Ylang 1st', note:'Top', group:'top', emoji:'🌼', color:'#c0a830', desc:'The boldest expression of ylang ylang - sharp, heady and euphoric with an almost narcotic sweetness. The most volatile and intensely floral fraction.', warn:null, cost:2.80, wholesale:70 },
+  { id:'euca-citriodora', img:'euca-citriodora.png', name:'Euca Citriodora', note:'Top', group:'top', emoji:'🌿', color:'#8ab020', desc:'An Australian native with a bright, lemon-fresh character and a distinctly airy, kerosene-like undertone. Widely used as a natural insect repellent. 🌿 Australian Native - icon to be updated.', warn:null, cost:2.00, wholesale:12.65 },
   { id:'cypress',
-    img:'cypress.png', name:'Cypress', note:'Heart · Base', group:'heart', emoji:'🌲', color:'#2a6a3a', desc:'Fresh, green and woody with a clean, resinous warmth. A Mediterranean classic with a crisp, forest-like character that grounds and clarifies.', warn:null, maxPct: 15.0, cost:2.40 },
-  { id:'geranium-bourbon', img:'geranium-bourbon.png', name:'Geranium Bourbon', note:'Heart', group:'heart', emoji:'🌸', color:'#c06080', desc:'The finest expression of geranium - rich, rosy and green with a complexity that far exceeds common geranium. A backbone ingredient in classical and natural perfumery.', warn:null, maxPct: 11.0, cost:3.20 },
-  { id:'rosemary', img:'rosemary-spanish.png', name:'Rosemary (Spanish)', note:'Top · Heart', group:'heart', emoji:'🌿', color:'#5a8a3a', desc:'Sharp, herbaceous and invigorating. Spanish rosemary has a particularly crisp, camphorous character with a resinous warmth that blends beautifully.', warn:null, cost:2.00 },
-  { id:'ylang-3rd', img:'ylangylang-3rd.png', name:'Ylang Ylang 3rd', note:'Heart', group:'heart', emoji:'🌼', color:'#c0a020', desc:'Softer, rounder and more balsamic than the first fraction. Deeper and more creamy with a rubbery, slightly earthy warmth - the most versatile fraction for heart note blending.', warn:null, cost:2.40 },
-  { id:'ylang-complete', img:'ylangylang-3rd.png', name:'Ylang Ylang Complete', note:'Heart · Base', group:'heart', emoji:'🌼', color:'#b89820', desc:'The unfractionated, full distillation of Cananga odorata. Balanced, rich and complex - bright floral top notes giving way to a creamy, balsamic depth. The most naturalistic representation of the living flower.', warn:null, cost:2.60 },
+    img:'cypress.png', name:'Cypress', note:'Heart · Base', group:'heart', emoji:'🌲', color:'#2a6a3a', desc:'Fresh, green and woody with a clean, resinous warmth. A Mediterranean classic with a crisp, forest-like character that grounds and clarifies.', warn:null, maxPct: 15.0, cost:2.40, wholesale:20 },
+  { id:'geranium-bourbon', img:'geranium-bourbon.png', name:'Geranium Bourbon', note:'Heart', group:'heart', emoji:'🌸', color:'#c06080', desc:'The finest expression of geranium - rich, rosy and green with a complexity that far exceeds common geranium. A backbone ingredient in classical and natural perfumery.', warn:null, maxPct: 11.0, cost:3.20, wholesale:71.50 },
+  { id:'rosemary', img:'rosemary-spanish.png', name:'Rosemary (Spanish)', note:'Top · Heart', group:'heart', emoji:'🌿', color:'#5a8a3a', desc:'Sharp, herbaceous and invigorating. Spanish rosemary has a particularly crisp, camphorous character with a resinous warmth that blends beautifully.', warn:null, cost:2.00, wholesale:27.50 },
+  { id:'ylang-3rd', img:'ylangylang-3rd.png', name:'Ylang Ylang 3rd', note:'Heart', group:'heart', emoji:'🌼', color:'#c0a020', desc:'Softer, rounder and more balsamic than the first fraction. Deeper and more creamy with a rubbery, slightly earthy warmth - the most versatile fraction for heart note blending.', warn:null, cost:2.40, wholesale:44 },
+  { id:'ylang-complete', img:'ylangylang-3rd.png', name:'Ylang Ylang Complete', note:'Heart · Base', group:'heart', emoji:'🌼', color:'#b89820', desc:'The unfractionated, full distillation of Cananga odorata. Balanced, rich and complex - bright floral top notes giving way to a creamy, balsamic depth. The most naturalistic representation of the living flower.', warn:null, cost:2.60, wholesale:59 },
   { id:'frangipani',
-    img:'frangipani.png', name:'Frangipani', note:'Heart', group:'heart', emoji:'🌺', color:'#c070a0', rare:true, desc:'Exotic, tropical and deeply floral - carries the full warmth of the Plumeria flower with a creamy, slightly spiced sweetness. Evocative and sensual. Organic, hexane-free extraction.', warn:null, cost:8.00 },
+    img:'frangipani.png', name:'Frangipani', note:'Heart', group:'heart', emoji:'🌺', color:'#c070a0', rare:true, desc:'Exotic, tropical and deeply floral - carries the full warmth of the Plumeria flower with a creamy, slightly spiced sweetness. Evocative and sensual. Organic, hexane-free extraction.', warn:null, cost:8.00, wholesale:90 },
   { id:'boronia',
     img:'boronia.png', name:'Boronia Absolute', note:'Heart', group:'heart', emoji:'🌿', color:'#8a5070', rare:true,
     desc:'One of the rarest botanicals in natural perfumery. From Boronia megastigma — a small flowering shrub native to Western Australia. Extraordinarily complex — rich and earthy with fresh fruity-sweet, tea-like facets, soft cinnamon and tobacco nuances, and a warm woody-sweet depth. Organic, hexane-free extraction. 🌿 Australian Native.',
-    warn:null, cost:14.00 },
-  { id:'magnolia', img:'magnolia-white-champaca.png', name:'Magnolia (White Champaca)', note:'Heart', group:'heart', emoji:'🌸', color:'#c0a0b0', rare:true, desc:'Heady, luminous and intoxicatingly floral with a warm, tea-like creaminess. One of the most revered florals in Asian perfumery. Organic, hexane-free extraction.', warn:null, cost:9.00 },
+    warn:null, cost:14.00, wholesale:100 },
+  { id:'magnolia', img:'magnolia-white-champaca.png', name:'Magnolia (White Champaca)', note:'Heart', group:'heart', emoji:'🌸', color:'#c0a0b0', rare:true, desc:'Heady, luminous and intoxicatingly floral with a warm, tea-like creaminess. One of the most revered florals in Asian perfumery. Organic, hexane-free extraction.', warn:null, cost:9.00, wholesale:69.99 },
   { id:'osmanthus',
-    img:'osmanthus.png', name:'Osmanthus', note:'Heart', group:'heart', emoji:'🌸', color:'#c09040', rare:true, desc:'Delicate, peachy and apricot-like with a distinctive dark cherry undertone. One of the most prized florals in Chinese perfumery. Organic, hexane-free extraction.', warn:null, maxPct: 14.0, cost:7.00 },
+    img:'osmanthus.png', name:'Osmanthus', note:'Heart', group:'heart', emoji:'🌸', color:'#c09040', rare:true, desc:'Delicate, peachy and apricot-like with a distinctive dark cherry undertone. One of the most prized florals in Chinese perfumery. Organic, hexane-free extraction.', warn:null, maxPct: 14.0, cost:7.00, wholesale:70 },
   { id:'tuberose',
-    img:'tuberose.png', name:'Tuberose', note:'Heart', group:'heart', emoji:'🤍', color:'#d0b0c0', rare:true, desc:'One of the most intensely floral botanicals in natural perfumery - rich, creamy and narcotic with a heady, waxy sweetness. A statement ingredient. Organic, hexane-free extraction.', warn:null, maxPct: 13.0, cost:11.00 },
-  { id:'euca-blue-mallee', img:'euca-blue-malle.png', name:'Euca Blue Mallee', note:'Top · Heart', group:'heart', emoji:'🌿', color:'#2a7a4a', desc:'An Australian native with a high 1,8-cineole content - sharper and more penetrating than Blue Gum. Clean, medicinal intensity. 🌿 Australian Native - icon to be updated.', warn:null, cost:2.00 },
+    img:'tuberose.png', name:'Tuberose', note:'Heart', group:'heart', emoji:'🤍', color:'#d0b0c0', rare:true, desc:'One of the most intensely floral botanicals in natural perfumery - rich, creamy and narcotic with a heady, waxy sweetness. A statement ingredient. Organic, hexane-free extraction.', warn:null, maxPct: 13.0, cost:11.00, wholesale:90 },
+  { id:'euca-blue-mallee', img:'euca-blue-malle.png', name:'Euca Blue Mallee', note:'Top · Heart', group:'heart', emoji:'🌿', color:'#2a7a4a', desc:'An Australian native with a high 1,8-cineole content - sharper and more penetrating than Blue Gum. Clean, medicinal intensity. 🌿 Australian Native - icon to be updated.', warn:null, cost:2.00, wholesale:11 },
   { id:'tonka',
-    img:'tonka-bean.png', name:'Tonka', note:'Base', group:'base', emoji:'🤎', color:'#a07840', rare:true, desc:'Warm, sweet and richly coumarinic with hints of almond, hay and tobacco. Tenacious and comforting - anchors sweet accords with an almost edible warmth. Organic, hexane-free extraction.', warn:null, cost:5.00 },
+    img:'tonka-bean.png', name:'Tonka', note:'Base', group:'base', emoji:'🤎', color:'#a07840', rare:true, desc:'Warm, sweet and richly coumarinic with hints of almond, hay and tobacco. Tenacious and comforting - anchors sweet accords with an almost edible warmth. Organic, hexane-free extraction.', warn:null, cost:5.00, wholesale:69.99 },
   { id:'vanilla',
     img:'vanilla.png', name:'Vanilla Oleoresin', note:'Base', group:'base', emoji:'🤍', color:'#c8a870', rare:true,
     desc:'Rich, creamy and deeply comforting — vanilla oleoresin is one of the most beloved base notes in natural perfumery. Solvent-extracted from Vanilla planifolia pods, it carries a warm, balsamic sweetness with subtle woody and floral undertones that develop slowly on skin. A natural fixative that anchors and softens everything around it. Organic, hexane-free extraction.',
-    warn:null, cost:4.50 },
+    warn:null, cost:4.50, wholesale:50 },
   { id:'honeysuckle',
     img:'honeysuckle.png', name:'Honeysuckle Absolute', note:'Heart', group:'heart', emoji:'🌼', color:'#d4b840', rare:true,
     desc:'Intensely sweet, floral and luminous — honeysuckle absolute captures the full intoxicating richness of the flower in a way no distillation can. Solvent-extracted from Lonicera caprifolium blossoms, it opens with a heady, almost narcotic sweetness before revealing softer, honey-like depth. Rare and prized in natural perfumery. Organic, hexane-free extraction.',
-    warn:null, cost:6.00 },
+    warn:null, cost:6.00, wholesale:70 },
   { id:'elemi',
     img:'elemi.png', name:'Elemi', note:'Top · Heart', group:'top', emoji:'🌿', color:'#8ab040',
     desc:'Bright, resinous and refreshingly complex — elemi opens with a sharp citrus-green freshness reminiscent of frankincense before drying down to a soft, woody balsamic depth with a hint of spice. Steam-distilled from the oleo-resin of Canarium luzonicum, a member of the Burseraceae family alongside myrrh and frankincense. One of the most versatile top-to-heart transitions in natural perfumery.',
-    warn:null, cost:2.20 },
+    warn:null, cost:2.20, wholesale:24.75 },
   { id:'benzoin',
     img:'benzoin.png', name:'Benzoin', note:'Base', group:'base', emoji:'🍯', color:'#c09040',
     desc:'Warm, sweet and richly balsamic with a distinctive vanilla-like creaminess and a subtle incense depth. A resinoid produced from the bark resin of Styrax benzoin — one of the oldest aromatic materials used in perfumery, medicine and sacred ritual. Exceptionally tenacious as a base note and natural fixative, it rounds and softens accords with a powdery, resinous warmth.',
-    warn:null, cost:3.00 },
+    warn:null, cost:3.00, wholesale:40 },
   { id:'cade',
     img:'cade.png', name:'Cade', note:'Base', group:'base', emoji:'🪵', color:'#604828', rare:true,
     desc:'Smoky, tarry and intensely leathery — cade is one of the most arresting base notes in natural perfumery. Dry-distilled from the wood and twigs of Juniperus oxycedrus, it carries a dark, phenolic smokiness with burnt wood, tobacco and leather facets and a subtle sweet undertone that prevents it from being harsh. Used sparingly, it adds extraordinary depth and an almost primal character to woody, leather and fougère compositions.',
-    warn:null, cost:3.50 },
+    warn:null, cost:3.50, wholesale:40 },
   { id:'aussie-mint',
-    img:'aussie-mint.png', name:'Aussie Mint', note:'Top', group:'top', emoji:'🌿', color:'#5ab870',
-    desc:'Clean, crisp and invigoratingly fresh with a bright, green mintiness that is distinctly softer and more herbal than peppermint. Steam-distilled from native Australian mint species, it carries a cool, clean openness with subtle earthy undertones that ground its freshness. A versatile top note that lifts and clarifies without overpowering. 🌿 Australian Native.',
-    warn:null, cost:2.40 },
+    img:'aussie-mint.png', name:'Australian Peppermint', note:'Top', group:'top', emoji:'🌿', color:'#5ab870',
+    desc:'Cool, crisp and immediately refreshing — a bright peppermint lift, sweet and clean over a green, herbaceous base. Steam-distilled from Australian-grown Mentha piperita, it opens sharp and invigorating and clarifies everything around it. A clean, energising top note.',
+    warn:null, cost:2.40, wholesale:12.65 },
   { id:'lavandin-grosso',
     img:'lavandin-grosso.png', name:'Lavandin Grosso', note:'Top · Heart', group:'top', emoji:'💜', color:'#7a60a0',
     desc:'Bold, bright and deeply herbal with a clean, camphoraceous edge that sets it apart from true lavender. Lavandin Grosso is a naturally occurring hybrid of Lavandula angustifolia and Lavandula latifolia — larger in yield and more powerful in character than its parent species. Its scent opens with a sharp, fresh lavender clarity before softening to a warm, slightly woody herbaceous depth. A workhorse of natural perfumery and one of the most satisfying lavender materials available.',
-    warn:null, cost:3.50 },
+    warn:null, cost:3.50, wholesale:22 },
+  { id:'daffodil',
+    img:'daffodil.png', name:'Daffodil', note:'Heart', group:'heart', emoji:'🌼', color:'#e8c840', rare:true,
+    desc:'Green, honeyed and hauntingly floral — daffodil (narcissus) absolute is one of the rarest florals in natural perfumery, with a hay-like, slightly animalic depth beneath a heady sweetness. Organic, hexane-free extraction.',
+    warn:null, cost:12.00, wholesale:110 },
 ];
 
 const GROUPS = [
@@ -1353,6 +1518,24 @@ const GROUPS = [
 
 const BASE_PRICE = 48.00;
 const PRICE_PER_UNIT = 2.20;
+// Per-slot target % for a normal ingredient, by note family. Averages ~10 —
+// a third of the 30% concentrate cap — so one note ≈ 10% (not the whole 30%),
+// three ≈ a full bottle. Base-weighted so blends skew heavier on base by default.
+const NOTE_TARGET = { top: 8, heart: 10, base: 12 };
+// Retail markup applied to real material cost. Oils with a `wholesale` ($/50ml)
+// field are charged: wholesale · (pct/100) · MATERIAL_MARKUP. BASE_PRICE already
+// covers the bottle, alcohol, labour and packaging. ADJUST to set your margin.
+const MATERIAL_MARKUP = 3.5;
+// Fragrance concentration tiers — the product NAME follows the live concentrate %.
+// (Cologne ~2-5, EdT ~5-15, EdP ~15-20, Parfum ~20-30.) `target` = the mid-strength a
+// "pick this tier" guide aims for; `max` = the upper edge where the name flips to the next.
+const SCENT_TIERS = [
+  { key:'cologne', name:'Eau de Cologne',  max:5,   target:4,  blurb:'Light & fresh — a soft, short-lived scent.' },
+  { key:'edt',     name:'Eau de Toilette', max:15,  target:12, blurb:'Everyday strength — bright and wearable.' },
+  { key:'edp',     name:'Eau de Parfum',   max:20,  target:18, blurb:'Rich & lasting — the classic perfume strength.' },
+  { key:'parfum',  name:'Parfum',          max:100, target:28, blurb:'Most concentrated — deep and long-lasting.' },
+];
+function tierFor(pct) { return SCENT_TIERS.find(t => pct <= t.max) || SCENT_TIERS[SCENT_TIERS.length-1]; }
 let formula = {};
 let flippedCard = null;
 let alcoholFilled = false; // tracks whether user confirmed and alcohol animation has run
@@ -1389,16 +1572,57 @@ function animateMobileFill(targetH, delay) {
   delay > 0 ? setTimeout(run, delay) : run();
 }
 
-// Cost helper — restricted ingredients priced by fixedPct proportion, not slot count
+// Price = BASE + Σ per-oil material cost. Where we have the REAL wholesale price
+// (`wholesale`, $/50ml) we charge for the oil actually used plus MATERIAL_MARKUP;
+// oils still on the placeholder `cost` fall back to the legacy formula until their
+// real wholesale is entered — so an un-migrated oil never changes price meanwhile.
+// pct = the oil's % of the bottle from getPctMap (fixedPct for IFRA-restricted).
+// SERVER-SIDE must mirror the wholesale branch: wholesale · (pct/100) · MATERIAL_MARKUP.
 function getTotalCost() {
+  const pctMap = getPctMap();
   return BASE_PRICE + Object.keys(formula).reduce((sum, id) => {
     const ing = INGREDIENTS.find(i => i.id === id);
     if (!ing) return sum;
-    const contrib = ing.restricted
-      ? ing.cost * PRICE_PER_UNIT * (ing.fixedPct / 30)
-      : ing.cost * PRICE_PER_UNIT * formula[id];
+    const pct = ing.restricted ? (ing.fixedPct || 0) : (pctMap[id] || 0);
+    const contrib = (ing.wholesale != null)
+      ? ing.wholesale * (pct / 100) * MATERIAL_MARKUP      // real wholesale $/50ml + markup
+      : ing.cost * PRICE_PER_UNIT * (pct / 30);            // legacy placeholder — TODO: real wholesale
     return sum + contrib;
   }, 0);
+}
+
+// Compact list of the added ingredients — thumbnail + name + % per row — shown in
+// the collapsed bar's open space. Thumbnails run down the left, %s down the right.
+// Every ingredient is shown; row height / thumbnail / font shrink as the count
+// grows so they all fit in the bar (no "+N more"). Sizes ride CSS vars.
+function renderBarList(keys) {
+  const wrap = document.getElementById('mobBarList');
+  if (!wrap) return;
+  keys = keys || Object.keys(formula);
+  const pctMap = getPctMap();
+  const n = keys.length;
+
+  if (n) {
+    const budget = 102;                                // px of vertical room for the list
+    const gap    = n <= 4 ? 3 : (n <= 6 ? 2 : 1);
+    const rowH   = Math.max(12, Math.min(30, (budget - (n - 1) * gap) / n));
+    const thumb  = Math.max(11, Math.min(22, Math.round(rowH - 4)));
+    const font   = Math.max(8.5, Math.min(11.5, rowH * 0.44));
+    wrap.style.setProperty('--bgap',   gap + 'px');
+    wrap.style.setProperty('--bthumb', thumb + 'px');
+    wrap.style.setProperty('--bfont',  font.toFixed(1) + 'px');
+  }
+
+  wrap.innerHTML = keys.map(id => {
+    const ing = INGREDIENTS.find(i => i.id === id);
+    if (!ing) return '';
+    const name = ing.name.replace(/</g, '&lt;');
+    const pct = ing.restricted ? (ing.fixedPct || 0) : (pctMap[id] || 0);
+    const thumb = ing.img
+      ? `<img class="mob-bar-lthumb" src="/images/${ing.img}" alt="">`
+      : `<span class="mob-bar-lthumb mob-bar-lthumb--emoji">${ing.emoji || '•'}</span>`;
+    return `<div class="mob-bar-litem">${thumb}<span class="mob-bar-lname">${name}</span><span class="mob-bar-lpct">${pct}%</span></div>`;
+  }).join('');
 }
 
 function shuffle(arr) {
@@ -1423,20 +1647,9 @@ function renderIngredients() {
       </div>`;
   }).join('');
 
-  // Populate mobile chip strip on load so it's ready before any ingredient is added
-  const chipStrip = document.getElementById('mobChipStrip');
-  if (chipStrip) {
-    if (!chipOrder) chipOrder = shuffle(INGREDIENTS);
-    chipStrip.innerHTML = chipOrder.map(ing => {
-      const isAdded = !!formula[ing.id];
-      const isRare  = ing.rare ? 'rare' : '';
-      return `<div class="mob-chip ${isAdded ? 'added' : ''} ${isRare}" id="mob-chip-${ing.id}" onclick="openChipModal('${ing.id}')">
-        <span class="mob-chip-emoji">${ing.img ? `<img src="/images/${ing.img}" class="mob-chip-img" alt="">` : ing.emoji}</span>
-        <span>${ing.name}</span>
-        <button type="button" class="mob-chip-btn" onclick="event.stopPropagation(); toggleIngredient('${ing.id}')">${isAdded ? '✕' : '+'}</button>
-      </div>`;
-    }).join('');
-  }
+  // Ensure a stable shuffled order exists, then render the smart suggestion strip
+  if (!chipOrder) chipOrder = shuffle(INGREDIENTS);
+  renderSuggestions();
 }
 
 function cardHTML(ing) {
@@ -1599,13 +1812,10 @@ function addIngredient(id) {
     refreshCardAction(id);
     // Amber toast for IFRA-restricted ingredients
     if (ing.restricted) {
-      showToast(`${ing.name} added — IFRA regulated · fixed at ${ing.fixedPct}% of formula${ing.warn ? ' · ' + ing.warn.replace('⚠️ ','') : ''}`, 'warn');
+      showToast(`${ing.name} added · IFRA-capped at ${ing.fixedPct}%`, 'warn');
     }
-    // Auto-open mobile panel on first ingredient
-    const bar = document.getElementById('mobBar');
-    if (bar && Object.keys(formula).length === 1 && !bar.classList.contains('open')) {
-      bar.classList.add('open');
-    }
+    // (No auto-open: the bottle now lives in the always-visible bar, so the
+    // panel no longer expands over the ingredient grid on the first add.)
   }, 560);
 }
 
@@ -1670,6 +1880,11 @@ function updateAll() {
   document.getElementById('totalPct').textContent = count > 0 ? actualTotal + '%' : '0%';
   document.getElementById('totalPctBottom').textContent = count > 0 ? actualTotal + '%' : '0%';
   document.getElementById('totalRow').style.display = count > 0 ? 'flex' : 'none';
+
+  // Product name follows the live concentration (Cologne → Parfum)
+  const tierLabel = count > 0 ? '50ml ' + tierFor(actualTotal).name : '50ml Eau de Parfum';
+  ['priceLabel','mobPriceLabel'].forEach(id => { const el = document.getElementById(id); if (el) el.textContent = tierLabel; });
+  updateScentGuide(actualTotal, count);
 
   // Remove overflow warning if it exists (not needed with Option A)
   const overflowWarn = document.getElementById('overflowWarn');
@@ -2103,7 +2318,7 @@ function rareToggle(id) {
     updateAll();
     refreshCardAction(id);
     if (ing && ing.restricted) {
-      showToast(`${ing.name} added — IFRA regulated · fixed at ${ing.fixedPct}% of formula${ing.warn ? ' · ' + ing.warn.replace('⚠️ ','') : ''}`, 'warn');
+      showToast(`${ing.name} added · IFRA-capped at ${ing.fixedPct}%`, 'warn');
     }
   }
   // Update rare modal card state
@@ -2133,12 +2348,9 @@ function updateMobile(keys, totalPct, cost, pctMap) {
   // Only bother if mobile bar exists (it's always in DOM but hidden on desktop via CSS)
   const isMobile = window.innerWidth <= 768;
 
-  // ── Auto-open panel when first ingredient added ──
+  // ── Panel opens on tap only; the bottle is always visible in the bar ──
   const bar = document.getElementById('mobBar');
-  if (bar && keys.length === 1 && !bar.classList.contains('open')) {
-    bar.classList.add('open');
-  }
-  // Auto-close if all cleared
+  // Auto-close if everything was cleared
   if (bar && keys.length === 0 && bar.classList.contains('open')) {
     bar.classList.remove('open');
   }
@@ -2152,6 +2364,7 @@ function updateMobile(keys, totalPct, cost, pctMap) {
     countEl.textContent = keys.length + (keys.length === 1 ? ' ingredient' : ' ingredients') + (ts > keys.length ? ' (' + ts + ' slots)' : '');
   }
   if (priceEl) priceEl.textContent = keys.length ? '$' + cost.toFixed(2) : '—';
+  renderBarList(keys);
   if (fillBar) {
     const ts = totalSlots();
     const pct = Math.min((ts / 8) * 100, 100);
@@ -2173,11 +2386,8 @@ function updateMobile(keys, totalPct, cost, pctMap) {
 
   if (mobLiqRect) {
     if (window.innerWidth <= 768) {
-      // JS animation — reliable on mobile Safari and all Android browsers
-      // Delay if the panel was closed (about to open) so fill starts after drawer is visible
-      const bar = document.getElementById('mobBar');
-      const delay = (bar && !bar.classList.contains('open')) ? 460 : 0;
-      animateMobileFill(fillH, delay);
+      // Bottle lives in the always-visible bar now, so fill immediately.
+      animateMobileFill(fillH, 0);
     } else {
       mobLiqRect.setAttribute('y', fillY);
       mobLiqRect.setAttribute('height', fillH + 10);
@@ -2266,20 +2476,83 @@ function updateMobile(keys, totalPct, cost, pctMap) {
     }
   }
 
-  // ── Ingredient chip strip — renders all ingredients, tap to add/remove ──
-  const chipStrip = document.getElementById('mobChipStrip');
-  if (chipStrip) {
-    if (!chipOrder) chipOrder = shuffle(INGREDIENTS);
-    chipStrip.innerHTML = chipOrder.map(ing => {
-      const isAdded = !!formula[ing.id];
-      const isRare  = ing.rare ? 'rare' : '';
-      return `<div class="mob-chip ${isAdded ? 'added' : ''} ${isRare}" id="mob-chip-${ing.id}" onclick="openChipModal('${ing.id}')">
-        <span class="mob-chip-emoji">${ing.img ? `<img src="/images/${ing.img}" class="mob-chip-img" alt="">` : ing.emoji}</span>
-        <span>${ing.name}</span>
-        <button type="button" class="mob-chip-btn" onclick="event.stopPropagation(); toggleIngredient('${ing.id}')">${isAdded ? '✕' : '+'}</button>
-      </div>`;
-    }).join('');
+  // ── Smart suggestion strip (what the accord is still missing) ──
+  renderSuggestions();
+}
+
+// ═══════════════════════════════════════════════════════════════
+// SMART SUGGESTIONS — nudge toward a balanced top / heart / base accord.
+// Reads the current formula and offers the note family it is missing;
+// once all three are present, it surfaces rare / premium picks.
+// ═══════════════════════════════════════════════════════════════
+function suggestIngredients() {
+  const keys     = Object.keys(formula);
+  const notAdded = INGREDIENTS.filter(i => !formula[i.id]);
+  const order    = chipOrder || INGREDIENTS;
+  const byOrder  = (a, b) => order.indexOf(a) - order.indexOf(b);
+  const haveFams = new Set(keys.map(id => (INGREDIENTS.find(i => i.id === id) || {}).group));
+
+  // At the 8-slot cap only IFRA-restricted ingredients (slot-free) can still be added
+  if (totalSlots() >= 8) {
+    const pool = notAdded.filter(i => i.restricted).sort(byOrder);
+    return {
+      label: pool.length ? 'Add a regulated accent - uses no slot' : 'Your bottle is full',
+      ids:   pool.slice(0, 5).map(i => i.id),
+    };
   }
+
+  // Nothing chosen yet - start them off with a bright top note
+  if (!keys.length) {
+    return {
+      label: 'Start with a bright top note',
+      ids:   notAdded.filter(i => i.group === 'top').sort(byOrder).slice(0, 5).map(i => i.id),
+    };
+  }
+
+  // Missing a whole note family? That is the most useful thing to suggest.
+  const missing = ['base', 'heart', 'top'].filter(f => !haveFams.has(f));
+  if (missing.length) {
+    const fam = missing[0];
+    const label = fam === 'base'  ? 'Add a base note - it makes the scent last'
+                : fam === 'heart' ? 'Add a heart note to give it body'
+                :                   'Add a top note for a brighter opening';
+    const pool = notAdded.filter(i => i.group === fam).sort(byOrder);
+    return { label, ids: pool.slice(0, 5).map(i => i.id) };
+  }
+
+  // All three families covered - surface rare / premium picks to elevate the blend
+  const pool = notAdded.slice().sort((a, b) => {
+    const r = (b.rare ? 1 : 0) - (a.rare ? 1 : 0);
+    return r !== 0 ? r : byOrder(a, b);
+  });
+  return { label: 'Elevate your blend', ids: pool.slice(0, 5).map(i => i.id) };
+}
+
+function renderSuggestions() {
+  const row     = document.getElementById('mobSuggestRow');
+  const labelEl = document.getElementById('mobSuggestLabel');
+  if (!row) return;
+  const { label, ids } = suggestIngredients();
+  if (labelEl) labelEl.textContent = label;
+  if (!ids.length) {
+    row.innerHTML = '<div class="mob-suggest-empty">Your bottle is full - remove one to swap something in.</div>';
+    return;
+  }
+  row.innerHTML = ids.map(id => {
+    const ing  = INGREDIENTS.find(i => i.id === id);
+    const rare = ing.rare ? 'rare' : '';
+    const fam  = ing.group === 'top' ? 'Top note' : ing.group === 'heart' ? 'Heart note' : 'Base note';
+    const tag  = (ing.rare ? 'Rare · ' : '') + fam;
+    const media = ing.img
+      ? `<img src="/images/${ing.img}" class="mob-suggest-chip-img" alt="">`
+      : `<span style="font-size:1.7rem;line-height:1;">${ing.emoji}</span>`;
+    return `<div class="mob-suggest-chip ${rare}" onclick="openChipModal('${id}')">
+      ${media}
+      <div class="mob-suggest-chip-name">${ing.name}</div>
+      <div class="mob-suggest-chip-note">${tag}</div>
+      <button type="button" class="mob-suggest-add" onclick="event.stopPropagation(); addIngredient('${id}')">+ Add</button>
+    </div>`;
+  }).join('');
 }
 
 function blendColors(hexColors) {
@@ -2306,6 +2579,8 @@ let chipModalOpenTime = 0;
 
 // Use touchend for backdrop dismiss — absorbs the phantom click that mobile fires after a tap
 document.addEventListener('DOMContentLoaded', () => {
+  // Render the opening suggestion strip now that the mobile bar exists in the DOM
+  renderSuggestions();
   // Handle Stripe redirect responses
   const params = new URLSearchParams(window.location.search);
   if (params.get('order_success') === '1') {
@@ -2314,6 +2589,9 @@ document.addEventListener('DOMContentLoaded', () => {
   } else if (params.get('order_cancelled') === '1') {
     showToast('Checkout cancelled — your formula is still saved.', 'warn');
     window.history.replaceState({}, '', window.location.pathname);
+  } else if (!sessionStorage.getItem('pnIntroSeen')) {
+    sessionStorage.setItem('pnIntroSeen', '1');   // once per visit — survives refreshes, resets on a new visit
+    openIntro();   // "what are you making?" modal
   }
   const overlay = document.getElementById('chipModalOverlay');
   if (overlay) {
@@ -2404,69 +2682,118 @@ function getPctMap() {
   const normalKeys     = keys.filter(k => !restrictedKeys.includes(k));
   const restrictedTotal = restrictedKeys.reduce((s, k) => { const i = INGREDIENTS.find(x => x.id === k); return s + (i.fixedPct || 0); }, 0);
   const remainingPct = 30 - restrictedTotal;
-  const ts = normalKeys.reduce((s, k) => s + (formula[k] || 0), 0);
   const pctMap = {};
 
   // IFRA restricted: always fixed
   restrictedKeys.forEach(k => { const i = INGREDIENTS.find(x => x.id === k); pctMap[k] = i.fixedPct; });
 
-  if (ts > 0) {
-    // Iterative slot distribution with maxPct capping.
-    // Each pass: distribute freely, find violators, cap them, repeat with remainder.
-    const cappedKeys = new Set();
-    let cappedPctTotal = 0;
+  if (normalKeys.length === 0) return pctMap;
 
-    for (let iter = 0; iter < normalKeys.length; iter++) {
-      const freeKeys = normalKeys.filter(k => !cappedKeys.has(k));
-      const freeSlots = freeKeys.reduce((s, k) => s + (formula[k] || 0), 0);
-      if (freeSlots === 0) break;
+  // Per-slot nominal target, weighted by note family (base carries the most — see
+  // NOTE_TARGET). A single note takes only its ~10% family target, NOT the whole
+  // 30%; the concentrate builds toward the 30% cap as more notes are added.
+  const weightOf = k => {
+    const i = INGREDIENTS.find(x => x.id === k);
+    return (NOTE_TARGET[i.group] || 10) * (formula[k] || 0);
+  };
 
-      const freeRemaining = remainingPct - cappedPctTotal;
-      const pctPerSlot = freeRemaining / freeSlots;
-      let newCapFound = false;
+  // Give each ingredient its weighted nominal %, scaling DOWN only when the nominal
+  // sum would exceed the remaining budget (so few notes stay weak). Any ingredient
+  // over its maxPct is capped and the freed budget is redistributed to the rest.
+  const cappedKeys = new Set();
+  let cappedPctTotal = 0;
+  for (let iter = 0; iter <= normalKeys.length; iter++) {
+    const freeKeys = normalKeys.filter(k => !cappedKeys.has(k));
+    const freeWeight = freeKeys.reduce((s, k) => s + weightOf(k), 0);
+    if (freeWeight === 0) break;
 
-      freeKeys.forEach(k => {
-        const i = INGREDIENTS.find(x => x.id === k);
-        const pct = pctPerSlot * formula[k];
-        if (i.maxPct && pct > i.maxPct) {
-          pctMap[k] = i.maxPct;
-          cappedPctTotal += i.maxPct;
-          cappedKeys.add(k);
-          newCapFound = true;
-        }
-      });
+    const scale = Math.min(1, (remainingPct - cappedPctTotal) / freeWeight); // shrink only, never inflate past nominal
+    let newCap = false;
 
-      if (!newCapFound) {
-        freeKeys.forEach(k => {
-          pctMap[k] = Math.round(pctPerSlot * formula[k] * 10) / 10;
-        });
-        break;
+    freeKeys.forEach(k => {
+      const i = INGREDIENTS.find(x => x.id === k);
+      if (i.maxPct && weightOf(k) * scale > i.maxPct) {
+        pctMap[k] = i.maxPct;
+        cappedPctTotal += i.maxPct;
+        cappedKeys.add(k);
+        newCap = true;
       }
-    }
+    });
 
-    // Safety: any uncapped key still missing gets 0
-    normalKeys.filter(k => pctMap[k] === undefined).forEach(k => { pctMap[k] = 0; });
+    if (!newCap) {
+      freeKeys.forEach(k => { pctMap[k] = Math.round(weightOf(k) * scale * 10) / 10; });
+      break;
+    }
   }
+
+  // Safety: any uncapped key still missing gets 0
+  normalKeys.filter(k => pctMap[k] === undefined).forEach(k => { pctMap[k] = 0; });
 
   return pctMap;
 }
 
-// Returns true if adding one more slot to id would push it over its maxPct
+// True if this ingredient is already pinned at its maxPct so another slot wouldn't
+// raise its share (used to disable the + stepper). Simulated against getPctMap so it
+// tracks the weighted distribution exactly rather than the old even-split estimate.
 function wouldExceedMaxPct(id, currentSlots, ts) {
   const ing = INGREDIENTS.find(i => i.id === id);
   if (!ing || !ing.maxPct) return false;
-  const restrictedTotal = Object.keys(formula).reduce((s, k) => {
-    const i = INGREDIENTS.find(x => x.id === k);
-    return i && i.restricted ? s + (i.fixedPct || 0) : s;
-  }, 0);
-  const nextTs = ts + 1;
-  const nextPct = (30 - restrictedTotal) / nextTs * (currentSlots + 1);
-  return nextPct > ing.maxPct;
+  const saved = formula[id];
+  formula[id] = (saved || 0) + 1;
+  const pct = getPctMap()[id];
+  if (saved === undefined) delete formula[id]; else formula[id] = saved;
+  return pct >= ing.maxPct - 0.05;
 }
 
 // ═══════════════════════════════════════════════════════════════
 // TOAST
 // ═══════════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════
+// SCENT-TIER INTRO MODAL + TARGET GUIDE
+// ═══════════════════════════════════════════════════════════════
+let scentTarget = null;   // tier chosen as a goal in the intro, or null (free build)
+function renderIntroTiers() {
+  const wrap = document.getElementById('introTiers');
+  if (!wrap) return;
+  wrap.innerHTML = SCENT_TIERS.map(t =>
+    `<button type="button" class="intro-tier" onclick="pickTier('${t.key}')">
+       <span class="intro-tier-name">${t.name}</span>
+       <span class="intro-tier-pct">~${t.target}%</span>
+       <span class="intro-tier-blurb">${t.blurb}</span>
+     </button>`).join('');
+}
+function openIntro() {
+  renderIntroTiers();
+  const o = document.getElementById('introModalOverlay');
+  if (o) o.classList.add('open');
+}
+function closeIntro() {
+  const o = document.getElementById('introModalOverlay');
+  if (o) o.classList.remove('open');
+}
+function pickTier(key) {
+  scentTarget = SCENT_TIERS.find(t => t.key === key) || null;
+  closeIntro(); updateAll();
+}
+function startCreating() { scentTarget = null; closeIntro(); updateAll(); }
+
+// The "aim for X%" guide — shown only when a tier was chosen in the intro.
+function updateScentGuide(pct, count) {
+  const el = document.getElementById('scentGuide');
+  if (!el) return;
+  if (!scentTarget) { el.style.display = 'none'; return; }
+  el.style.display = 'block';
+  if (!count) {
+    el.innerHTML = `Aiming for <b>${scentTarget.name}</b> (~${scentTarget.target}%) — start adding oils.`;
+  } else if (pct < scentTarget.target - 0.5) {
+    el.innerHTML = `Aiming for <b>${scentTarget.name}</b> (~${scentTarget.target}%) — you're at ${pct}%. Add more to get there.`;
+  } else if (pct <= scentTarget.max) {
+    el.innerHTML = `You've reached <b>${scentTarget.name}</b> strength ✓ (${pct}%).`;
+  } else {
+    el.innerHTML = `That's <b>${tierFor(pct).name}</b> now (${pct}%) — stronger than your ${scentTarget.name} goal.`;
+  }
+}
+
 let _toastTimer = null;
 function showToast(msg, type) {
   let el = document.getElementById('builderToast');
@@ -2476,11 +2803,30 @@ function showToast(msg, type) {
     document.body.appendChild(el);
   }
   el.className = 'toast' + (type ? ' ' + type : '');
-  el.textContent = msg;
+  el.innerHTML = '';
+  const span = document.createElement('span');
+  span.className = 'toast__text';
+  span.textContent = String(msg).replace(/\s*—\s*/g, ' · ');   // no em-dashes in toasts
+  el.appendChild(span);
   if (_toastTimer) clearTimeout(_toastTimer);
   requestAnimationFrame(() => {
     el.classList.add('show');
-    _toastTimer = setTimeout(() => el.classList.remove('show'), 4000);
+    // If the text is wider than the pill, scroll it inside the border instead of spilling out
+    const pad = parseFloat(getComputedStyle(el).paddingLeft) || 22;
+    const overflow = span.offsetWidth - (el.clientWidth - pad * 2);
+    let life = 4000;
+    if (overflow > 4) {
+      const dur = 2000 + overflow * 10;
+      el.style.setProperty('--sx', (-overflow - 6) + 'px');
+      el.style.setProperty('--sd', dur + 'ms');
+      el.classList.add('is-scroll');
+      life = dur + 900;
+    } else {
+      el.classList.remove('is-scroll');
+      el.style.removeProperty('--sx');
+      el.style.removeProperty('--sd');
+    }
+    _toastTimer = setTimeout(() => el.classList.remove('show'), life);
   });
 }
 
@@ -2489,6 +2835,16 @@ renderIngredients();
 <!-- ═══════════════════════════════════════════════════════
      30% CAP CONFIRMATION MODAL
      ═══════════════════════════════════════════════════════ -->
+<div class="cap-modal-overlay" id="introModalOverlay">
+  <div class="cap-modal">
+    <div class="cap-modal-icon">🌿</div>
+    <div class="cap-modal-title">What are you making?</div>
+    <div class="cap-modal-sub">Pick a strength to aim for — or just start creating and it'll name itself as you build.</div>
+    <div class="intro-tiers" id="introTiers"></div>
+    <button type="button" class="intro-notsure" onclick="startCreating()">Not sure — let me create</button>
+  </div>
+</div>
+
 <div class="cap-modal-overlay" id="capModalOverlay">
   <div class="cap-modal">
     <div class="cap-modal-icon">🌿</div>
@@ -2529,14 +2885,45 @@ renderIngredients();
 
   <!-- Collapsed: always-visible slim bar -->
   <div class="mob-bar-collapsed" id="mobBarCollapsed" onclick="toggleMobPanel()">
-    <div class="mob-fill-track">
-      <div class="mob-fill-bar" id="mobFillBar"></div>
+    <div class="bar-bottle-wrap">
+      <div class="bar-bottle-glow" id="mobBottleGlow"></div>
+      <svg width="58" height="94" viewBox="0 0 140 230" id="mobBottleSvg" style="position:relative;z-index:1;">
+        <defs>
+          <clipPath id="mobLiq">
+            <rect id="mobLiqRect" x="24" y="230" width="92" height="0"/>
+          </clipPath>
+          <linearGradient id="mobGlassShine" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0%" stop-color="white" stop-opacity="0.06"/>
+            <stop offset="30%" stop-color="white" stop-opacity="0.12"/>
+            <stop offset="100%" stop-color="white" stop-opacity="0"/>
+          </linearGradient>
+          <linearGradient id="mobCapGrad" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#2a3a2a"/>
+            <stop offset="100%" stop-color="#141d15"/>
+          </linearGradient>
+        </defs>
+        <rect id="mobLiqFill" x="24" y="65" width="92" height="155" rx="6"
+              fill="#8cc40f" opacity="0.25" clip-path="url(#mobLiq)"
+              style="transition:fill 0.8s ease;"/>
+        <rect x="24" y="65" width="92" height="155" rx="6"
+              fill="rgba(255,255,255,0.03)" stroke="rgba(230,236,231,0.25)" stroke-width="1"/>
+        <rect x="24" y="65" width="92" height="155" rx="6" fill="url(#mobGlassShine)"/>
+        <line x1="33" y1="72" x2="33" y2="210" stroke="rgba(255,255,255,0.1)" stroke-width="1.5" stroke-linecap="round"/>
+        <path d="M24 65 Q24 55 38 50 L102 50 Q116 55 116 65" fill="rgba(255,255,255,0.02)" stroke="rgba(230,236,231,0.2)" stroke-width="1"/>
+        <rect x="52" y="30" width="36" height="22" rx="2" fill="rgba(255,255,255,0.03)" stroke="rgba(230,236,231,0.2)" stroke-width="1"/>
+        <rect x="48" y="10" width="44" height="22" rx="3" fill="url(#mobCapGrad)" stroke="rgba(140,196,15,0.3)" stroke-width="1"/>
+        <line x1="52" y1="16" x2="88" y2="16" stroke="rgba(140,196,15,0.2)" stroke-width="0.5"/>
+        <line x1="52" y1="26" x2="88" y2="26" stroke="rgba(140,196,15,0.2)" stroke-width="0.5"/>
+        <rect id="mobAlcoholRect" x="24" y="65" width="92" height="0" rx="6"
+              fill="rgba(200,230,255,0.12)" style="transition:all 1.8s cubic-bezier(0.4,0,0.2,1);"/>
+      </svg>
     </div>
     <div class="mob-bar-info">
       <span class="mob-bar-count" id="mobBarCount">0 ingredients</span>
       <span class="mob-bar-price" id="mobBarPrice">—</span>
     </div>
-    <span class="mob-bar-arrow" id="mobBarArrow">▲</span>
+    <div class="mob-bar-list" id="mobBarList"></div>
+    <button class="mob-bar-finish" id="mobBarFinish" type="button" onclick="event.stopPropagation(); toggleMobPanel()">Finish</button>
   </div>
 
   <!-- Expandable panel -->
@@ -2544,48 +2931,7 @@ renderIngredients();
     <button class="mob-panel-close" onclick="toggleMobPanel()" aria-label="Close panel">&times;</button>
     <div class="mob-panel-inner">
 
-      <!-- Mini bottle -->
-      <div class="mob-bottle-wrap">
-        <div class="mob-bottle-glow" id="mobBottleGlow"></div>
-        <svg width="110" height="185" viewBox="0 0 140 230" id="mobBottleSvg" style="position:relative;z-index:1;">
-          <defs>
-            <clipPath id="mobLiq">
-              <rect id="mobLiqRect" x="24" y="230" width="92" height="0"/>
-            </clipPath>
-            <linearGradient id="mobGlassShine" x1="0" y1="0" x2="1" y2="0">
-              <stop offset="0%" stop-color="white" stop-opacity="0.06"/>
-              <stop offset="30%" stop-color="white" stop-opacity="0.12"/>
-              <stop offset="100%" stop-color="white" stop-opacity="0"/>
-            </linearGradient>
-            <linearGradient id="mobCapGrad" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stop-color="#2a3a2a"/>
-              <stop offset="100%" stop-color="#141d15"/>
-            </linearGradient>
-          </defs>
-          <rect id="mobLiqFill" x="24" y="65" width="92" height="155" rx="6"
-                fill="#8cc40f" opacity="0.25" clip-path="url(#mobLiq)"
-                style="transition:fill 0.8s ease;"/>
-          <rect x="24" y="65" width="92" height="155" rx="6"
-                fill="rgba(255,255,255,0.03)" stroke="rgba(230,236,231,0.25)" stroke-width="1"/>
-          <rect x="24" y="65" width="92" height="155" rx="6" fill="url(#mobGlassShine)"/>
-          <line x1="33" y1="72" x2="33" y2="210" stroke="rgba(255,255,255,0.1)" stroke-width="1.5" stroke-linecap="round"/>
-          <path d="M24 65 Q24 55 38 50 L102 50 Q116 55 116 65" fill="rgba(255,255,255,0.02)" stroke="rgba(230,236,231,0.2)" stroke-width="1"/>
-          <rect x="52" y="30" width="36" height="22" rx="2" fill="rgba(255,255,255,0.03)" stroke="rgba(230,236,231,0.2)" stroke-width="1"/>
-          <rect x="48" y="10" width="44" height="22" rx="3" fill="url(#mobCapGrad)" stroke="rgba(140,196,15,0.3)" stroke-width="1"/>
-          <line x1="52" y1="16" x2="88" y2="16" stroke="rgba(140,196,15,0.2)" stroke-width="0.5"/>
-          <line x1="52" y1="26" x2="88" y2="26" stroke="rgba(140,196,15,0.2)" stroke-width="0.5"/>
-          <rect id="mobAlcoholRect" x="24" y="65" width="92" height="0" rx="6"
-                fill="rgba(200,230,255,0.12)" style="transition:all 1.8s cubic-bezier(0.4,0,0.2,1);"/>
-          <text id="mobEmptyLabel" x="70" y="148" text-anchor="middle"
-                font-family="'Cormorant Garamond', serif" font-size="11" fill="rgba(230,236,231,0.2)"
-                font-style="italic">empty</text>
-          <text id="mobFillLabel" x="70" y="148" text-anchor="middle"
-                font-family="'Jost', sans-serif" font-size="11" font-weight="500"
-                fill="rgba(230,236,231,0)" style="transition:fill 0.4s;"></text>
-        </svg>
-      </div>
-
-      <!-- Formula list -->
+      <!-- Formula list (the live bottle now lives in the always-visible bar) -->
       <div class="mob-formula-wrap">
         <div class="mob-formula-title">Composition</div>
         <div id="mobFormulaBody"><div class="mob-formula-empty">Your accord awaits</div></div>
@@ -2597,7 +2943,7 @@ renderIngredients();
 
       <!-- Price -->
       <div class="mob-price-block" id="mobPriceBlock" style="display:none">
-        <span class="mob-price-label">50ml Eau de Parfum</span>
+        <span class="mob-price-label" id="mobPriceLabel">50ml Eau de Parfum</span>
         <div class="mob-price-value" id="mobPriceValue">$0.00</div>
         <div class="mob-price-size">Handcrafted to order · 2-3 week turnaround</div>
       </div>
@@ -2610,10 +2956,10 @@ renderIngredients();
         <button class="mob-clear-btn" onclick="clearAll()">Clear</button>
       </div>
 
-      <!-- Ingredient chip strip — add/remove without closing panel -->
-      <div class="mob-chip-strip-wrap">
-        <span class="mob-chip-strip-label">Add or remove ingredients</span>
-        <div class="mob-chip-strip" id="mobChipStrip"></div>
+      <!-- Smart suggestions - what the accord is still missing -->
+      <div class="mob-suggest-wrap">
+        <span class="mob-suggest-label" id="mobSuggestLabel">Round out your accord</span>
+        <div class="mob-suggest-row" id="mobSuggestRow"></div>
       </div>
 
     </div>
