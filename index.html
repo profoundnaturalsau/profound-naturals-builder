@@ -394,16 +394,24 @@
 
   /* ── CONFIRM CAP MODAL ── */
   /* Scent-tier intro modal (reuses .cap-modal-overlay / .cap-modal) */
-  .intro-tiers { display:flex; flex-direction:column; gap:9px; margin-top:2px; }
+  .intro-tiers { display:flex; flex-direction:column; gap:12px; margin-top:4px; }
   .intro-tier {
-    display:grid; grid-template-columns:1fr auto; gap:2px 10px; text-align:left;
-    padding:11px 14px; background:var(--surface-2); border:1px solid var(--border);
-    border-radius:10px; cursor:pointer; transition:border-color .2s, background .2s;
+    display:flex; flex-direction:column; gap:7px; text-align:left;
+    padding:18px 20px; background:var(--surface-2);
+    border:1px solid var(--border-sub); border-radius:12px; cursor:pointer;
+    position:relative; overflow:hidden;
+    transition:border-color .25s, transform .25s, box-shadow .25s, background .25s;
   }
-  .intro-tier:hover { border-color:rgba(140,196,15,.5); background:var(--surface-3); }
-  .intro-tier-name  { font-family:var(--serif); font-size:1rem; color:var(--white); }
-  .intro-tier-pct   { font-family:var(--sans); font-size:.7rem; font-weight:600; color:var(--green-lt); align-self:center; }
-  .intro-tier-blurb { grid-column:1 / -1; font-size:.66rem; color:var(--white-dim); line-height:1.4; }
+  .intro-tier:hover {
+    border-color:rgba(212,160,23,0.9); background:var(--surface-3);
+    transform:translateY(-2px);
+    box-shadow:0 0 22px rgba(212,160,23,0.28), 0 18px 40px rgba(0,0,0,.5);
+  }
+  .intro-tier:hover .intro-tier-more { gap:14px; }
+  .intro-tier-meta  { font-size:.58rem; letter-spacing:.2em; text-transform:uppercase; color:var(--amber); font-weight:600; }
+  .intro-tier-name  { font-family:var(--serif); font-weight:400; font-size:1.5rem; line-height:1.12; color:var(--white); }
+  .intro-tier-blurb { font-size:.82rem; font-weight:300; line-height:1.6; color:var(--white-dim); }
+  .intro-tier-more  { margin-top:2px; font-size:.62rem; letter-spacing:.16em; text-transform:uppercase; color:var(--green-lt); font-weight:500; display:inline-flex; align-items:center; gap:8px; transition:gap .2s; }
   .intro-notsure {
     margin-top:6px; padding:15px; background:var(--green); color:var(--bg); border:none;
     border-radius:4px 20px 4px 20px; cursor:pointer; font-family:var(--sans);
@@ -433,9 +441,12 @@
     width:min(400px, 92vw); padding:36px 32px;
     text-align:center; display:flex; flex-direction:column; gap:16px;
     transform:scale(.96); transition:transform .25s;
+    max-height:92vh; overflow-y:auto;
   }
   .cap-modal-overlay.open .cap-modal { transform:scale(1); }
+  #introModalOverlay .cap-modal { width:min(440px, 94vw); }
   .cap-modal-icon { font-size:2rem; }
+  .cap-modal-img { width:64px; height:64px; object-fit:contain; display:block; margin:0 auto; }
   .cap-modal-title {
     font-family:var(--cinzel); font-size:.65rem; letter-spacing:.2em;
     text-transform:uppercase; color:var(--green-lt);
@@ -679,10 +690,32 @@
   }
   .chip-modal-note.rare { color:var(--amber); }
   .chip-modal-desc { font-size:.75rem; color:var(--white-dim); line-height:1.7; }
+  .chip-modal-au { align-self:center; display:inline-flex; align-items:center; gap:7px;
+    font-size:.58rem; letter-spacing:.16em; text-transform:uppercase; font-weight:600;
+    color:var(--green-lt); background:var(--green-pale);
+    border:1px solid rgba(140,196,15,.3); border-radius:999px; padding:5px 13px 5px 7px; }
+  .chip-modal-au-ic { width:20px; height:20px; object-fit:contain; }
   .chip-modal-warn {
     font-size:.65rem; color:var(--amber); line-height:1.55;
     padding:8px 10px; border-left:2px solid rgba(212,160,23,.5);
     background:rgba(212,160,23,.06);
+  }
+  /* Neon warning glyph (text-presentation, never emoji) on the regulatory boxes */
+  .chip-modal-warn::before,
+  .warn-drawer-inner::before {
+    content:"\26A0\FE0E";
+    font-variant-emoji:text; -webkit-font-feature-settings:normal;
+    color:var(--amber); font-weight:700;
+    text-shadow:0 0 8px rgba(212,160,23,.6), 0 0 3px rgba(212,160,23,.9);
+    margin-right:6px;
+  }
+  /* ...and on the compact IFRA pill + Regulated card badge (colour inherits, so
+     the badge's warnCandle flicker carries the glyph too) */
+  .formula-ifra-tag::before,
+  .card-badge-warn::before {
+    content:"\26A0\FE0E";
+    font-variant-emoji:text; font-weight:700; margin-right:4px;
+    text-shadow:0 0 5px rgba(212,160,23,.5);
   }
   .chip-modal-btn {
     width:100%; padding:13px; margin-top:4px;
@@ -1327,61 +1360,61 @@ const INGREDIENTS = [
   // TOP NOTES - alphabetical
   {
     id:'bergamot', img:'bergamot.png', name:'Bergamot', note:'Top', group:'top',
-    emoji:'🍋', color:'#c9c02a',
+    emoji:'', color:'#c9c02a',
     desc:'Bright citrus-floral, cold-pressed from Italian bergamot rind. Uplifting and balancing - a cornerstone of fine perfumery.',
-    warn:'⚠️ Phototoxic - furanocoumarins present. IFRA & TGA limits apply. Formulated in full compliance.',
+    warn:'Phototoxic - furanocoumarins present. IFRA & TGA limits apply. Formulated in full compliance.',
     restricted: true, fixedPct: 3.0,
     cost:2.40
   },
   {
     id:'black-spruce', img:'black-spruce.png', name:'Black Spruce', note:'Top', group:'top',
-    emoji:'🌲', color:'#2a5a2a',
+    emoji:'', color:'#2a5a2a',
     desc:'Clean, forest-fresh and instantly invigorating. Steam-distilled from Canadian black spruce - crisp, coniferous and bright.',
     warn:null, cost:2.20, wholesale:40
   },
   {
     id:'cinnamon',
     img:'cinnamon-bark.png', name:'Cinnamon Bark', note:'Top · Heart', group:'top',
-    emoji:'🟤', color:'#a05a20',
+    emoji:'', color:'#a05a20',
     desc:'Warm, spiced and sweetly enveloping. Adds immediate richness and depth - a natural fixative that anchors lighter notes.',
-    warn:'⚠️ Subject to TGA and IFRA regulatory limits for leave-on cosmetic products. Profound Naturals formulates in full compliance with all applicable guidelines.',
+    warn:'Subject to TGA and IFRA regulatory limits for leave-on cosmetic products. Profound Naturals formulates in full compliance with all applicable guidelines.',
     restricted: true, fixedPct: 0.1,
     cost:2.60
   },
   {
     id:'davana',
     img:'davana.png', name:'Davana', note:'Top · Heart', group:'top',
-    emoji:'🟤', color:'#c97a2a',
+    emoji:'', color:'#c97a2a',
     desc:'Boozy, fruity and animalic - davana shifts beautifully on skin, smelling different on every person who wears it.',
     warn:null, cost:3.20, wholesale:70
   },
   {
     id:'galbanum',
     img:'galbanum.png', name:'Galbanum', note:'Top', group:'top',
-    emoji:'🟢', color:'#4a8c2a', rare:true,
+    emoji:'', color:'#4a8c2a', rare:true,
     desc:'Sharply green, resinous and mysterious. Used in perfumery since ancient Egypt - one of the oldest aromatic ingredients known.',
     warn:null, cost:2.90, wholesale:70
   },
   // HEART NOTES - alphabetical
   {
     id:'blue-cypress', img:'blue-cypress.png', name:'Blue Cypress', note:'Heart · Base', group:'heart',
-    emoji:'🔵', color:'#2a6bc9',
+    emoji:'', color:'#2a6bc9',
     desc:'Australian native. Smoky, earthy and ancient - a deep blue oil steam-distilled from the Callitris tree of the Northern Territory.',
     warn:null, maxPct: 14.0, cost:4.80, wholesale:80
   },
   {
     id:'jasmine',
     img:'jasmine.png', name:'Jasmine Absolute', note:'Heart', group:'heart',
-    emoji:'🌸', color:'#c97ab0', rare:true,
+    emoji:'', color:'#c97ab0', rare:true,
     desc:'Rich, heady and intoxicating. One of the most prized florals in perfumery - complex, indolic and deeply feminine.',
-    warn:'⚠️ Regulated sensitiser - IFRA & TGA limits apply. Capped at 2%. Formulated in full compliance.',
+    warn:'Regulated sensitiser - IFRA & TGA limits apply. Capped at 2%. Formulated in full compliance.',
     restricted: true, fixedPct: 2.0,
     cost:8.50, wholesale:80
   },
   {
     id:'myrrh',
     img:'myrrh.png', name:'Myrrh', note:'Heart · Base', group:'heart',
-    emoji:'💧', color:'#8a6040',
+    emoji:'', color:'#8a6040',
     desc:'Smoky, sacred and earthy. Used in ancient ritual and embalming - this is one of the oldest aromatic resins in human history.',
     warn:null, cost:3.80, wholesale:79.99
   },
@@ -1389,30 +1422,30 @@ const INGREDIENTS = [
   {
     id:'amber',
     img:'amber.png', name:'Baltic Amber', note:'Base', group:'base',
-    emoji:'🟡', color:'#c9a02a', rare:true,
+    emoji:'', color:'#c9a02a', rare:true,
     desc:'40-70 million year old fossilised resin. Warm, earthy and resinous with subtle woody and smoky undertones.',
     warn:null, cost:6.20, wholesale:115
   },
   {
     id:'labdanum',
     img:'labdanum.png', name:'Labdanum', note:'Base', group:'base',
-    emoji:'🟫', color:'#6b4c2a',
+    emoji:'', color:'#6b4c2a',
     desc:'Dark, leathery, cistus-like. A warm, balsamic resinoid from the rock rose shrub - the original amber note in perfumery.',
     warn:null, cost:3.50, wholesale:69
   },
   {
     id:'oakmoss',
     img:'oakmoss.png', name:'Oakmoss', note:'Base', group:'base',
-    emoji:'🌿', color:'#4a6a3a',
+    emoji:'', color:'#4a6a3a',
     desc:'Mossy, earthy, forest-floor. A classic chypre base note - deeply naturalistic with an unmistakable damp woodland quality. IFRA and TGA restrict oakmoss to 0.1% of the finished formula - a trace amount that still contributes character.',
-    warn:'⚠️ Mandatory IFRA & TGA concentration limits apply. Capped at 0.1% of finished formula. Formulated in full compliance.',
+    warn:'Mandatory IFRA & TGA concentration limits apply. Capped at 0.1% of finished formula. Formulated in full compliance.',
     restricted: true,
     fixedPct: 0.1,
     cost:4.10, wholesale:130
   },
   {
     id:'sandalwood', img:'sandalwood.png', name:'Sandalwood', note:'Base', group:'base',
-    emoji:'🪵', color:'#a07040', rare:true,
+    emoji:'', color:'#a07040', rare:true,
     desc:'Sacred and precious. Creamy, woody and warm with a soft sweetness that lingers on skin for hours.',
     warn:null, cost:5.20, wholesale:115
   },
@@ -1421,14 +1454,14 @@ const INGREDIENTS = [
   {
     id:'ginger',
     img:'ginger.png', name:'Ginger', note:'Top · Heart', group:'top',
-    emoji:'🫚', color:'#c9900a',
+    emoji:'', color:'#c9900a',
     desc:'Warm, spicy and energising with a fresh, zesty edge - grounding yet invigorating with a rich, peppery warmth.',
     warn:null, cost:2.80, wholesale:26.50
   },
   {
     id:'sweet-orange',
     img:'sweet-orange.png', name:'Sweet Orange', note:'Top', group:'top',
-    emoji:'🍊', color:'#e87020',
+    emoji:'', color:'#e87020',
     desc:'Warm, round and effortlessly cheerful. Cold-pressed from the peel of Citrus sinensis - rich, sweet and fruity.',
     warn: null, maxPct: 5.0,
     cost:1.60, wholesale:11.55
@@ -1436,145 +1469,145 @@ const INGREDIENTS = [
   {
     id:'scots-pine',
     img:'scotch-pine.png', name:'Scots Pine', note:'Top · Heart', group:'top',
-    emoji:'🌲', color:'#2a6a2a',
+    emoji:'', color:'#2a6a2a',
     desc:'Crisp, resinous and deeply forested. Steam-distilled from the needles of Pinus sylvestris - clean, sharp and invigorating.',
     warn:null, cost:2.20, wholesale:18.70
   },
   {
     id:'clove-bud',
     img:'clove-bud.png', name:'Clove Bud', note:'Top · Heart', group:'top',
-    emoji:'🌰', color:'#8a4020',
+    emoji:'', color:'#8a4020',
     desc:'Intensely warm, spicy and deeply aromatic. One of the most powerful botanicals in natural perfumery - a little goes a very long way.',
-    warn:'⚠️ IFRA & TGA limits apply - high eugenol content. Capped at 0.1%. Formulated in full compliance.',
+    warn:'IFRA & TGA limits apply - high eugenol content. Capped at 0.1%. Formulated in full compliance.',
     restricted: true, fixedPct: 2.0,
     cost:1.80
   },
   // HEART NOTES
   {
     id:'clary-sage', img:'clary-sage.png', name:'Clary Sage', note:'Heart · Base', group:'heart',
-    emoji:'🌿', color:'#6a8a3a',
+    emoji:'', color:'#6a8a3a',
     desc:'Herbaceous, earthy and slightly musky with a warm, hay-like sweetness. Deeply relaxing and balancing - a classic in natural perfumery.',
     warn:null, maxPct: 17.0, cost:2.60, wholesale:36.99
   },
   {
     id:'kunzea', img:'kunzea.png', name:'Kunzea', note:'Top · Heart', group:'heart',
-    emoji:'🌿', color:'#4a8a5a',
-    desc:'Fresh, earthy and medicinal with a clean, slightly woody edge. An Australian native from the coastal heathlands of south-eastern Australia. 🌿 Australian Native - icon to be updated.',
+    emoji:'', color:'#4a8a5a',
+    desc:'Fresh, earthy and medicinal with a clean, slightly woody edge. An Australian native from the coastal heathlands of south-eastern Australia.',
     warn:null, maxPct: 9.0, cost:3.20, wholesale:77.45
   },
   {
     id:'nerolina', img:'nerolina.png', name:'Nerolina', note:'Top · Heart', group:'heart',
-    emoji:'🌿', color:'#5a9a6a',
-    desc:'Soft, floral and gently woody - a bridge between neroli and tea tree. This Australian native has a calm, clean sweetness that belies its therapeutic depth. 🌿 Australian Native - icon to be updated.',
+    emoji:'', color:'#5a9a6a',
+    desc:'Soft, floral and gently woody - a bridge between neroli and tea tree. This Australian native has a calm, clean sweetness that belies its therapeutic depth.',
     warn:null, maxPct: 10.0, cost:3.00, wholesale:19.25
   },
   {
     id:'nutmeg', img:'nutmeg.png', name:'Nutmeg', note:'Top · Heart', group:'heart',
-    emoji:'🌰', color:'#a07040',
+    emoji:'', color:'#a07040',
     desc:'Warm, spicy and sweetly woody with a rich, slightly camphoraceous depth. A classic perfumery spice note - familiar yet sophisticated.',
     warn:null, cost:2.40, wholesale:29.99
   },
   {
     id:'rose-geranium', img:'rose-geranium.png', name:'Rose Geranium', note:'Heart', group:'heart',
-    emoji:'🌸', color:'#c06080',
+    emoji:'', color:'#c06080',
     desc:'Lush, rosy and softly green - a more complex and earthy alternative to rose absolute. Bridges the gap between florals and herbaceous.',
     warn:null, cost:3.00, wholesale:34.10
   },
   // BASE NOTES
   {
     id:'agarwood', img:'agarwood-indian-oud.png', name:'Agarwood (Indian Oud)', note:'Base', group:'base',
-    emoji:'🟤', color:'#6a3010', rare:true,
+    emoji:'', color:'#6a3010', rare:true,
     desc:'One of the most precious aromatic materials on earth. Dark, complex, woody and animalic with a smoky, balsamic depth that evolves continuously on skin.',
     warn:null, cost:12.00, wholesale:200
   },
   {
     id:'ambrette', img:'ambrette.png', name:'Ambrette Seed', note:'Heart · Base', group:'base',
-    emoji:'🤍', color:'#c0a080', rare:true,
+    emoji:'', color:'#c0a080', rare:true,
     desc:'Velvety, musky and softly pear-like - one of the finest natural musk alternatives available. Warm and sensual, lingers beautifully on skin.',
     warn:null, maxPct: 15.0, cost:6.50, wholesale:100
   },
   {
     id:'cocoa',
     img:'cocoa.png', name:'Cocoa', note:'Base', group:'base',
-    emoji:'🍫', color:'#6a3820', rare:true,
+    emoji:'', color:'#6a3820', rare:true,
     desc:'Rich, dark and indulgent. A certified organic cocoa absolute, clean-extracted and free from synthetic processes - deep, roasted and sweetly bittersweet.',
     warn:null, cost:5.50, wholesale:54.99
   },
   {
     id:'ho-wood', img:'ho-wood.png', name:'Ho Wood', note:'Heart · Base', group:'base',
-    emoji:'🪵', color:'#8a6848',
+    emoji:'', color:'#8a6848',
     desc:'Soft, woody and quietly rosy with a clean freshness. A sustainable, high-linalool alternative to rosewood - grounding, calming and versatile.',
     warn:null, maxPct: 14.0, cost:2.60, wholesale:15.95
   },
   // ── BATCH 3 NEW ──
   { id:'may-chang',
-    img:'may-chang.png', name:'May Chang', note:'Top', group:'top', emoji:'🍋', color:'#c0c020', desc:'Bright, lemony and intensely fresh with a clean, almost lemon hard candy-like sweetness. More complex and fruity-floral than a straight citrus - a favourite in natural perfumery.', warn:null, cost:2.00, wholesale:35 },
+    img:'may-chang.png', name:'May Chang', note:'Top', group:'top', emoji:'', color:'#c0c020', desc:'Bright, lemony and intensely fresh with a clean, almost lemon hard candy-like sweetness. More complex and fruity-floral than a straight citrus - a favourite in natural perfumery.', warn:null, cost:2.00, wholesale:35 },
   { id:'pink-grapefruit',
-    img:'pink-grapefruit.png', name:'Pink Grapefruit', note:'Top', group:'top', emoji:'🍊', color:'#e8904a', desc:'Bright, juicy and uplifting. Cold-pressed from the peel of Citrus paradisi - an instant mood-lifter with a clean, slightly tart sweetness.', warn:'⚠️ Phototoxic - cold-pressed citrus. Formulated in compliance with TGA and IFRA guidelines.', restricted: true, fixedPct: 4.0, cost:1.80 },
-  { id:'virginian-cedarwood', img:'virginian-cedarwood.png', name:'Virginian Cedarwood', note:'Base', group:'base', emoji:'🪵', color:'#8a6030',
+    img:'pink-grapefruit.png', name:'Pink Grapefruit', note:'Top', group:'top', emoji:'', color:'#e8904a', desc:'Bright, juicy and uplifting. Cold-pressed from the peel of Citrus paradisi - an instant mood-lifter with a clean, slightly tart sweetness.', warn:'Phototoxic - cold-pressed citrus. Formulated in compliance with TGA and IFRA guidelines.', restricted: true, fixedPct: 4.0, cost:1.80 },
+  { id:'virginian-cedarwood', img:'virginian-cedarwood.png', name:'Virginian Cedarwood', note:'Base', group:'base', emoji:'', color:'#8a6030',
     desc:'Dry, pencil-shaving cedarwood with a clean, almost transparent woody warmth. Steam-distilled from Juniperus virginiana - lighter and crisper than Atlas cedarwood with a subtle sweetness and excellent tenacity. A grounding base note that adds structure without heaviness.',
     warn:null, cost:3.40, wholesale:17.50 },
-  { id:'mandarin', img:'mandarin.png', name:'Mandarin', note:'Top', group:'top', emoji:'🍊', color:'#e07820',
+  { id:'mandarin', img:'mandarin.png', name:'Mandarin', note:'Top', group:'top', emoji:'', color:'#e07820',
     desc:'Sweet, soft and warmly citrusy - cold-pressed mandarin is the gentlest and most rounded of the citrus top notes. Rich with a slightly floral, almost honeyed depth that sets it apart from orange or lime. Uplifting and approachable.',
-    warn:'⚠️ Phototoxic - cold-pressed citrus. IFRA & TGA limits apply. Capped at 0.8%. Formulated in full compliance.', restricted:true, fixedPct:0.8, cost:2.60 },
-  { id:'lime-distilled', img:'lime-distilled.png', name:'Lime Distilled', note:'Top', group:'top', emoji:'🍋', color:'#a0c020', desc:'Crisp, clean and vibrantly citrusy. Steam distillation gives this lime a brighter, more transparent character - refreshing and sharp.', warn:null, cost:1.80, wholesale:33 },
+    warn:'Phototoxic - cold-pressed citrus. IFRA & TGA limits apply. Capped at 0.8%. Formulated in full compliance.', restricted:true, fixedPct:0.8, cost:2.60 },
+  { id:'lime-distilled', img:'lime-distilled.png', name:'Lime Distilled', note:'Top', group:'top', emoji:'', color:'#a0c020', desc:'Crisp, clean and vibrantly citrusy. Steam distillation gives this lime a brighter, more transparent character - refreshing and sharp.', warn:null, cost:1.80, wholesale:33 },
   { id:'lemon',
-    img:'lemon.png', name:'Lemon EO', note:'Top', group:'top', emoji:'🍋', color:'#e8e040',
+    img:'lemon.png', name:'Lemon EO', note:'Top', group:'top', emoji:'', color:'#e8e040',
     desc:'Bright, clean and unmistakably fresh. Cold-pressed from the peel of Citrus limon - sharp, zesty and instantly uplifting with a sparkling, slightly floral character. One of the most versatile top notes in natural perfumery.',
-    warn:'⚠️ Phototoxic - cold-pressed citrus. IFRA & TGA limits apply. Capped at 2%. Formulated in full compliance.',
+    warn:'Phototoxic - cold-pressed citrus. IFRA & TGA limits apply. Capped at 2%. Formulated in full compliance.',
     restricted: true, fixedPct: 2.0, cost:1.80 },
-  { id:'ylang-1st', img:'ylangylang-1st.png', name:'Ylang Ylang 1st', note:'Top', group:'top', emoji:'🌼', color:'#c0a830', desc:'The boldest expression of ylang ylang - sharp, heady and euphoric with an almost narcotic sweetness. The most volatile and intensely floral fraction.', warn:null, cost:2.80, wholesale:70 },
-  { id:'euca-citriodora', img:'euca-citriodora.png', name:'Euca Citriodora', note:'Top', group:'top', emoji:'🌿', color:'#8ab020', desc:'An Australian native with a bright, lemon-fresh character and a distinctly airy, kerosene-like undertone. Widely used as a natural insect repellent. 🌿 Australian Native - icon to be updated.', warn:null, cost:2.00, wholesale:12.65 },
+  { id:'ylang-1st', img:'ylangylang-1st.png', name:'Ylang Ylang 1st', note:'Top', group:'top', emoji:'', color:'#c0a830', desc:'The boldest expression of ylang ylang - sharp, heady and euphoric with an almost narcotic sweetness. The most volatile and intensely floral fraction.', warn:null, cost:2.80, wholesale:70 },
+  { id:'euca-citriodora', img:'euca-citriodora.png', name:'Euca Citriodora', note:'Top', group:'top', emoji:'', color:'#8ab020', desc:'An Australian native with a bright, lemon-fresh character and a distinctly airy, kerosene-like undertone. Widely used as a natural insect repellent.', warn:null, cost:2.00, wholesale:12.65 },
   { id:'cypress',
-    img:'cypress.png', name:'Cypress', note:'Heart · Base', group:'heart', emoji:'🌲', color:'#2a6a3a', desc:'Fresh, green and woody with a clean, resinous warmth. A Mediterranean classic with a crisp, forest-like character that grounds and clarifies.', warn:null, maxPct: 15.0, cost:2.40, wholesale:20 },
-  { id:'geranium-bourbon', img:'geranium-bourbon.png', name:'Geranium Bourbon', note:'Heart', group:'heart', emoji:'🌸', color:'#c06080', desc:'The finest expression of geranium - rich, rosy and green with a complexity that far exceeds common geranium. A backbone ingredient in classical and natural perfumery.', warn:null, maxPct: 11.0, cost:3.20, wholesale:71.50 },
-  { id:'rosemary', img:'rosemary-spanish.png', name:'Rosemary (Spanish)', note:'Top · Heart', group:'heart', emoji:'🌿', color:'#5a8a3a', desc:'Sharp, herbaceous and invigorating. Spanish rosemary has a particularly crisp, camphorous character with a resinous warmth that blends beautifully.', warn:null, cost:2.00, wholesale:27.50 },
-  { id:'ylang-3rd', img:'ylangylang-3rd.png', name:'Ylang Ylang 3rd', note:'Heart', group:'heart', emoji:'🌼', color:'#c0a020', desc:'Softer, rounder and more balsamic than the first fraction. Deeper and more creamy with a rubbery, slightly earthy warmth - the most versatile fraction for heart note blending.', warn:null, cost:2.40, wholesale:44 },
-  { id:'ylang-complete', img:'ylangylang-complete.png', name:'Ylang Ylang Complete', note:'Heart · Base', group:'heart', emoji:'🌼', color:'#b89820', desc:'The unfractionated, full distillation of Cananga odorata. Balanced, rich and complex - bright floral top notes giving way to a creamy, balsamic depth. The most naturalistic representation of the living flower.', warn:null, cost:2.60, wholesale:59 },
+    img:'cypress.png', name:'Cypress', note:'Heart · Base', group:'heart', emoji:'', color:'#2a6a3a', desc:'Fresh, green and woody with a clean, resinous warmth. A Mediterranean classic with a crisp, forest-like character that grounds and clarifies.', warn:null, maxPct: 15.0, cost:2.40, wholesale:20 },
+  { id:'geranium-bourbon', img:'geranium-bourbon.png', name:'Geranium Bourbon', note:'Heart', group:'heart', emoji:'', color:'#c06080', desc:'The finest expression of geranium - rich, rosy and green with a complexity that far exceeds common geranium. A backbone ingredient in classical and natural perfumery.', warn:null, maxPct: 11.0, cost:3.20, wholesale:71.50 },
+  { id:'rosemary', img:'rosemary-spanish.png', name:'Rosemary (Spanish)', note:'Top · Heart', group:'heart', emoji:'', color:'#5a8a3a', desc:'Sharp, herbaceous and invigorating. Spanish rosemary has a particularly crisp, camphorous character with a resinous warmth that blends beautifully.', warn:null, cost:2.00, wholesale:27.50 },
+  { id:'ylang-3rd', img:'ylangylang-3rd.png', name:'Ylang Ylang 3rd', note:'Heart', group:'heart', emoji:'', color:'#c0a020', desc:'Softer, rounder and more balsamic than the first fraction. Deeper and more creamy with a rubbery, slightly earthy warmth - the most versatile fraction for heart note blending.', warn:null, cost:2.40, wholesale:44 },
+  { id:'ylang-complete', img:'ylangylang-complete.png', name:'Ylang Ylang Complete', note:'Heart · Base', group:'heart', emoji:'', color:'#b89820', desc:'The unfractionated, full distillation of Cananga odorata. Balanced, rich and complex - bright floral top notes giving way to a creamy, balsamic depth. The most naturalistic representation of the living flower.', warn:null, cost:2.60, wholesale:59 },
   { id:'frangipani',
-    img:'frangipani.png', name:'Frangipani', note:'Heart', group:'heart', emoji:'🌺', color:'#c070a0', rare:true, desc:'Exotic, tropical and deeply floral - carries the full warmth of the Plumeria flower with a creamy, slightly spiced sweetness. Evocative and sensual. Organic, hexane-free extraction.', warn:null, cost:8.00, wholesale:90 },
+    img:'frangipani.png', name:'Frangipani', note:'Heart', group:'heart', emoji:'', color:'#c070a0', rare:true, desc:'Exotic, tropical and deeply floral - carries the full warmth of the Plumeria flower with a creamy, slightly spiced sweetness. Evocative and sensual. Organic, hexane-free extraction.', warn:null, cost:8.00, wholesale:90 },
   { id:'boronia',
-    img:'boronia.png', name:'Boronia Absolute', note:'Heart', group:'heart', emoji:'🌿', color:'#8a5070', rare:true,
-    desc:'One of the rarest botanicals in natural perfumery. From Boronia megastigma - a small flowering shrub native to Western Australia. Extraordinarily complex - rich and earthy with fresh fruity-sweet, tea-like facets, soft cinnamon and tobacco nuances, and a warm woody-sweet depth. Organic, hexane-free extraction. 🌿 Australian Native.',
+    img:'boronia.png', name:'Boronia Absolute', note:'Heart', group:'heart', emoji:'', color:'#8a5070', rare:true,
+    desc:'One of the rarest botanicals in natural perfumery. From Boronia megastigma - a small flowering shrub native to Western Australia. Extraordinarily complex - rich and earthy with fresh fruity-sweet, tea-like facets, soft cinnamon and tobacco nuances, and a warm woody-sweet depth. Organic, hexane-free extraction.',
     warn:null, cost:14.00, wholesale:100 },
-  { id:'magnolia', img:'magnolia-white-champaca.png', name:'Magnolia (White Champaca)', note:'Heart', group:'heart', emoji:'🌸', color:'#c0a0b0', rare:true, desc:'Heady, luminous and intoxicatingly floral with a warm, tea-like creaminess. One of the most revered florals in Asian perfumery. Organic, hexane-free extraction.', warn:null, cost:9.00, wholesale:69.99 },
+  { id:'magnolia', img:'magnolia-white-champaca.png', name:'Magnolia (White Champaca)', note:'Heart', group:'heart', emoji:'', color:'#c0a0b0', rare:true, desc:'Heady, luminous and intoxicatingly floral with a warm, tea-like creaminess. One of the most revered florals in Asian perfumery. Organic, hexane-free extraction.', warn:null, cost:9.00, wholesale:69.99 },
   { id:'osmanthus',
-    img:'osmanthus.png', name:'Osmanthus', note:'Heart', group:'heart', emoji:'🌸', color:'#c09040', rare:true, desc:'Delicate, peachy and apricot-like with a distinctive dark cherry undertone. One of the most prized florals in Chinese perfumery. Organic, hexane-free extraction.', warn:null, maxPct: 14.0, cost:7.00, wholesale:70 },
+    img:'osmanthus.png', name:'Osmanthus', note:'Heart', group:'heart', emoji:'', color:'#c09040', rare:true, desc:'Delicate, peachy and apricot-like with a distinctive dark cherry undertone. One of the most prized florals in Chinese perfumery. Organic, hexane-free extraction.', warn:null, maxPct: 14.0, cost:7.00, wholesale:70 },
   { id:'tuberose',
-    img:'tuberose.png', name:'Tuberose', note:'Heart', group:'heart', emoji:'🤍', color:'#d0b0c0', rare:true, desc:'One of the most intensely floral botanicals in natural perfumery - rich, creamy and narcotic with a heady, waxy sweetness. A statement ingredient. Organic, hexane-free extraction.', warn:null, maxPct: 13.0, cost:11.00, wholesale:90 },
-  { id:'euca-blue-mallee', img:'euca-blue-mallee.png', name:'Euca Blue Mallee', note:'Top · Heart', group:'heart', emoji:'🌿', color:'#2a7a4a', desc:'An Australian native with a high 1,8-cineole content - sharper and more penetrating than Blue Gum. Clean, medicinal intensity. 🌿 Australian Native - icon to be updated.', warn:null, cost:2.00, wholesale:11 },
+    img:'tuberose.png', name:'Tuberose', note:'Heart', group:'heart', emoji:'', color:'#d0b0c0', rare:true, desc:'One of the most intensely floral botanicals in natural perfumery - rich, creamy and narcotic with a heady, waxy sweetness. A statement ingredient. Organic, hexane-free extraction.', warn:null, maxPct: 13.0, cost:11.00, wholesale:90 },
+  { id:'euca-blue-mallee', img:'euca-blue-mallee.png', name:'Euca Blue Mallee', note:'Top · Heart', group:'heart', emoji:'', color:'#2a7a4a', desc:'An Australian native with a high 1,8-cineole content - sharper and more penetrating than Blue Gum. Clean, medicinal intensity.', warn:null, cost:2.00, wholesale:11 },
   { id:'tonka',
-    img:'tonka-bean.png', name:'Tonka', note:'Base', group:'base', emoji:'🤎', color:'#a07840', rare:true, desc:'Warm, sweet and richly coumarinic with hints of almond, hay and tobacco. Tenacious and comforting - anchors sweet accords with an almost edible warmth. Organic, hexane-free extraction.', warn:null, cost:5.00, wholesale:69.99 },
+    img:'tonka-bean.png', name:'Tonka', note:'Base', group:'base', emoji:'', color:'#a07840', rare:true, desc:'Warm, sweet and richly coumarinic with hints of almond, hay and tobacco. Tenacious and comforting - anchors sweet accords with an almost edible warmth. Organic, hexane-free extraction.', warn:null, cost:5.00, wholesale:69.99 },
   { id:'vanilla',
-    img:'vanilla.png', name:'Vanilla Oleoresin', note:'Base', group:'base', emoji:'🤍', color:'#c8a870', rare:true,
+    img:'vanilla.png', name:'Vanilla Oleoresin', note:'Base', group:'base', emoji:'', color:'#c8a870', rare:true,
     desc:'Rich, creamy and deeply comforting - vanilla oleoresin is one of the most beloved base notes in natural perfumery. Solvent-extracted from Vanilla planifolia pods, it carries a warm, balsamic sweetness with subtle woody and floral undertones that develop slowly on skin. A natural fixative that anchors and softens everything around it. Organic, hexane-free extraction.',
     warn:null, cost:4.50, wholesale:50 },
   { id:'honeysuckle',
-    img:'honeysuckle.png', name:'Honeysuckle Absolute', note:'Heart', group:'heart', emoji:'🌼', color:'#d4b840', rare:true,
+    img:'honeysuckle.png', name:'Honeysuckle Absolute', note:'Heart', group:'heart', emoji:'', color:'#d4b840', rare:true,
     desc:'Intensely sweet, floral and luminous - honeysuckle absolute captures the full intoxicating richness of the flower in a way no distillation can. Solvent-extracted from Lonicera caprifolium blossoms, it opens with a heady, almost narcotic sweetness before revealing softer, honey-like depth. Rare and prized in natural perfumery. Organic, hexane-free extraction.',
     warn:null, cost:6.00, wholesale:70 },
   { id:'elemi',
-    img:'elemi.png', name:'Elemi', note:'Top · Heart', group:'top', emoji:'🌿', color:'#8ab040',
+    img:'elemi.png', name:'Elemi', note:'Top · Heart', group:'top', emoji:'', color:'#8ab040',
     desc:'Bright, resinous and refreshingly complex - elemi opens with a sharp citrus-green freshness reminiscent of frankincense before drying down to a soft, woody balsamic depth with a hint of spice. Steam-distilled from the oleo-resin of Canarium luzonicum, a member of the Burseraceae family alongside myrrh and frankincense. One of the most versatile top-to-heart transitions in natural perfumery.',
     warn:null, cost:2.20, wholesale:24.75 },
   { id:'benzoin',
-    img:'benzoin.png', name:'Benzoin', note:'Base', group:'base', emoji:'🍯', color:'#c09040',
+    img:'benzoin.png', name:'Benzoin', note:'Base', group:'base', emoji:'', color:'#c09040',
     desc:'Warm, sweet and richly balsamic with a distinctive vanilla-like creaminess and a subtle incense depth. A resinoid produced from the bark resin of Styrax benzoin - one of the oldest aromatic materials used in perfumery, medicine and sacred ritual. Exceptionally tenacious as a base note and natural fixative, it rounds and softens accords with a powdery, resinous warmth.',
     warn:null, cost:3.00, wholesale:40 },
   { id:'cade',
-    img:'cade.png', name:'Cade', note:'Base', group:'base', emoji:'🪵', color:'#604828', rare:true,
+    img:'cade.png', name:'Cade', note:'Base', group:'base', emoji:'', color:'#604828', rare:true,
     desc:'Smoky, tarry and intensely leathery - cade is one of the most arresting base notes in natural perfumery. Dry-distilled from the wood and twigs of Juniperus oxycedrus, it carries a dark, phenolic smokiness with burnt wood, tobacco and leather facets and a subtle sweet undertone that prevents it from being harsh. Used sparingly, it adds extraordinary depth and an almost primal character to woody, leather and fougère compositions.',
     warn:null, cost:3.50, wholesale:40 },
   { id:'aussie-mint',
-    img:'aussie-mint.png', name:'Australian Peppermint', note:'Top', group:'top', emoji:'🌿', color:'#5ab870',
+    img:'aussie-mint.png', name:'Australian Peppermint', note:'Top', group:'top', emoji:'', color:'#5ab870',
     desc:'Cool, crisp and immediately refreshing - a bright peppermint lift, sweet and clean over a green, herbaceous base. Steam-distilled from Australian-grown Mentha piperita, it opens sharp and invigorating and clarifies everything around it. A clean, energising top note.',
     warn:null, cost:2.40, wholesale:12.65 },
   { id:'lavandin-grosso',
-    img:'lavandin-grosso.png', name:'Lavandin Grosso', note:'Top · Heart', group:'top', emoji:'💜', color:'#7a60a0',
+    img:'lavandin-grosso.png', name:'Lavandin Grosso', note:'Top · Heart', group:'top', emoji:'', color:'#7a60a0',
     desc:'Bold, bright and deeply herbal with a clean, camphoraceous edge that sets it apart from true lavender. Lavandin Grosso is a naturally occurring hybrid of Lavandula angustifolia and Lavandula latifolia - larger in yield and more powerful in character than its parent species. Its scent opens with a sharp, fresh lavender clarity before softening to a warm, slightly woody herbaceous depth. A workhorse of natural perfumery and one of the most satisfying lavender materials available.',
     warn:null, cost:3.50, wholesale:22 },
   { id:'daffodil',
-    img:'daffodil.png', name:'Daffodil', note:'Heart', group:'heart', emoji:'🌼', color:'#e8c840', rare:true,
+    img:'daffodil.png', name:'Daffodil', note:'Heart', group:'heart', emoji:'', color:'#e8c840', rare:true,
     desc:'Green, honeyed and hauntingly floral - daffodil (narcissus) absolute is one of the rarest florals in natural perfumery, with a hay-like, slightly animalic depth beneath a heady sweetness. Organic, hexane-free extraction.',
     warn:null, cost:12.00, wholesale:110 },
 ];
@@ -1605,6 +1638,10 @@ const SCENT_TIERS = [
   { key:'parfum',  name:'Parfum',          max:100, target:28, blurb:'Most concentrated - deep and long-lasting.' },
 ];
 function tierFor(pct) { return SCENT_TIERS.find(t => pct <= t.max) || SCENT_TIERS[SCENT_TIERS.length-1]; }
+
+// Ingredients that carry the "Australian Native" badge (australia icon) in the info modal.
+const AU_NATIVE = new Set(['kunzea','nerolina','euca-citriodora','boronia','euca-blue-mallee']);
+
 let formula = {};
 let flippedCard = null;
 let alcoholFilled = false; // tracks whether user confirmed and alcohol animation has run
@@ -2026,7 +2063,7 @@ function updateFormula(keys, pctMap) {
 
     if (ing.restricted) {
       const badge = ing.warn
-        ? `<span class="formula-ifra-tag">⚠ IFRA</span>`
+        ? `<span class="formula-ifra-tag">IFRA</span>`
         : '';
       return `<div class="formula-item">
         <div class="formula-dot" style="background:${ing.color}"></div>
@@ -2099,7 +2136,7 @@ function populateRequestSummary() {
     const ing = INGREDIENTS.find(i => i.id === id);
     const slots = formula[id];
     const pct = pctMap[id];
-    const restrictedNote = ing.restricted ? `<div class="req-summary-slots" style="color:var(--amber);">⚠ IFRA</div>` : (slots > 1 ? `<div class="req-summary-slots">×${slots}</div>` : '');
+    const restrictedNote = ing.restricted ? `<div class="req-summary-slots" style="color:var(--amber);">IFRA</div>` : (slots > 1 ? `<div class="req-summary-slots">×${slots}</div>` : '');
     return `<div class="req-summary-row">
       <div class="req-summary-dot" style="background:${ing.color}"></div>
       <div class="req-summary-name">${ing.name}</div>
@@ -2543,7 +2580,7 @@ function updateMobile(keys, totalPct, cost, pctMap) {
         const atMaxPct = wouldExceedMaxPct(id, slots, ts);
         if (ing.restricted) {
           const badge = ing.warn
-            ? `<span class="formula-ifra-tag">⚠ IFRA</span>`
+            ? `<span class="formula-ifra-tag">IFRA</span>`
             : '';
           return `<div class="mob-formula-item">
             <div class="mob-formula-dot" style="background:${ing.color}"></div>
@@ -2734,6 +2771,8 @@ function openChipModal(id) {
   noteEl.textContent = ing.note + (ing.rare ? ' · Rare' : '') + (ing.restricted && ing.warn ? ' · IFRA Regulated' : '');
   noteEl.className = 'chip-modal-note' + (ing.rare ? ' rare' : '');
   document.getElementById('chipModalDesc').textContent = ing.desc;
+  const auEl = document.getElementById('chipModalAu');
+  if (auEl) auEl.style.display = AU_NATIVE.has(ing.id) ? 'inline-flex' : 'none';
 
   const warnEl = document.getElementById('chipModalWarn');
   if (ing.warn) { warnEl.textContent = ing.warn; warnEl.style.display = 'block'; }
@@ -2867,9 +2906,10 @@ function renderIntroTiers() {
   if (!wrap) return;
   wrap.innerHTML = SCENT_TIERS.map(t =>
     `<button type="button" class="intro-tier" onclick="pickTier('${t.key}')">
+       <span class="intro-tier-meta">~${t.target}% Concentrate</span>
        <span class="intro-tier-name">${t.name}</span>
-       <span class="intro-tier-pct">~${t.target}%</span>
        <span class="intro-tier-blurb">${t.blurb}</span>
+       <span class="intro-tier-more">Start with this →</span>
      </button>`).join('');
 }
 function openIntro() {
@@ -2947,7 +2987,7 @@ renderIngredients();
      ═══════════════════════════════════════════════════════ -->
 <div class="cap-modal-overlay" id="introModalOverlay">
   <div class="cap-modal">
-    <div class="cap-modal-icon">🌿</div>
+    <div class="cap-modal-icon"><img src="/images/potion-icon.png" alt="" class="cap-modal-img"></div>
     <div class="cap-modal-title">What are you making?</div>
     <div class="cap-modal-sub">Pick a strength to aim for - or just start creating and it'll name itself as you build.</div>
     <div class="intro-tiers" id="introTiers"></div>
@@ -2957,7 +2997,7 @@ renderIngredients();
 
 <div class="cap-modal-overlay" id="capModalOverlay">
   <div class="cap-modal">
-    <div class="cap-modal-icon">🌿</div>
+    <div class="cap-modal-icon"><img src="/images/strength-icon.png" alt="" class="cap-modal-img"></div>
     <div class="cap-modal-title">30% Concentrate Reached</div>
     <div class="cap-modal-body">Is this your final ingredient?</div>
     <div class="cap-modal-sub">Confirming will fill the remaining 70% with pure perfumers alcohol and lock your formula for request. You can still clear and start again.</div>
@@ -3143,6 +3183,7 @@ renderIngredients();
       <div class="chip-modal-name" id="chipModalName"></div>
       <div class="chip-modal-note" id="chipModalNote"></div>
     </div>
+    <div class="chip-modal-au" id="chipModalAu" style="display:none"><img src="/images/Australia-icon.png" alt="" class="chip-modal-au-ic">Australian Native</div>
     <div class="chip-modal-desc" id="chipModalDesc"></div>
     <div class="chip-modal-warn" id="chipModalWarn" style="display:none"></div>
     <button class="chip-modal-btn" id="chipModalBtn" type="button"></button>
