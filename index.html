@@ -844,7 +844,11 @@
       border-top:1px solid var(--border);
       box-shadow:0 -8px 40px rgba(0,0,0,.6);
       display:flex; flex-direction:column-reverse;
+      padding-bottom:env(safe-area-inset-bottom);   /* safe area on the container so the toolbar's own height stays stable on scroll */
     }
+    /* Panel open: the collapsed toolbar hides (the panel IS the view) and the page
+       behind is scroll-locked (toggleMobPanel), so only the panel scrolls. */
+    .mob-bar.open .mob-bar-collapsed { display:none; }
 
     /* Collapsed state - slim bar */
     .mob-bar-collapsed {
@@ -892,24 +896,38 @@
       transition:max-height .4s cubic-bezier(.4,0,.2,1);
       /* Panel grows upward because mob-bar is column-reverse */
     }
+    /* Panel = bottom sheet: fixed head + scrollable composition + fixed foot,
+       so ONLY the ingredient list scrolls (page behind is locked). */
     .mob-bar.open .mob-panel {
-      max-height:80vh;
-      overflow-y:auto;
-      overscroll-behavior:contain;
+      max-height:82vh;
+      display:flex; flex-direction:column;
+      overflow:hidden; overscroll-behavior:contain;
     }
-
-    .mob-panel-inner {
-      padding:20px 20px 8px;
-      display:flex; flex-direction:column; align-items:center; gap:16px;
+    .mob-panel-head {
+      flex-shrink:0; display:flex; align-items:center; justify-content:space-between;
+      padding:11px 12px 11px 20px; border-bottom:1px solid var(--border-sub);
+    }
+    .mob-panel-title {
+      font-family:var(--serif); font-size:1rem; color:var(--white); letter-spacing:.02em;
     }
     .mob-panel-close {
-      position:absolute; top:12px; right:16px;
-      background:none; border:none; color:var(--white-dim);
-      font-size:1.2rem; cursor:pointer; z-index:10;
-      transition:color .2s; line-height:1; padding:4px 8px;
+      flex-shrink:0; width:34px; height:34px; border-radius:50%;
+      display:flex; align-items:center; justify-content:center;
+      background:var(--surface-3); border:1px solid var(--border);
+      color:var(--white-dim); font-size:1.35rem; line-height:1; cursor:pointer;
+      transition:color .2s, background .2s;
     }
-    .mob-panel-close:hover { color:var(--white); }
-    .mob-panel { position:relative; }
+    .mob-panel-close:hover, .mob-panel-close:active { color:var(--white); background:var(--surface-2); }
+    .mob-panel-scroll {
+      flex:1 1 auto; min-height:0; overflow-y:auto; overscroll-behavior:contain;
+      scrollbar-width:none;
+      padding:16px 20px; display:flex; flex-direction:column; gap:16px;
+    }
+    .mob-panel-scroll::-webkit-scrollbar { display:none; }
+    .mob-panel-foot {
+      flex-shrink:0; display:flex; flex-direction:column; gap:10px;
+      padding:12px 20px; border-top:1px solid var(--border-sub); background:var(--surface);
+    }
 
     /* Bottle in panel */
     .mob-bottle-wrap {
@@ -951,17 +969,17 @@
 
     /* Price in panel */
     .mob-price-block {
-      width:100%; padding:14px; background:var(--surface-2);
+      width:100%; padding:10px 14px; background:var(--surface-2);
       border:1px solid var(--border); text-align:center;
     }
     .mob-price-label {
-      font-size:.55rem; letter-spacing:.16em; text-transform:uppercase;
-      color:var(--white-dim); margin-bottom:4px; display:block;
+      font-size:.52rem; letter-spacing:.16em; text-transform:uppercase;
+      color:var(--white-dim); margin-bottom:2px; display:block;
     }
     .mob-price-value {
-      font-family:var(--serif); font-size:1.8rem; font-weight:300; color:var(--white);
+      font-family:var(--serif); font-size:1.45rem; font-weight:300; color:var(--white);
     }
-    .mob-price-size { font-size:.62rem; color:var(--white-dim); margin-top:3px; }
+    .mob-price-size { font-size:.58rem; color:var(--white-dim); margin-top:2px; }
 
     /* Request button in panel */
     .mob-btn-row {
@@ -1057,7 +1075,7 @@
     /* Collapsed bar now carries the always-visible live bottle */
     .mob-bar-collapsed {
       height:auto; min-height:112px; gap:8px; align-items:center;
-      padding:8px 12px calc(8px + env(safe-area-inset-bottom)) 12px;
+      padding:8px 12px 8px 12px;   /* stable - safe-area now lives on .mob-bar */
     }
     .bar-bottle-wrap {
       position:relative; width:58px; height:94px; flex-shrink:0;
@@ -2364,10 +2382,36 @@ function rareToggle(id) {
 // Only runs when mobile elements exist in the DOM.
 // ═══════════════════════════════════════════════════════════════
 
+// Keep the page's bottom padding matched to the ACTUAL collapsed-bar height
+// (the bar height now varies with the ingredient count). Mobile + closed only;
+// the open panel overlays a scroll-locked page so the reserve is irrelevant then.
+function syncBottomReserve() {
+  const col = document.getElementById('mobBarCollapsed');
+  const bar = document.getElementById('mobBar');
+  const main = document.querySelector('.builder-main');
+  if (!col || !bar || !main) return;
+  if (window.innerWidth > 768) { main.style.paddingBottom = ''; return; }
+  // Measure the COLLAPSED bar (the panel may be mid close-transition, which would
+  // inflate bar.offsetHeight) + the safe-area padding that lives on .mob-bar.
+  if (!col.offsetHeight) return;   // collapsed hidden = panel open; page is locked, reserve irrelevant
+  const safe = parseFloat(getComputedStyle(bar).paddingBottom) || 0;
+  main.style.paddingBottom = (col.offsetHeight + safe + 14) + 'px';
+}
+
+// Single source of truth for the panel's open state: toggles the class AND locks
+// the page scroll (so only the sheet scrolls), and restores the reserve on close.
+function setMobPanel(open) {
+  const bar = document.getElementById('mobBar');
+  if (!bar) return;
+  bar.classList.toggle('open', open);
+  document.body.style.overflow = open ? 'hidden' : '';
+  if (!open) syncBottomReserve();
+}
+
 function toggleMobPanel() {
   const bar = document.getElementById('mobBar');
   if (!bar) return;
-  bar.classList.toggle('open');
+  setMobPanel(!bar.classList.contains('open'));
 }
 
 function updateMobile(keys, totalPct, cost, pctMap) {
@@ -2377,9 +2421,9 @@ function updateMobile(keys, totalPct, cost, pctMap) {
 
   // ── Panel opens on tap only; the bottle is always visible in the bar ──
   const bar = document.getElementById('mobBar');
-  // Auto-close if everything was cleared
+  // Auto-close if everything was cleared (restores body scroll + reserve)
   if (bar && keys.length === 0 && bar.classList.contains('open')) {
-    bar.classList.remove('open');
+    setMobPanel(false);
   }
 
   // ── Bottom bar slim state ──
@@ -2392,6 +2436,7 @@ function updateMobile(keys, totalPct, cost, pctMap) {
   }
   if (priceEl) priceEl.textContent = keys.length ? '$' + cost.toFixed(2) : '-';
   renderBarList(keys);
+  syncBottomReserve();   // page reserve tracks the (now variable) bar height
   if (fillBar) {
     const ts = totalSlots();
     const pct = Math.min((ts / 8) * 100, 100);
@@ -2953,12 +2998,16 @@ renderIngredients();
     </div>
   </div>
 
-  <!-- Expandable panel -->
+  <!-- Expandable panel (bottom sheet: fixed head + scrollable composition + fixed foot) -->
   <div class="mob-panel" id="mobPanel">
-    <button class="mob-panel-close" onclick="toggleMobPanel()" aria-label="Close panel">&times;</button>
-    <div class="mob-panel-inner">
 
-      <!-- Formula list (the live bottle now lives in the always-visible bar) -->
+    <div class="mob-panel-head">
+      <span class="mob-panel-title">Your Blend</span>
+      <button class="mob-panel-close" onclick="toggleMobPanel()" aria-label="Close">&times;</button>
+    </div>
+
+    <!-- Scrollable middle: ONLY the added ingredients (+ suggestions) scroll -->
+    <div class="mob-panel-scroll">
       <div class="mob-formula-wrap">
         <div class="mob-formula-title">Composition</div>
         <div id="mobFormulaBody"><div class="mob-formula-empty">Your accord awaits</div></div>
@@ -2968,27 +3017,26 @@ renderIngredients();
         </div>
       </div>
 
-      <!-- Price -->
+      <!-- Smart suggestions - what the accord is still missing -->
+      <div class="mob-suggest-wrap">
+        <span class="mob-suggest-label" id="mobSuggestLabel">Round out your accord</span>
+        <div class="mob-suggest-row" id="mobSuggestRow"></div>
+      </div>
+    </div>
+
+    <!-- Fixed footer: price + actions always visible -->
+    <div class="mob-panel-foot">
       <div class="mob-price-block" id="mobPriceBlock" style="display:none">
         <span class="mob-price-label" id="mobPriceLabel">50ml Eau de Parfum</span>
         <div class="mob-price-value" id="mobPriceValue">$0.00</div>
         <div class="mob-price-size">Handcrafted to order · 2-3 week turnaround</div>
       </div>
-
-      <!-- Request + Clear row -->
       <div class="mob-btn-row">
         <button class="mob-request-btn" id="mobRequestBtn" disabled onclick="requestFormula()">
           Select ingredients to begin
         </button>
         <button class="mob-clear-btn" onclick="clearAll()">Clear</button>
       </div>
-
-      <!-- Smart suggestions - what the accord is still missing -->
-      <div class="mob-suggest-wrap">
-        <span class="mob-suggest-label" id="mobSuggestLabel">Round out your accord</span>
-        <div class="mob-suggest-row" id="mobSuggestRow"></div>
-      </div>
-
     </div>
   </div>
 </div>
