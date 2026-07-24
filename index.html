@@ -1056,9 +1056,8 @@
 
     /* Collapsed bar now carries the always-visible live bottle */
     .mob-bar-collapsed {
-      height:auto; min-height:112px; gap:6px 12px; align-items:center;
-      flex-wrap:wrap;
-      padding:8px 14px calc(8px + env(safe-area-inset-bottom)) 12px;
+      height:auto; min-height:112px; gap:8px; align-items:center;
+      padding:8px 12px calc(8px + env(safe-area-inset-bottom)) 12px;
     }
     .bar-bottle-wrap {
       position:relative; width:58px; height:94px; flex-shrink:0;
@@ -1072,40 +1071,35 @@
       background:radial-gradient(ellipse at center, var(--mob-glow, rgba(140,196,15,0.14)) 0%, transparent 70%);
       pointer-events:none; transition:background .8s ease;
     }
-    .mob-bar-info { align-items:flex-start; flex:0 0 auto; min-width:0; }
-    /* Count stacks: big number on top, "ingredients" beneath (keeps the column narrow) */
+    /* Right column: count + running price stacked above the Finish chip, so the
+       ingredient list can run full width beside the bottle. */
+    .mob-bar-right {
+      flex-shrink:0; display:flex; flex-direction:column; align-items:flex-end;
+      gap:1px; text-align:right;
+    }
     .mob-bar-count {
-      display:flex; flex-direction:column; align-items:flex-start;
-      line-height:1; letter-spacing:0; text-transform:none;
+      font-size:.54rem; letter-spacing:.05em; text-transform:uppercase;
+      color:var(--white-dim); white-space:nowrap;
     }
-    .mob-bar-count-num {
+    .mob-bar-price {
       font-family:'Sora','Jost',sans-serif; font-size:1rem; font-weight:700;
-      color:var(--white);
+      color:var(--white); line-height:1.1;
     }
-    .mob-bar-count-lbl {
-      font-size:.5rem; letter-spacing:.12em; text-transform:uppercase;
-      color:var(--white-dim); margin-top:2px;
-    }
-    .mob-bar-count-slots {
-      font-size:.46rem; letter-spacing:.06em; text-transform:uppercase;
-      color:var(--green-lt); margin-top:2px;
-    }
-    .mob-bar-price { font-size:1.15rem; }
     .mob-bar-arrow { font-size:1rem; padding:6px; }
 
-    /* Compact added-ingredient list in the bar's open space: short name + % per
-       row (no thumbnails), names down the left, %s down the right. Sora font. */
+    /* Added-ingredient list sits BESIDE the bottle: short name (left) + % (right)
+       per row, no thumbnails. Font shrinks and the tray grows via JS as the count
+       climbs (see renderBarList). Sora font. */
     .mob-bar-list {
-      order:9; flex:1 0 100%; min-width:0;
-      display:flex; flex-direction:column; gap:3px;
-      max-height:128px; overflow-y:auto; scrollbar-width:none;
+      flex:1 1 auto; min-width:0;
+      display:flex; flex-direction:column; justify-content:center; gap:var(--bgap,3px);
+      max-height:92px; overflow-y:auto; scrollbar-width:none;
       font-family:'Sora','Jost',sans-serif;
-      border-top:1px solid var(--border-sub); padding-top:8px; margin-top:2px;
     }
     .mob-bar-list::-webkit-scrollbar { display:none; }
     .mob-bar-litem {
-      display:flex; align-items:center; gap:10px;
-      font-size:.8rem; line-height:1.15; padding:1px 2px;
+      display:flex; align-items:center; gap:8px;
+      font-size:var(--bfont,13px); line-height:1.18;
     }
     .mob-bar-lthumb {
       width:var(--bthumb,22px); height:var(--bthumb,22px); border-radius:50%; flex-shrink:0;
@@ -1127,11 +1121,11 @@
 
     /* Finish chip (replaces the ▲ arrow) */
     .mob-bar-finish {
-      flex-shrink:0; align-self:center; margin-left:auto;
+      flex-shrink:0; margin-top:5px;
       font-family:'Sora','Jost',sans-serif;
-      font-size:.72rem; font-weight:600; letter-spacing:.08em; text-transform:uppercase;
+      font-size:.7rem; font-weight:600; letter-spacing:.06em; text-transform:uppercase;
       color:#08130a; background:var(--green); border:none; border-radius:4px 20px 4px 20px;
-      padding:9px 18px; cursor:pointer; box-shadow:0 2px 10px rgba(140,196,15,.35);
+      padding:8px 15px; cursor:pointer; box-shadow:0 2px 10px rgba(140,196,15,.35);
     }
     .mob-bar-finish:active { background:var(--green-lt); }
 
@@ -1636,8 +1630,18 @@ function renderBarList(keys) {
   const pctMap = getPctMap();
   const n = keys.length;
 
-  // Empty list must not occupy its full-width row (would leave a bordered gap)
   wrap.style.display = n ? 'flex' : 'none';
+  if (n) {
+    // Text stays comfortable for a few items, then shrinks gently from the 5th on.
+    const font = n <= 4 ? 13 : Math.max(11, 13 - (n - 4) * 0.5);   // 5:12.5 6:12 7:11.5 8:11 9+:11
+    const gap  = 3;
+    const rowH = font * 1.18 + gap;
+    // Tray height is fixed (fits beside the bottle) up to 5 items; grows a little from 6.
+    const maxH = n <= 5 ? 92 : Math.min(156, Math.max(96 + (n - 5) * 8, Math.ceil(n * rowH)));
+    wrap.style.setProperty('--bfont', font.toFixed(1) + 'px');
+    wrap.style.setProperty('--bgap',  gap + 'px');
+    wrap.style.maxHeight = maxH + 'px';
+  }
 
   wrap.innerHTML = keys.map(id => {
     const ing = INGREDIENTS.find(i => i.id === id);
@@ -2383,10 +2387,8 @@ function updateMobile(keys, totalPct, cost, pctMap) {
   const priceEl = document.getElementById('mobBarPrice');
   const fillBar = document.getElementById('mobFillBar');
   if (countEl) {
-    const ts = totalSlots();
     const label = keys.length === 1 ? 'ingredient' : 'ingredients';
-    const slots = ts > keys.length ? `<span class="mob-bar-count-slots">${ts} slots</span>` : '';
-    countEl.innerHTML = `<span class="mob-bar-count-num">${keys.length}</span><span class="mob-bar-count-lbl">${label}</span>${slots}`;
+    countEl.textContent = `${keys.length} ${label}`;
   }
   if (priceEl) priceEl.textContent = keys.length ? '$' + cost.toFixed(2) : '-';
   renderBarList(keys);
@@ -2943,12 +2945,12 @@ renderIngredients();
               fill="rgba(200,230,255,0.12)" style="transition:all 1.8s cubic-bezier(0.4,0,0.2,1);"/>
       </svg>
     </div>
-    <div class="mob-bar-info">
-      <span class="mob-bar-count" id="mobBarCount"><span class="mob-bar-count-num">0</span><span class="mob-bar-count-lbl">ingredients</span></span>
-      <span class="mob-bar-price" id="mobBarPrice">-</span>
-    </div>
     <div class="mob-bar-list" id="mobBarList"></div>
-    <button class="mob-bar-finish" id="mobBarFinish" type="button" onclick="event.stopPropagation(); toggleMobPanel()">Finish</button>
+    <div class="mob-bar-right">
+      <span class="mob-bar-count" id="mobBarCount">0 ingredients</span>
+      <span class="mob-bar-price" id="mobBarPrice">-</span>
+      <button class="mob-bar-finish" id="mobBarFinish" type="button" onclick="event.stopPropagation(); toggleMobPanel()">Finish</button>
+    </div>
   </div>
 
   <!-- Expandable panel -->
