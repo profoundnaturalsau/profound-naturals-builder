@@ -33,6 +33,17 @@
   *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
   html, body { background:var(--bg); color:var(--white); font-family:var(--sans); min-height:100vh; overflow-x:hidden; }
 
+  /* Brand scrollbar - rounded pill in the lighter brand green (matches the main site).
+     Elements that opt out with scrollbar-width:none / display:none keep their own rule. */
+  html { scrollbar-color: var(--green-lt) transparent; scrollbar-width: thin; }
+  ::-webkit-scrollbar { width:10px; height:10px; }
+  ::-webkit-scrollbar-track { background:transparent; }
+  ::-webkit-scrollbar-thumb {
+    background-color:var(--green-lt); border-radius:999px;
+    border:2px solid var(--bg); background-clip:padding-box;
+  }
+  ::-webkit-scrollbar-thumb:hover { background-color:var(--green); }
+
   /* HEADER */
   .builder-header {
     text-align:center; padding:60px 24px 40px;
@@ -814,7 +825,7 @@
     .builder-main {
       margin-left:0;
       min-height:unset;
-      padding-bottom:calc(128px + env(safe-area-inset-bottom));
+      padding-bottom:128px;   /* static fallback; syncBottomReserve() sets the exact px at runtime */
     }
     .builder-header { margin-left:0; }
 
@@ -844,8 +855,10 @@
       border-top:1px solid var(--border);
       box-shadow:0 -8px 40px rgba(0,0,0,.6);
       display:flex; flex-direction:column-reverse;
-      padding-bottom:env(safe-area-inset-bottom);   /* safe area on the container so the toolbar's own height stays stable on scroll */
     }
+    /* Deliberately NO env(safe-area-inset-bottom) on the bar: iOS Safari changes that
+       value as its bottom chrome minimizes on scroll, which made the fixed toolbar
+       grow/shrink WHILE scrolling. Keeping height independent of it stays stable. */
     /* Panel open: the collapsed toolbar hides (the panel IS the view) and the page
        behind is scroll-locked (toggleMobPanel), so only the panel scrolls. */
     .mob-bar.open .mob-bar-collapsed { display:none; }
@@ -928,6 +941,15 @@
       flex-shrink:0; display:flex; flex-direction:column; gap:10px;
       padding:12px 20px; border-top:1px solid var(--border-sub); background:var(--surface);
     }
+    /* Checkout top row: bottle on the LEFT, composition list on the RIGHT */
+    .mob-checkout-top { display:flex; align-items:flex-start; gap:12px; }
+    .mob-checkout-bottle {
+      flex-shrink:0; width:84px; align-self:flex-start;
+      position:sticky; top:0;                 /* bottle stays put while the list scrolls */
+      display:flex; justify-content:center;
+    }
+    .mob-checkout-bottle svg { width:84px; height:135px; display:block; }
+    .mob-checkout-top .mob-formula-wrap { flex:1 1 auto; min-width:0; width:auto; }
 
     /* Bottle in panel */
     .mob-bottle-wrap {
@@ -954,12 +976,18 @@
       font-style:italic; font-family:var(--serif);
     }
     .mob-formula-item {
-      display:flex; align-items:center; gap:8px;
+      display:flex; align-items:center; gap:6px;
       padding:6px 0; border-bottom:1px solid var(--border-sub);
       font-size:.7rem;
     }
     .mob-formula-dot { width:6px; height:6px; border-radius:50%; flex-shrink:0; }
-    .mob-formula-name { flex:1; color:var(--white-dim); min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+    .mob-formula-name {
+      flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+      color:var(--white-dim); text-align:left; cursor:pointer;
+      background:none; border:none; padding:0; font:inherit;
+      text-decoration:underline dotted rgba(230,236,231,.28); text-underline-offset:2px;
+    }
+    .mob-formula-name:hover, .mob-formula-name:active { color:var(--white); }
     .mob-formula-pct { color:var(--green-lt); font-weight:500; min-width:30px; text-align:right; }
     .mob-formula-total {
       display:flex; justify-content:space-between;
@@ -1148,8 +1176,8 @@
     .mob-bar-finish:active { background:var(--green-lt); }
 
     /* Bigger, thumb-friendly steppers in the formula list */
-    .mob-formula-item .fml-btn   { width:34px; height:32px; font-size:1rem; }
-    .mob-formula-item .fml-slots { width:26px; height:32px; font-size:.72rem; }
+    .mob-formula-item .fml-btn   { width:26px; height:30px; font-size:.95rem; }
+    .mob-formula-item .fml-slots { width:20px; height:30px; font-size:.7rem; }
 
     /* Regulated badge is hidden on the card face on mobile - the notice still
        appears when the ingredient is opened (in the description modal). */
@@ -1502,7 +1530,7 @@ const INGREDIENTS = [
   { id:'geranium-bourbon', img:'geranium-bourbon.png', name:'Geranium Bourbon', note:'Heart', group:'heart', emoji:'🌸', color:'#c06080', desc:'The finest expression of geranium - rich, rosy and green with a complexity that far exceeds common geranium. A backbone ingredient in classical and natural perfumery.', warn:null, maxPct: 11.0, cost:3.20, wholesale:71.50 },
   { id:'rosemary', img:'rosemary-spanish.png', name:'Rosemary (Spanish)', note:'Top · Heart', group:'heart', emoji:'🌿', color:'#5a8a3a', desc:'Sharp, herbaceous and invigorating. Spanish rosemary has a particularly crisp, camphorous character with a resinous warmth that blends beautifully.', warn:null, cost:2.00, wholesale:27.50 },
   { id:'ylang-3rd', img:'ylangylang-3rd.png', name:'Ylang Ylang 3rd', note:'Heart', group:'heart', emoji:'🌼', color:'#c0a020', desc:'Softer, rounder and more balsamic than the first fraction. Deeper and more creamy with a rubbery, slightly earthy warmth - the most versatile fraction for heart note blending.', warn:null, cost:2.40, wholesale:44 },
-  { id:'ylang-complete', img:'ylangylang-3rd.png', name:'Ylang Ylang Complete', note:'Heart · Base', group:'heart', emoji:'🌼', color:'#b89820', desc:'The unfractionated, full distillation of Cananga odorata. Balanced, rich and complex - bright floral top notes giving way to a creamy, balsamic depth. The most naturalistic representation of the living flower.', warn:null, cost:2.60, wholesale:59 },
+  { id:'ylang-complete', img:'ylangylang-complete.png', name:'Ylang Ylang Complete', note:'Heart · Base', group:'heart', emoji:'🌼', color:'#b89820', desc:'The unfractionated, full distillation of Cananga odorata. Balanced, rich and complex - bright floral top notes giving way to a creamy, balsamic depth. The most naturalistic representation of the living flower.', warn:null, cost:2.60, wholesale:59 },
   { id:'frangipani',
     img:'frangipani.png', name:'Frangipani', note:'Heart', group:'heart', emoji:'🌺', color:'#c070a0', rare:true, desc:'Exotic, tropical and deeply floral - carries the full warmth of the Plumeria flower with a creamy, slightly spiced sweetness. Evocative and sensual. Organic, hexane-free extraction.', warn:null, cost:8.00, wholesale:90 },
   { id:'boronia',
@@ -1514,7 +1542,7 @@ const INGREDIENTS = [
     img:'osmanthus.png', name:'Osmanthus', note:'Heart', group:'heart', emoji:'🌸', color:'#c09040', rare:true, desc:'Delicate, peachy and apricot-like with a distinctive dark cherry undertone. One of the most prized florals in Chinese perfumery. Organic, hexane-free extraction.', warn:null, maxPct: 14.0, cost:7.00, wholesale:70 },
   { id:'tuberose',
     img:'tuberose.png', name:'Tuberose', note:'Heart', group:'heart', emoji:'🤍', color:'#d0b0c0', rare:true, desc:'One of the most intensely floral botanicals in natural perfumery - rich, creamy and narcotic with a heady, waxy sweetness. A statement ingredient. Organic, hexane-free extraction.', warn:null, maxPct: 13.0, cost:11.00, wholesale:90 },
-  { id:'euca-blue-mallee', img:'euca-blue-malle.png', name:'Euca Blue Mallee', note:'Top · Heart', group:'heart', emoji:'🌿', color:'#2a7a4a', desc:'An Australian native with a high 1,8-cineole content - sharper and more penetrating than Blue Gum. Clean, medicinal intensity. 🌿 Australian Native - icon to be updated.', warn:null, cost:2.00, wholesale:11 },
+  { id:'euca-blue-mallee', img:'euca-blue-mallee.png', name:'Euca Blue Mallee', note:'Top · Heart', group:'heart', emoji:'🌿', color:'#2a7a4a', desc:'An Australian native with a high 1,8-cineole content - sharper and more penetrating than Blue Gum. Clean, medicinal intensity. 🌿 Australian Native - icon to be updated.', warn:null, cost:2.00, wholesale:11 },
   { id:'tonka',
     img:'tonka-bean.png', name:'Tonka', note:'Base', group:'base', emoji:'🤎', color:'#a07840', rare:true, desc:'Warm, sweet and richly coumarinic with hints of almond, hay and tobacco. Tenacious and comforting - anchors sweet accords with an almost edible warmth. Organic, hexane-free extraction.', warn:null, cost:5.00, wholesale:69.99 },
   { id:'vanilla',
@@ -2489,6 +2517,15 @@ function updateMobile(keys, totalPct, cost, pctMap) {
     if (mobFillLabel) mobFillLabel.setAttribute('fill', 'rgba(230,236,231,0)');
   }
 
+  // ── Checkout-sheet bottle - mirrors the bar bottle (set immediately, no animation) ──
+  const coLiqRect = document.getElementById('coLiqRect');
+  if (coLiqRect) {
+    coLiqRect.setAttribute('y', fillY);
+    coLiqRect.setAttribute('height', fillH + 10);
+    const coFill = document.getElementById('coLiqFill');
+    if (coFill) coFill.setAttribute('fill', keys.length ? blendColors(keys.map(id => INGREDIENTS.find(i => i.id === id).color)) : '#8cc40f');
+  }
+
   // ── Mobile formula list ──
   const mobBody = document.getElementById('mobFormulaBody');
   const mobTotalRow = document.getElementById('mobTotalRow');
@@ -2510,14 +2547,14 @@ function updateMobile(keys, totalPct, cost, pctMap) {
             : '';
           return `<div class="mob-formula-item">
             <div class="mob-formula-dot" style="background:${ing.color}"></div>
-            <div class="mob-formula-name">${ing.name}</div>
+            <button type="button" class="mob-formula-name" onclick="openChipModal('${id}')">${ing.name}</button>
             ${badge}
             <div class="mob-formula-pct">${pctMap[id]}%</div>
           </div>`;
         }
         return `<div class="mob-formula-item">
           <div class="mob-formula-dot" style="background:${ing.color}"></div>
-          <div class="mob-formula-name">${ing.name}</div>
+          <button type="button" class="mob-formula-name" onclick="openChipModal('${id}')">${ing.name}</button>
           <div class="formula-stepper">
             <button class="fml-btn minus" onclick="decrementSlot('${id}')">−</button>
             <span class="fml-slots">${slots}</span>
@@ -2740,7 +2777,8 @@ function closeChipModal(e) {
   if (e && e.target !== document.getElementById('chipModalOverlay')) return;
   if (Date.now() - chipModalOpenTime < 400) return; // ignore tap that opened the modal
   document.getElementById('chipModalOverlay').classList.remove('open');
-  document.body.style.overflow = '';
+  // Keep the page locked if this info modal was opened from the open checkout sheet.
+  document.body.style.overflow = document.getElementById('mobBar')?.classList.contains('open') ? 'hidden' : '';
 }
 
 // ═══════════════════════════════════════════════════════════════
@@ -3008,12 +3046,25 @@ renderIngredients();
 
     <!-- Scrollable middle: ONLY the added ingredients (+ suggestions) scroll -->
     <div class="mob-panel-scroll">
-      <div class="mob-formula-wrap">
-        <div class="mob-formula-title">Composition</div>
-        <div id="mobFormulaBody"><div class="mob-formula-empty">Your accord awaits</div></div>
-        <div class="mob-formula-total" id="mobTotalRow" style="display:none">
-          <span>Total concentrate</span>
-          <span id="mobTotalPct">0%</span>
+      <div class="mob-checkout-top">
+        <!-- Bottle on the left (mirrors the bar bottle; painted in updateMobile) -->
+        <div class="mob-checkout-bottle" aria-hidden="true">
+          <svg width="84" height="135" viewBox="0 0 140 230">
+            <defs><clipPath id="coLiq"><rect id="coLiqRect" x="24" y="230" width="92" height="0"/></clipPath></defs>
+            <rect id="coLiqFill" x="24" y="65" width="92" height="155" rx="6" fill="#8cc40f" opacity="0.28" clip-path="url(#coLiq)"/>
+            <rect x="24" y="65" width="92" height="155" rx="6" fill="rgba(255,255,255,0.03)" stroke="rgba(230,236,231,0.25)" stroke-width="1"/>
+            <path d="M24 65 Q24 55 38 50 L102 50 Q116 55 116 65" fill="rgba(255,255,255,0.02)" stroke="rgba(230,236,231,0.2)" stroke-width="1"/>
+            <rect x="52" y="30" width="36" height="22" rx="2" fill="rgba(255,255,255,0.03)" stroke="rgba(230,236,231,0.2)" stroke-width="1"/>
+            <rect x="48" y="10" width="44" height="22" rx="3" fill="#1f2a1f" stroke="rgba(140,196,15,0.3)" stroke-width="1"/>
+          </svg>
+        </div>
+        <div class="mob-formula-wrap">
+          <div class="mob-formula-title">Composition</div>
+          <div id="mobFormulaBody"><div class="mob-formula-empty">Your accord awaits</div></div>
+          <div class="mob-formula-total" id="mobTotalRow" style="display:none">
+            <span>Total concentrate</span>
+            <span id="mobTotalPct">0%</span>
+          </div>
         </div>
       </div>
 
