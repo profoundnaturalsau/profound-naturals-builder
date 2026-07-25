@@ -852,6 +852,13 @@
 
   @media(max-width:768px) {
 
+    /* ── Scrollbar: drop the custom amber pill on mobile ──
+       The desktop amber ::-webkit-scrollbar (a 10px CLASSIC bar) double-draws over
+       the phone's native touch scrollbar and reads as a full-height bar "lighting up"
+       from top to bottom on scroll. On mobile we rely on the native overlay only. */
+    html { scrollbar-width:none; scrollbar-color:auto; }
+    ::-webkit-scrollbar { width:0; height:0; background:transparent; }
+
     /* ── Hide the desktop bottle-side entirely on mobile ── */
     .bottle-side { display:none !important; }
 
@@ -955,7 +962,7 @@
       padding:11px 12px 11px 20px; border-bottom:1px solid var(--border-sub);
     }
     .mob-panel-title {
-      font-family:var(--serif); font-size:1rem; color:var(--white); letter-spacing:.02em;
+      font-family:'Croissant One', var(--serif); font-size:1.15rem; color:var(--white); letter-spacing:0;
     }
     .mob-panel-close {
       flex-shrink:0; width:38px; height:30px; border-radius:8px;
@@ -2134,15 +2141,24 @@ function requestFormula() {
   const mobBtn = document.getElementById('mobRequestBtn');
   if (btn) { btn.disabled = true; btn.textContent = 'Preparing checkout...'; }
   if (mobBtn) { mobBtn.disabled = true; mobBtn.textContent = 'Preparing checkout...'; }
-  // Trigger alcohol fill animation
-  alcoholFilled = true;
-  fillAlcohol();
-  // After animation completes, show request modal - delay lets bottle colour transition finish
+
+  // Fill the bottle, THEN open the request modal once the fill has played.
+  let delay;
+  if (window.innerWidth <= 768) {
+    // Mobile: the visible checkout-sheet bottle tops up to full + light blue.
+    animateCheckoutFill();
+    delay = 1700;
+  } else {
+    // Desktop: alcohol fill on the main bottle.
+    alcoholFilled = true;
+    fillAlcohol();
+    delay = 3200;
+  }
   setTimeout(() => {
     populateRequestSummary();
     document.getElementById('reqModalOverlay').classList.add('open');
     document.body.style.overflow = 'hidden';
-  }, 3200);
+  }, delay);
 }
 
 function populateRequestSummary() {
@@ -2171,10 +2187,11 @@ function closeReqModal(e) {
   if (e && e.target !== document.getElementById('reqModalOverlay')) return;
   document.getElementById('reqModalOverlay').classList.remove('open');
   document.body.style.overflow = '';
-  // Re-enable request button
+  // Re-enable request button + reset the checkout bottle back to the concentrate level.
   updateRequestBtn(Object.keys(formula).length, totalSlots());
   const mobBtn = document.getElementById('mobRequestBtn');
   if (mobBtn) { mobBtn.disabled = false; mobBtn.textContent = 'Continue to Checkout →'; }
+  updateAll();
 }
 
 async function sendFormulaRequest() {
@@ -2508,8 +2525,10 @@ function lockPageScroll(lock) {
   }
 }
 
-// When the checkout sheet opens, reveal its (own) bottle: fill from EMPTY up to FULL
-// while the colour mixes from the base green to the blended accord colour.
+// The checkout reveal: when the user taps "Continue to Checkout", the checkout-sheet
+// bottle fills from its current concentrate level UP to FULL while the colour mixes to
+// the finished light-blue perfume. The request modal opens after this plays (requestFormula).
+const CHECKOUT_FILL_COLOR = '#a9d4f2';   // light blue - the finished/diluted perfume look
 let coFillAnimFrame = null;
 function animateCheckoutFill() {
   const rect = document.getElementById('coLiqRect');
@@ -2517,28 +2536,24 @@ function animateCheckoutFill() {
   if (!rect) return;
   const keys = Object.keys(formula || {});
   if (!keys.length) return;
-  const blended = blendColors(keys.map(id => INGREDIENTS.find(i => i.id === id).color));
   if (coFillAnimFrame) { cancelAnimationFrame(coFillAnimFrame); coFillAnimFrame = null; }
 
-  // Snap to EMPTY + base colour synchronously, before the opening sheet first paints.
-  rect.setAttribute('y', '220');
-  rect.setAttribute('height', '0');
+  // Colour mixes from the current accord colour to the finished light blue.
   if (fill) {
     fill.style.transition = 'none';
-    fill.setAttribute('fill', '#8cc40f');
-    fill.style.opacity = '0.3';
-    fill.getBoundingClientRect();               // commit the reset before transitioning
-    fill.style.transition = 'fill 1.5s ease, opacity 1.5s ease';
-    fill.setAttribute('fill', blended);         // colour mixes in
+    fill.getBoundingClientRect();               // commit current colour before transitioning
+    fill.style.transition = 'fill 1.4s ease, opacity 1.4s ease';
+    fill.setAttribute('fill', CHECKOUT_FILL_COLOR);
     fill.style.opacity = '0.55';
   }
 
-  // Rise to FULL (155).
+  // Rise from the current concentrate level up to FULL (155).
+  const startH = Math.max(0, 220 - parseFloat(rect.getAttribute('y') || '220'));
   const targetH = 155, duration = 1400, t0 = performance.now();
   const stepFn = (now) => {
     const t = Math.min((now - t0) / duration, 1);
     const eased = t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
-    const h = Math.round(targetH * eased);
+    const h = Math.round(startH + (targetH - startH) * eased);
     rect.setAttribute('y', 220 - h);
     rect.setAttribute('height', h + 10);
     if (t < 1) coFillAnimFrame = requestAnimationFrame(stepFn);
@@ -2552,7 +2567,9 @@ function setMobPanel(open) {
   if (!bar) return;
   bar.classList.toggle('open', open);
   lockPageScroll(open);
-  if (open) animateCheckoutFill();   // reveal: fill the rest of the way + colour mix
+  // The checkout bottle fills on the "Continue to Checkout" tap (see requestFormula),
+  // NOT on panel open - opening just reveals the built-up concentrate level.
+  if (open) updateAll();
   else syncBottomReserve();
 }
 
@@ -2637,14 +2654,18 @@ function updateMobile(keys, totalPct, cost, pctMap) {
     if (mobFillLabel) mobFillLabel.setAttribute('fill', 'rgba(230,236,231,0)');
   }
 
-  // ── Checkout-sheet bottle = the FINISHED (full) bottle, blended colour.
-  //    animateCheckoutFill replays the rise + colour mix when the sheet opens. ──
+  // ── Checkout-sheet bottle = the built-up CONCENTRATE (partial fill, accord colour).
+  //    requestFormula() tops it up to full + light blue when the user hits checkout. ──
   const coLiqRect = document.getElementById('coLiqRect');
-  if (coLiqRect) {
-    const coOpen = document.getElementById('mobBar')?.classList.contains('open');
-    if (!coOpen) { coLiqRect.setAttribute('y', '65'); coLiqRect.setAttribute('height', '165'); }
+  if (coLiqRect && !coFillAnimFrame) {   // don't fight an in-flight checkout fill
+    coLiqRect.setAttribute('y', fillY);
+    coLiqRect.setAttribute('height', fillH + 10);
     const coFill = document.getElementById('coLiqFill');
-    if (coFill) coFill.setAttribute('fill', keys.length ? blendColors(keys.map(id => INGREDIENTS.find(i => i.id === id).color)) : '#8cc40f');
+    if (coFill) {
+      coFill.style.transition = 'fill 0.8s ease';
+      coFill.setAttribute('fill', keys.length ? blendColors(keys.map(id => INGREDIENTS.find(i => i.id === id).color)) : '#8cc40f');
+      coFill.style.opacity = '0.28';
+    }
   }
 
   // ── Mobile formula list ──
