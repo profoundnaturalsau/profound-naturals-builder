@@ -8,7 +8,7 @@
 <title>Custom Scent Builder - Profound Naturals</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@300;400;500&family=Cinzel:wght@400;500&family=Sora:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Croissant+One&family=Jost:wght@300;400;500&family=Cinzel:wght@400;500&family=Sora:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
   :root {
     color-scheme: dark;
@@ -1054,7 +1054,7 @@
       color:var(--white-dim); margin-bottom:2px; display:block;
     }
     .mob-price-value {
-      font-family:var(--serif); font-size:1.45rem; font-weight:300; color:var(--white);
+      font-family:'Croissant One', var(--serif); font-size:1.5rem; font-weight:400; color:var(--white);
     }
     .mob-price-size { font-size:.58rem; color:var(--white-dim); margin-top:2px; }
 
@@ -1255,8 +1255,8 @@
     .mob-suggest-row {
       flex-shrink:0; display:flex; gap:10px; overflow-x:auto; padding:2px 0 6px;
       -webkit-overflow-scrolling:touch; scrollbar-width:none;
-      -webkit-mask-image:linear-gradient(to right, transparent 0, #000 14px, #000 calc(100% - 24px), transparent 100%);
-      mask-image:linear-gradient(to right, transparent 0, #000 14px, #000 calc(100% - 24px), transparent 100%);
+      -webkit-mask-image:linear-gradient(to right, transparent 0, #000 7px, #000 calc(100% - 12px), transparent 100%);
+      mask-image:linear-gradient(to right, transparent 0, #000 7px, #000 calc(100% - 12px), transparent 100%);
     }
     .mob-suggest-row::-webkit-scrollbar { display:none; }
     .mob-suggest-empty {
@@ -2508,16 +2508,33 @@ function lockPageScroll(lock) {
   }
 }
 
-// Replay the bottle fill (rise from empty to the current level) each time the checkout
-// sheet opens - the sheet has its own bottle, otherwise set instantly in updateMobile.
+// When the checkout sheet opens, reveal its (own) bottle: fill from EMPTY up to FULL
+// while the colour mixes from the base green to the blended accord colour.
 let coFillAnimFrame = null;
 function animateCheckoutFill() {
   const rect = document.getElementById('coLiqRect');
+  const fill = document.getElementById('coLiqFill');
   if (!rect) return;
+  const keys = Object.keys(formula || {});
+  if (!keys.length) return;
+  const blended = blendColors(keys.map(id => INGREDIENTS.find(i => i.id === id).color));
   if (coFillAnimFrame) { cancelAnimationFrame(coFillAnimFrame); coFillAnimFrame = null; }
-  const targetH = (parseFloat(rect.getAttribute('height')) || 0) - 10;   // undo the +10 pad
-  if (!(targetH > 0)) return;
-  const duration = 1100, t0 = performance.now();
+
+  // Snap to EMPTY + base colour synchronously, before the opening sheet first paints.
+  rect.setAttribute('y', '220');
+  rect.setAttribute('height', '0');
+  if (fill) {
+    fill.style.transition = 'none';
+    fill.setAttribute('fill', '#8cc40f');
+    fill.style.opacity = '0.3';
+    fill.getBoundingClientRect();               // commit the reset before transitioning
+    fill.style.transition = 'fill 1.5s ease, opacity 1.5s ease';
+    fill.setAttribute('fill', blended);         // colour mixes in
+    fill.style.opacity = '0.55';
+  }
+
+  // Rise to FULL (155).
+  const targetH = 155, duration = 1400, t0 = performance.now();
   const stepFn = (now) => {
     const t = Math.min((now - t0) / duration, 1);
     const eased = t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
@@ -2535,7 +2552,7 @@ function setMobPanel(open) {
   if (!bar) return;
   bar.classList.toggle('open', open);
   lockPageScroll(open);
-  if (open) requestAnimationFrame(animateCheckoutFill);   // rising fill when the sheet opens
+  if (open) animateCheckoutFill();   // reveal: fill the rest of the way + colour mix
   else syncBottomReserve();
 }
 
@@ -2620,11 +2637,12 @@ function updateMobile(keys, totalPct, cost, pctMap) {
     if (mobFillLabel) mobFillLabel.setAttribute('fill', 'rgba(230,236,231,0)');
   }
 
-  // ── Checkout-sheet bottle - mirrors the bar bottle (set immediately, no animation) ──
+  // ── Checkout-sheet bottle = the FINISHED (full) bottle, blended colour.
+  //    animateCheckoutFill replays the rise + colour mix when the sheet opens. ──
   const coLiqRect = document.getElementById('coLiqRect');
   if (coLiqRect) {
-    coLiqRect.setAttribute('y', fillY);
-    coLiqRect.setAttribute('height', fillH + 10);
+    const coOpen = document.getElementById('mobBar')?.classList.contains('open');
+    if (!coOpen) { coLiqRect.setAttribute('y', '65'); coLiqRect.setAttribute('height', '165'); }
     const coFill = document.getElementById('coLiqFill');
     if (coFill) coFill.setAttribute('fill', keys.length ? blendColors(keys.map(id => INGREDIENTS.find(i => i.id === id).color)) : '#8cc40f');
   }
