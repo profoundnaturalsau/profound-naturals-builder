@@ -394,11 +394,11 @@
 
   /* ── CONFIRM CAP MODAL ── */
   /* Scent-tier intro modal (reuses .cap-modal-overlay / .cap-modal) */
-  .intro-tiers { display:flex; flex-direction:column; gap:12px; margin-top:4px; }
+  .intro-tiers { display:flex; flex-direction:column; gap:8px; margin-top:2px; }
   .intro-tier {
-    display:flex; flex-direction:column; gap:7px; text-align:left;
-    padding:18px 20px; background:var(--surface-2);
-    border:1px solid var(--border-sub); border-radius:12px; cursor:pointer;
+    display:flex; flex-direction:column; gap:2px; text-align:left;
+    padding:10px 14px; background:var(--surface-2);
+    border:1px solid var(--border-sub); border-radius:10px; cursor:pointer;
     position:relative; overflow:hidden;
     transition:border-color .25s, transform .25s, box-shadow .25s, background .25s;
   }
@@ -407,13 +407,11 @@
     transform:translateY(-2px);
     box-shadow:0 0 22px rgba(212,160,23,0.28), 0 18px 40px rgba(0,0,0,.5);
   }
-  .intro-tier:hover .intro-tier-more { gap:14px; }
-  .intro-tier-meta  { font-size:.58rem; letter-spacing:.2em; text-transform:uppercase; color:var(--amber); font-weight:600; }
-  .intro-tier-name  { font-family:var(--serif); font-weight:400; font-size:1.5rem; line-height:1.12; color:var(--white); }
-  .intro-tier-blurb { font-size:.82rem; font-weight:300; line-height:1.6; color:var(--white-dim); }
-  .intro-tier-more  { margin-top:2px; font-size:.62rem; letter-spacing:.16em; text-transform:uppercase; color:var(--green-lt); font-weight:500; display:inline-flex; align-items:center; gap:8px; transition:gap .2s; }
+  .intro-tier-meta  { font-size:.54rem; letter-spacing:.18em; text-transform:uppercase; color:var(--amber); font-weight:600; }
+  .intro-tier-name  { font-family:var(--serif); font-weight:400; font-size:1.2rem; line-height:1.1; color:var(--white); }
+  .intro-tier-blurb { font-size:.66rem; font-weight:300; line-height:1.35; color:var(--white-dim); }
   .intro-notsure {
-    margin-top:6px; padding:15px; background:var(--green); color:var(--bg); border:none;
+    margin-top:4px; padding:12px; background:var(--green); color:var(--bg); border:none;
     border-radius:4px 20px 4px 20px; cursor:pointer; font-family:var(--sans);
     font-size:.72rem; font-weight:600; letter-spacing:.12em; text-transform:uppercase;
     box-shadow:0 2px 14px rgba(140,196,15,.4);
@@ -444,7 +442,10 @@
     max-height:92vh; overflow-y:auto;
   }
   .cap-modal-overlay.open .cap-modal { transform:scale(1); }
-  #introModalOverlay .cap-modal { width:min(440px, 94vw); }
+  #introModalOverlay .cap-modal { width:min(430px, 94vw); padding:22px 26px; gap:9px; }
+  #introModalOverlay .cap-modal-img { width:48px; height:48px; }
+  #introModalOverlay .cap-modal-sub { font-size:.66rem; }
+  .intro-welcome { font-family:var(--serif); font-weight:500; font-size:1.5rem; line-height:1.05; color:var(--white); }
   .cap-modal-icon { font-size:2rem; }
   .cap-modal-img { width:64px; height:64px; object-fit:contain; display:block; margin:0 auto; }
   .cap-modal-title {
@@ -964,25 +965,28 @@
       transition:color .2s, background .2s;
     }
     .mob-panel-close:hover, .mob-panel-close:active { color:var(--white); background:var(--surface-2); }
+    /* Checkout body = NON-scrolling row: bottle LOCKED left, right column scrolls */
     .mob-panel-scroll {
-      flex:1 1 auto; min-height:0; overflow-y:auto; overscroll-behavior:contain;
-      scrollbar-width:none;
-      padding:16px 20px; display:flex; flex-direction:column; gap:16px;
+      flex:1 1 auto; min-height:0; overflow:hidden;
+      padding:16px 18px; display:flex; flex-direction:row; align-items:stretch; gap:14px;
     }
-    .mob-panel-scroll::-webkit-scrollbar { display:none; }
     .mob-panel-foot {
       flex-shrink:0; display:flex; flex-direction:column; gap:10px;
       padding:12px 20px; border-top:1px solid var(--border-sub); background:var(--surface);
     }
-    /* Checkout top row: bottle on the LEFT, composition list on the RIGHT */
-    .mob-checkout-top { display:flex; align-items:flex-start; gap:12px; }
     .mob-checkout-bottle {
-      flex-shrink:0; width:84px; align-self:flex-start;
-      position:sticky; top:0;                 /* bottle stays put while the list scrolls */
-      display:flex; justify-content:center;
+      flex-shrink:0; width:104px; align-self:flex-start;
+      display:flex; justify-content:center;   /* locked simply by being in a non-scrolling row */
     }
-    .mob-checkout-bottle svg { width:84px; height:135px; display:block; }
-    .mob-checkout-top .mob-formula-wrap { flex:1 1 auto; min-width:0; width:auto; }
+    .mob-checkout-bottle svg { width:104px; height:auto; display:block; }
+    /* ONLY this column scrolls; overscroll-contain keeps the page behind from moving */
+    .mob-checkout-right {
+      flex:1 1 auto; min-width:0; min-height:0;
+      overflow-y:auto; overscroll-behavior:contain; scrollbar-width:none;
+      display:flex; flex-direction:column; gap:16px;
+    }
+    .mob-checkout-right::-webkit-scrollbar { display:none; }
+    .mob-checkout-right .mob-formula-wrap { flex:0 0 auto; min-width:0; width:100%; }
 
     /* Bottle in panel */
     .mob-bottle-wrap {
@@ -2465,11 +2469,33 @@ function syncBottomReserve() {
 
 // Single source of truth for the panel's open state: toggles the class AND locks
 // the page scroll (so only the sheet scrolls), and restores the reserve on close.
+// iOS-safe page lock: body{overflow:hidden} alone does NOT stop touch-scroll on
+// iOS Safari, so we PIN the body with position:fixed (preserving the scroll pos)
+// while the checkout sheet is open, then restore it on close.
+let _lockedScrollY = 0;
+function lockPageScroll(lock) {
+  const b = document.body;
+  if (lock) {
+    if (b.style.position === 'fixed') return;   // already pinned (e.g. a modal over the sheet)
+    _lockedScrollY = window.scrollY || window.pageYOffset || 0;
+    b.style.top = `-${_lockedScrollY}px`;
+    b.style.position = 'fixed';
+    b.style.width = '100%';
+    b.style.overflow = 'hidden';
+  } else {
+    b.style.position = '';
+    b.style.top = '';
+    b.style.width = '';
+    b.style.overflow = '';
+    window.scrollTo(0, _lockedScrollY);
+  }
+}
+
 function setMobPanel(open) {
   const bar = document.getElementById('mobBar');
   if (!bar) return;
   bar.classList.toggle('open', open);
-  document.body.style.overflow = open ? 'hidden' : '';
+  lockPageScroll(open);
   if (!open) syncBottomReserve();
 }
 
@@ -2909,7 +2935,6 @@ function renderIntroTiers() {
        <span class="intro-tier-meta">~${t.target}% Concentrate</span>
        <span class="intro-tier-name">${t.name}</span>
        <span class="intro-tier-blurb">${t.blurb}</span>
-       <span class="intro-tier-more">Start with this →</span>
      </button>`).join('');
 }
 function openIntro() {
@@ -2988,8 +3013,9 @@ renderIngredients();
 <div class="cap-modal-overlay" id="introModalOverlay">
   <div class="cap-modal">
     <div class="cap-modal-icon"><img src="/images/potion-icon.png" alt="" class="cap-modal-img"></div>
+    <div class="intro-welcome">Welcome, Artisan</div>
     <div class="cap-modal-title">What are you making?</div>
-    <div class="cap-modal-sub">Pick a strength to aim for - or just start creating and it'll name itself as you build.</div>
+    <div class="cap-modal-sub">Pick a strength to aim for, or just start creating.</div>
     <div class="intro-tiers" id="introTiers"></div>
     <button type="button" class="intro-notsure" onclick="startCreating()">Not sure - let me create</button>
   </div>
@@ -3086,18 +3112,19 @@ renderIngredients();
 
     <!-- Scrollable middle: ONLY the added ingredients (+ suggestions) scroll -->
     <div class="mob-panel-scroll">
-      <div class="mob-checkout-top">
-        <!-- Bottle on the left (mirrors the bar bottle; painted in updateMobile) -->
-        <div class="mob-checkout-bottle" aria-hidden="true">
-          <svg width="84" height="135" viewBox="0 0 140 230">
-            <defs><clipPath id="coLiq"><rect id="coLiqRect" x="24" y="230" width="92" height="0"/></clipPath></defs>
-            <rect id="coLiqFill" x="24" y="65" width="92" height="155" rx="6" fill="#8cc40f" opacity="0.28" clip-path="url(#coLiq)"/>
-            <rect x="24" y="65" width="92" height="155" rx="6" fill="rgba(255,255,255,0.03)" stroke="rgba(230,236,231,0.25)" stroke-width="1"/>
-            <path d="M24 65 Q24 55 38 50 L102 50 Q116 55 116 65" fill="rgba(255,255,255,0.02)" stroke="rgba(230,236,231,0.2)" stroke-width="1"/>
-            <rect x="52" y="30" width="36" height="22" rx="2" fill="rgba(255,255,255,0.03)" stroke="rgba(230,236,231,0.2)" stroke-width="1"/>
-            <rect x="48" y="10" width="44" height="22" rx="3" fill="#1f2a1f" stroke="rgba(140,196,15,0.3)" stroke-width="1"/>
-          </svg>
-        </div>
+      <!-- Bottle LOCKED on the left; it does not scroll (painted in updateMobile) -->
+      <div class="mob-checkout-bottle" aria-hidden="true">
+        <svg width="104" height="171" viewBox="0 0 140 230">
+          <defs><clipPath id="coLiq"><rect id="coLiqRect" x="24" y="230" width="92" height="0"/></clipPath></defs>
+          <rect id="coLiqFill" x="24" y="65" width="92" height="155" rx="6" fill="#8cc40f" opacity="0.28" clip-path="url(#coLiq)"/>
+          <rect x="24" y="65" width="92" height="155" rx="6" fill="rgba(255,255,255,0.03)" stroke="rgba(230,236,231,0.25)" stroke-width="1"/>
+          <path d="M24 65 Q24 55 38 50 L102 50 Q116 55 116 65" fill="rgba(255,255,255,0.02)" stroke="rgba(230,236,231,0.2)" stroke-width="1"/>
+          <rect x="52" y="30" width="36" height="22" rx="2" fill="rgba(255,255,255,0.03)" stroke="rgba(230,236,231,0.2)" stroke-width="1"/>
+          <rect x="48" y="10" width="44" height="22" rx="3" fill="#1f2a1f" stroke="rgba(140,196,15,0.3)" stroke-width="1"/>
+        </svg>
+      </div>
+      <!-- ONLY this column scrolls: the composition (ingredients) + suggestions -->
+      <div class="mob-checkout-right">
         <div class="mob-formula-wrap">
           <div class="mob-formula-title">Composition</div>
           <div id="mobFormulaBody"><div class="mob-formula-empty">Your accord awaits</div></div>
@@ -3106,12 +3133,12 @@ renderIngredients();
             <span id="mobTotalPct">0%</span>
           </div>
         </div>
-      </div>
 
-      <!-- Smart suggestions - what the accord is still missing -->
-      <div class="mob-suggest-wrap">
-        <span class="mob-suggest-label" id="mobSuggestLabel">Round out your accord</span>
-        <div class="mob-suggest-row" id="mobSuggestRow"></div>
+        <!-- Smart suggestions - what the accord is still missing -->
+        <div class="mob-suggest-wrap">
+          <span class="mob-suggest-label" id="mobSuggestLabel">Round out your accord</span>
+          <div class="mob-suggest-row" id="mobSuggestRow"></div>
+        </div>
       </div>
     </div>
 
