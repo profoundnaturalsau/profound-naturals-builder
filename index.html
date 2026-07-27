@@ -31,7 +31,13 @@
   }
 
   *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
-  html, body { background:var(--bg); color:var(--white); font-family:var(--sans); min-height:100vh; overflow-x:hidden; }
+  html, body { background:var(--bg); color:var(--white); font-family:var(--sans); min-height:100vh; }
+  html { overflow-x:hidden; }        /* the single viewport scroller */
+  /* body uses CLIP, not HIDDEN: overflow-x:hidden forces overflow-y to compute to auto,
+     which turns <body> into a SECOND scroll container stacked on <html> - that double
+     scrollbar is the "grey bar that lights up top-to-bottom" glitch. clip clips the x
+     axis WITHOUT creating a scroll container, so there is exactly one scrollbar. */
+  body { overflow-x:clip; }
 
   /* Brand scrollbar - rounded amber pill. Elements that opt out with
      scrollbar-width:none / display:none keep their own rule. */
@@ -852,12 +858,11 @@
 
   @media(max-width:768px) {
 
-    /* ── Scrollbar: drop the custom amber pill on mobile ──
-       The desktop amber ::-webkit-scrollbar (a 10px CLASSIC bar) double-draws over
-       the phone's native touch scrollbar and reads as a full-height bar "lighting up"
-       from top to bottom on scroll. On mobile we rely on the native overlay only. */
-    html { scrollbar-width:none; scrollbar-color:auto; }
-    ::-webkit-scrollbar { width:0; height:0; background:transparent; }
+    /* ── Scrollbar: one thin amber bar on mobile ──
+       The top-to-bottom "lighting up" glitch was a DOUBLE scroll container (<body>
+       became a 2nd scroller - see body{overflow-x:clip} above). With that fixed there
+       is a single scroller, so we just slim the amber bar down for phones. */
+    ::-webkit-scrollbar { width:6px; height:6px; }
 
     /* ── Hide the desktop bottle-side entirely on mobile ── */
     .bottle-side { display:none !important; }
@@ -1002,9 +1007,12 @@
     }
     .mob-checkout-right .mob-formula-title { flex-shrink:0; }
     .mob-checkout-right #mobFormulaBody {
-      flex:1 1 auto; min-height:0; overflow-y:auto; overscroll-behavior:contain; scrollbar-width:none;
+      flex:1 1 auto; min-height:0; overflow-y:auto; overscroll-behavior:contain;
+      scrollbar-width:thin; scrollbar-color:var(--amber) transparent;
     }
-    .mob-checkout-right #mobFormulaBody::-webkit-scrollbar { display:none; }
+    .mob-checkout-right #mobFormulaBody::-webkit-scrollbar { width:5px; }
+    .mob-checkout-right #mobFormulaBody::-webkit-scrollbar-thumb { background-color:var(--amber); border-radius:3px; }
+    .mob-checkout-right #mobFormulaBody::-webkit-scrollbar-track { background:transparent; }
     .mob-checkout-right .mob-formula-total { flex-shrink:0; }
 
     /* Bottle in panel */
@@ -1389,7 +1397,7 @@ const INGREDIENTS = [
     desc:'Bright citrus-floral, cold-pressed from Italian bergamot rind. Uplifting and balancing - a cornerstone of fine perfumery.',
     warn:'Phototoxic - furanocoumarins present. IFRA & TGA limits apply. Formulated in full compliance.',
     restricted: true, fixedPct: 3.0,
-    cost:2.40
+    cost:2.40, wholesale:18.15
   },
   {
     id:'black-spruce', img:'black-spruce.png', name:'Black Spruce', note:'Top', group:'top',
@@ -1404,7 +1412,7 @@ const INGREDIENTS = [
     desc:'Warm, spiced and sweetly enveloping. Adds immediate richness and depth - a natural fixative that anchors lighter notes.',
     warn:'Subject to TGA and IFRA regulatory limits for leave-on cosmetic products. Profound Naturals formulates in full compliance with all applicable guidelines.',
     restricted: true, fixedPct: 0.1,
-    cost:2.60
+    cost:2.60, wholesale:35.90
   },
   {
     id:'davana',
@@ -1504,8 +1512,8 @@ const INGREDIENTS = [
     emoji:'', color:'#8a4020',
     desc:'Intensely warm, spicy and deeply aromatic. One of the most powerful botanicals in natural perfumery - a little goes a very long way.',
     warn:'IFRA & TGA limits apply - high eugenol content. Capped at 0.1%. Formulated in full compliance.',
-    restricted: true, fixedPct: 2.0,
-    cost:1.80
+    restricted: true, fixedPct: 0.1,
+    cost:1.80, wholesale:17.50
   },
   // HEART NOTES
   {
@@ -1568,19 +1576,19 @@ const INGREDIENTS = [
   { id:'may-chang',
     img:'may-chang.png', name:'May Chang', note:'Top', group:'top', emoji:'', color:'#c0c020', desc:'Bright, lemony and intensely fresh with a clean, almost lemon hard candy-like sweetness. More complex and fruity-floral than a straight citrus - a favourite in natural perfumery.', warn:null, cost:2.00, wholesale:35 },
   { id:'pink-grapefruit',
-    img:'pink-grapefruit.png', name:'Pink Grapefruit', note:'Top', group:'top', emoji:'', color:'#e8904a', desc:'Bright, juicy and uplifting. Cold-pressed from the peel of Citrus paradisi - an instant mood-lifter with a clean, slightly tart sweetness.', warn:'Phototoxic - cold-pressed citrus. Formulated in compliance with TGA and IFRA guidelines.', restricted: true, fixedPct: 4.0, cost:1.80 },
+    img:'pink-grapefruit.png', name:'Pink Grapefruit', note:'Top', group:'top', emoji:'', color:'#e8904a', desc:'Bright, juicy and uplifting. Cold-pressed from the peel of Citrus paradisi - an instant mood-lifter with a clean, slightly tart sweetness.', warn:'Phototoxic - cold-pressed citrus. Formulated in compliance with TGA and IFRA guidelines.', restricted: true, fixedPct: 4.0, cost:1.80, wholesale:14.85 },
   { id:'virginian-cedarwood', img:'virginian-cedarwood.png', name:'Virginian Cedarwood', note:'Base', group:'base', emoji:'', color:'#8a6030',
     desc:'Dry, pencil-shaving cedarwood with a clean, almost transparent woody warmth. Steam-distilled from Juniperus virginiana - lighter and crisper than Atlas cedarwood with a subtle sweetness and excellent tenacity. A grounding base note that adds structure without heaviness.',
     warn:null, cost:3.40, wholesale:17.50 },
   { id:'mandarin', img:'mandarin.png', name:'Mandarin', note:'Top', group:'top', emoji:'', color:'#e07820',
     desc:'Sweet, soft and warmly citrusy - cold-pressed mandarin is the gentlest and most rounded of the citrus top notes. Rich with a slightly floral, almost honeyed depth that sets it apart from orange or lime. Uplifting and approachable.',
-    warn:'Phototoxic - cold-pressed citrus. IFRA & TGA limits apply. Capped at 0.8%. Formulated in full compliance.', restricted:true, fixedPct:0.8, cost:2.60 },
+    warn:'Phototoxic - cold-pressed citrus. IFRA & TGA limits apply. Capped at 0.8%. Formulated in full compliance.', restricted:true, fixedPct:0.8, cost:2.60, wholesale:13.50 },
   { id:'lime-distilled', img:'lime-distilled.png', name:'Lime Distilled', note:'Top', group:'top', emoji:'', color:'#a0c020', desc:'Crisp, clean and vibrantly citrusy. Steam distillation gives this lime a brighter, more transparent character - refreshing and sharp.', warn:null, cost:1.80, wholesale:33 },
   { id:'lemon',
     img:'lemon.png', name:'Lemon EO', note:'Top', group:'top', emoji:'', color:'#e8e040',
     desc:'Bright, clean and unmistakably fresh. Cold-pressed from the peel of Citrus limon - sharp, zesty and instantly uplifting with a sparkling, slightly floral character. One of the most versatile top notes in natural perfumery.',
     warn:'Phototoxic - cold-pressed citrus. IFRA & TGA limits apply. Capped at 2%. Formulated in full compliance.',
-    restricted: true, fixedPct: 2.0, cost:1.80 },
+    restricted: true, fixedPct: 2.0, cost:1.80, wholesale:16.10 },
   { id:'ylang-1st', img:'ylangylang-1st.png', name:'Ylang Ylang 1st', note:'Top', group:'top', emoji:'', color:'#c0a830', desc:'The boldest expression of ylang ylang - sharp, heady and euphoric with an almost narcotic sweetness. The most volatile and intensely floral fraction.', warn:null, cost:2.80, wholesale:70 },
   { id:'euca-citriodora', img:'euca-citriodora.png', name:'Euca Citriodora', note:'Top', group:'top', emoji:'', color:'#8ab020', desc:'An Australian native with a bright, lemon-fresh character and a distinctly airy, kerosene-like undertone. Widely used as a natural insect repellent.', warn:null, cost:2.00, wholesale:12.65 },
   { id:'cypress',
@@ -1643,8 +1651,7 @@ const GROUPS = [
   { key:'base',  label:'Base Notes',  sub:'The foundation - rich, lasting, skin-warming' },
 ];
 
-const BASE_PRICE = 48.00;
-const PRICE_PER_UNIT = 2.20;
+const BASE_PRICE = 40.00;
 // Per-slot target % for a normal ingredient, by note family. Averages ~10 -
 // a third of the 30% concentrate cap - so one note ≈ 10% (not the whole 30%),
 // three ≈ a full bottle. Base-weighted so blends skew heavier on base by default.
@@ -1652,7 +1659,13 @@ const NOTE_TARGET = { top: 8, heart: 10, base: 12 };
 // Retail markup applied to real material cost. Oils with a `wholesale` ($/50ml)
 // field are charged: wholesale · (pct/100) · MATERIAL_MARKUP. BASE_PRICE already
 // covers the bottle, alcohol, labour and packaging. ADJUST to set your margin.
-const MATERIAL_MARKUP = 2.5;
+const MATERIAL_MARKUP = 3.5;
+// Oils with a fixed IFRA cap UNDER 5% (the restricted trace oils) carry a higher
+// markup - they're used in tiny doses, so the extra margin is negligible in absolute $.
+const RESTRICTED_MARKUP = 5.0;
+function markupFor(ing) {
+  return (ing.restricted && (ing.fixedPct || 0) < 5) ? RESTRICTED_MARKUP : MATERIAL_MARKUP;
+}
 // Fragrance concentration tiers - the product NAME follows the live concentrate %.
 // (Cologne ~2-5, EdT ~5-15, EdP ~15-20, Parfum ~20-30.) `target` = the mid-strength a
 // "pick this tier" guide aims for; `max` = the upper edge where the name flips to the next.
@@ -1670,6 +1683,7 @@ const AU_NATIVE = new Set(['kunzea','nerolina','euca-citriodora','boronia','euca
 let formula = {};
 let flippedCard = null;
 let alcoholFilled = false; // tracks whether user confirmed and alcohol animation has run
+let checkoutFilled = false; // once true, the checkout bottle stays FULL + blue-mixed until clearAll
 let lastActualTotal = 0;  // last calculated concentrate total - used by fillAlcohol
 let mobFillAnimFrame = null; // rAF handle for mobile fill animation
 let mobFillCurrentH  = 0;   // current animated height - persists between calls
@@ -1703,21 +1717,20 @@ function animateMobileFill(targetH, delay) {
   delay > 0 ? setTimeout(run, delay) : run();
 }
 
-// Price = BASE + Σ per-oil material cost. Where we have the REAL wholesale price
-// (`wholesale`, $/50ml) we charge for the oil actually used plus MATERIAL_MARKUP;
-// oils still on the placeholder `cost` fall back to the legacy formula until their
-// real wholesale is entered - so an un-migrated oil never changes price meanwhile.
+// Price = BASE_PRICE + Σ per-oil material cost. Every oil has a real wholesale price
+// (`wholesale`, $/50ml); each is charged wholesale · (pct/100) · markupFor(ing).
 // pct = the oil's % of the bottle from getPctMap (fixedPct for IFRA-restricted).
-// SERVER-SIDE must mirror the wholesale branch: wholesale · (pct/100) · MATERIAL_MARKUP.
+// SERVER-SIDE mirrors this ONE formula exactly:
+//   price = BASE_PRICE(48) + Σ ( wholesale · (pct/100) · markup ),
+//   markup = RESTRICTED_MARKUP(5) for restricted oils capped under 5%, else MATERIAL_MARKUP(2.5).
+// (The `(ing.wholesale || 0)` guard just means a future un-priced oil contributes 0, never NaN.)
 function getTotalCost() {
   const pctMap = getPctMap();
   return BASE_PRICE + Object.keys(formula).reduce((sum, id) => {
     const ing = INGREDIENTS.find(i => i.id === id);
     if (!ing) return sum;
     const pct = ing.restricted ? (ing.fixedPct || 0) : (pctMap[id] || 0);
-    const contrib = (ing.wholesale != null)
-      ? ing.wholesale * (pct / 100) * MATERIAL_MARKUP      // real wholesale $/50ml + markup
-      : ing.cost * PRICE_PER_UNIT * (pct / 30);            // legacy placeholder - TODO: real wholesale
+    const contrib = (ing.wholesale || 0) * (pct / 100) * markupFor(ing);
     return sum + contrib;
   }, 0);
 }
@@ -2187,11 +2200,11 @@ function closeReqModal(e) {
   if (e && e.target !== document.getElementById('reqModalOverlay')) return;
   document.getElementById('reqModalOverlay').classList.remove('open');
   document.body.style.overflow = '';
-  // Re-enable request button + reset the checkout bottle back to the concentrate level.
+  // Re-enable the request button. The checkout bottle deliberately STAYS full + mixed
+  // after the form is closed (until the bottle is cleared), so we do NOT reset it here.
   updateRequestBtn(Object.keys(formula).length, totalSlots());
   const mobBtn = document.getElementById('mobRequestBtn');
   if (mobBtn) { mobBtn.disabled = false; mobBtn.textContent = 'Continue to Checkout →'; }
-  updateAll();
 }
 
 async function sendFormulaRequest() {
@@ -2246,6 +2259,7 @@ function clearAll() {
   formula = {};
   flippedCard = null;
   alcoholFilled = false;
+  checkoutFilled = false;
   capModalShown = false;
   capDismissed = false;
   // Reset mobile fill animator
@@ -2528,8 +2542,14 @@ function lockPageScroll(lock) {
 // The checkout reveal: when the user taps "Continue to Checkout", the checkout-sheet
 // bottle fills from its current concentrate level UP to FULL while the colour mixes to
 // the finished light-blue perfume. The request modal opens after this plays (requestFormula).
-const CHECKOUT_FILL_COLOR = '#a9d4f2';   // light blue - the finished/diluted perfume look
+const CHECKOUT_FILL_COLOR = '#a9d4f2';   // light blue - mixed with the accord for the finished look
 let coFillAnimFrame = null;
+// The finished fill colour = light blue MIXED 50/50 with the built accord colour.
+function checkoutMix(keys) {
+  if (!keys.length) return CHECKOUT_FILL_COLOR;
+  const accord = blendColors(keys.map(id => INGREDIENTS.find(i => i.id === id).color));
+  return mixHex(CHECKOUT_FILL_COLOR, accord, 0.5);
+}
 function animateCheckoutFill() {
   const rect = document.getElementById('coLiqRect');
   const fill = document.getElementById('coLiqFill');
@@ -2537,13 +2557,14 @@ function animateCheckoutFill() {
   const keys = Object.keys(formula || {});
   if (!keys.length) return;
   if (coFillAnimFrame) { cancelAnimationFrame(coFillAnimFrame); coFillAnimFrame = null; }
+  checkoutFilled = true;                         // finished state persists until the bottle is cleared
 
-  // Colour mixes from the current accord colour to the finished light blue.
+  // Colour mixes from the current accord colour to the finished blue-tinted blend.
   if (fill) {
     fill.style.transition = 'none';
     fill.getBoundingClientRect();               // commit current colour before transitioning
     fill.style.transition = 'fill 1.4s ease, opacity 1.4s ease';
-    fill.setAttribute('fill', CHECKOUT_FILL_COLOR);
+    fill.setAttribute('fill', checkoutMix(keys));
     fill.style.opacity = '0.55';
   }
 
@@ -2612,9 +2633,14 @@ function updateMobile(keys, totalPct, cost, pctMap) {
 
   // ── Mobile bottle SVG - fill scales to actual concentrate total ──
   const maxH = 155;
+  if (!keys.length) checkoutFilled = false;   // emptying the bottle clears the finished state
   const CONC_H = keys.length > 0 ? Math.max(4, Math.round(maxH * totalPct / 100)) : 0;
   const fillH = CONC_H;
   const fillY = 220 - fillH;
+  // After checkout, both bottles stay FULL + blue-mixed (checkoutFilled) until cleared.
+  const filledNow = checkoutFilled && keys.length > 0;
+  const effH = filledNow ? maxH : CONC_H;
+  const effY = 220 - effH;
   const mobLiqRect = document.getElementById('mobLiqRect');
   const mobLiqFill = document.getElementById('mobLiqFill');
   const mobEmptyLabel = document.getElementById('mobEmptyLabel');
@@ -2624,15 +2650,15 @@ function updateMobile(keys, totalPct, cost, pctMap) {
   if (mobLiqRect) {
     if (window.innerWidth <= 768) {
       // Bottle lives in the always-visible bar now, so fill immediately.
-      animateMobileFill(fillH, 0);
+      animateMobileFill(effH, 0);
     } else {
-      mobLiqRect.setAttribute('y', fillY);
-      mobLiqRect.setAttribute('height', fillH + 10);
+      mobLiqRect.setAttribute('y', effY);
+      mobLiqRect.setAttribute('height', effH + 10);
     }
   }
   if (mobLiqFill && keys.length) {
     const colors = keys.map(id => INGREDIENTS.find(i => i.id === id).color);
-    const blended = blendColors(colors);
+    const blended = filledNow ? checkoutMix(keys) : blendColors(colors);
     mobLiqFill.setAttribute('fill', blended);
     if (mobGlow) {
       mobGlow.style.setProperty('--mob-glow', hexToRgba(blended, 0.15));
@@ -2640,12 +2666,12 @@ function updateMobile(keys, totalPct, cost, pctMap) {
     }
     if (mobEmptyLabel) mobEmptyLabel.setAttribute('fill', 'rgba(230,236,231,0)');
     if (mobFillLabel) {
-      const labelY = fillH < 16
-        ? Math.max(fillY - 8, 80)
-        : Math.min(Math.round(fillY + fillH * 0.5), 213);
+      const labelY = effH < 16
+        ? Math.max(effY - 8, 80)
+        : Math.min(Math.round(effY + effH * 0.5), 213);
       mobFillLabel.setAttribute('y', labelY);
-      mobFillLabel.textContent = totalPct > 0 ? totalPct + '%' : '';
-      mobFillLabel.setAttribute('fill', 'rgba(230,236,231,0.6)');
+      mobFillLabel.textContent = filledNow ? '' : (totalPct > 0 ? totalPct + '%' : '');
+      mobFillLabel.setAttribute('fill', filledNow ? 'rgba(230,236,231,0)' : 'rgba(230,236,231,0.6)');
     }
   } else {
     if (mobLiqFill) mobLiqFill.setAttribute('fill', '#8cc40f');
@@ -2654,17 +2680,18 @@ function updateMobile(keys, totalPct, cost, pctMap) {
     if (mobFillLabel) mobFillLabel.setAttribute('fill', 'rgba(230,236,231,0)');
   }
 
-  // ── Checkout-sheet bottle = the built-up CONCENTRATE (partial fill, accord colour).
-  //    requestFormula() tops it up to full + light blue when the user hits checkout. ──
+  // ── Checkout-sheet bottle ──
+  //    Before checkout: the built-up CONCENTRATE (partial, accord colour).
+  //    After checkout (checkoutFilled): stays FULL + blue-mixed until the bottle is cleared.
   const coLiqRect = document.getElementById('coLiqRect');
   if (coLiqRect && !coFillAnimFrame) {   // don't fight an in-flight checkout fill
-    coLiqRect.setAttribute('y', fillY);
-    coLiqRect.setAttribute('height', fillH + 10);
+    coLiqRect.setAttribute('y', effY);
+    coLiqRect.setAttribute('height', effH + 10);
     const coFill = document.getElementById('coLiqFill');
     if (coFill) {
       coFill.style.transition = 'fill 0.8s ease';
-      coFill.setAttribute('fill', keys.length ? blendColors(keys.map(id => INGREDIENTS.find(i => i.id === id).color)) : '#8cc40f');
-      coFill.style.opacity = '0.28';
+      coFill.setAttribute('fill', filledNow ? checkoutMix(keys) : (keys.length ? blendColors(keys.map(id => INGREDIENTS.find(i => i.id === id).color)) : '#8cc40f'));
+      coFill.style.opacity = filledNow ? '0.55' : '0.28';
     }
   }
 
@@ -2821,6 +2848,13 @@ function blendColors(hexColors) {
 function hexToRgba(hex, a) {
   const n = parseInt(hex.replace('#',''), 16);
   return `rgba(${(n>>16)&255},${(n>>8)&255},${n&255},${a})`;
+}
+
+// Blend two hex colours. t = weight toward `a` (0..1); 0.5 = even mix.
+function mixHex(a, b, t) {
+  const pa = parseInt(a.replace('#',''), 16), pb = parseInt(b.replace('#',''), 16);
+  const m = (sh) => Math.round(((pa>>sh)&255)*t + ((pb>>sh)&255)*(1-t));
+  return '#' + [m(16), m(8), m(0)].map(v => v.toString(16).padStart(2,'0')).join('');
 }
 
 // ═══════════════════════════════════════════════════════════════
