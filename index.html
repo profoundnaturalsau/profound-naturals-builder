@@ -8,7 +8,7 @@
 <title>Custom Scent Builder - Profound Naturals</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Croissant+One&family=Jost:wght@300;400;500&family=Cinzel:wght@400;500&family=Sora:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Croissant+One&family=Jost:wght@300;400;500&family=Cinzel:wght@400;500&family=Sora:wght@400;500;600&family=Judson:wght@400;700&display=swap" rel="stylesheet">
 <style>
   :root {
     color-scheme: dark;
@@ -944,6 +944,14 @@
       box-shadow:0 -8px 40px rgba(0,0,0,.6);
       display:flex; flex-direction:column-reverse;
     }
+    /* Skirt: a mobile browser briefly lifts a position:fixed bottom bar when its URL
+       chrome animates on scroll-start, opening a gap below the bar. This pseudo fills
+       that gap with the bar's own colour (absolute, so it is NOT a flex item and sits
+       off-screen at rest), so the bar never appears to separate from the screen bottom. */
+    .mob-bar::after {
+      content:''; position:absolute; top:100%; left:0; right:0; height:120px;
+      background:var(--surface); pointer-events:none;
+    }
     /* Deliberately NO env(safe-area-inset-bottom) on the bar: iOS Safari changes that
        value as its bottom chrome minimizes on scroll, which made the fixed toolbar
        grow/shrink WHILE scrolling. Keeping height independent of it stays stable. */
@@ -1009,7 +1017,7 @@
       padding:11px 12px 11px 20px; border-bottom:1px solid var(--border-sub);
     }
     .mob-panel-title {
-      font-family:'Croissant One', var(--serif); font-size:1.15rem; color:var(--white); letter-spacing:0;
+      font-family:'Judson', var(--serif); font-size:1.15rem; color:var(--white); letter-spacing:0;
     }
     .mob-panel-close {
       flex-shrink:0; width:38px; height:30px; border-radius:8px;
@@ -1051,6 +1059,7 @@
     .mob-checkout-right #mobFormulaBody {
       flex:1 1 auto; min-height:0; overflow-y:auto; overscroll-behavior:contain;
       scrollbar-width:thin; scrollbar-color:var(--amber) transparent;
+      padding-right:8px;   /* keep the right-aligned %s clear of the amber scrollbar */
     }
     .mob-checkout-right #mobFormulaBody::-webkit-scrollbar { width:5px; }
     .mob-checkout-right #mobFormulaBody::-webkit-scrollbar-thumb { background-color:var(--amber); border-radius:3px; }
@@ -1097,7 +1106,7 @@
     .mob-formula-pct { color:var(--green-lt); font-weight:500; min-width:30px; text-align:right; }
     .mob-formula-total {
       display:flex; justify-content:space-between;
-      padding:8px 0 0; font-size:.7rem; color:var(--white-dim);
+      padding:8px 8px 0 0; font-size:.7rem; color:var(--white-dim);
     }
     .mob-formula-total span:last-child { color:var(--green-lt); font-weight:500; }
 
@@ -1357,9 +1366,9 @@
   <div style="text-align:center;"><span class="eyebrow">Profound Naturals</span></div>
   <h1>Build Your <em>Signature</em> Scent</h1>
   <p>Select your botanicals, read their profiles, and compose a bespoke 50ml eau de parfum. Concentrates are capped at 30% - the rest is pure perfumers alcohol.</p>
-  <!-- Composer's Guide: phased build tutorial - the base-heavy pyramid for longevity. -->
+  <!-- Artisan's Guide: phased build tutorial - the base-heavy pyramid for longevity. -->
   <div class="build-guide" id="buildGuide" aria-label="How to compose a lasting blend">
-    <span class="build-guide__eyebrow">Composer's Guide</span>
+    <span class="build-guide__eyebrow">Artisan's Guide</span>
     <span class="build-guide__title">Build a scent that lasts</span>
     <div class="build-guide__phases">
       <div class="bg-phase">
@@ -1375,7 +1384,7 @@
         <span class="bg-phase__text"><b>Top notes - least of all</b><span>Citrus and fresh herbs - a bright first impression that sparkles, then lifts within minutes.</span></span>
       </div>
     </div>
-    <div class="build-guide__foot">Weight your 30% concentrate <b>base &gt; heart &gt; top</b> - a common start is roughly 40 / 35 / 25. A guide for longevity, not a rule; build what you love.</div>
+    <div class="build-guide__foot">Contemplate your <b id="bgConcPct">30%</b> concentrate - <b>base &gt; heart &gt; top</b>, a common start is roughly 40 / 35 / 25. A guide for longevity, not a rule; build what you love.</div>
   </div>
   <div class="concentrate-bar">
     <span>Concentrate total</span>
@@ -2095,6 +2104,7 @@ function updateAll() {
   const tierLabel = count > 0 ? '50ml ' + tierFor(actualTotal).name : '50ml Eau de Parfum';
   ['priceLabel','mobPriceLabel'].forEach(id => { const el = document.getElementById(id); if (el) el.textContent = tierLabel; });
   updateScentGuide(actualTotal, count);
+  updateBuildGuide(actualTotal);
 
   // Remove overflow warning if it exists (not needed with Option A)
   const overflowWarn = document.getElementById('overflowWarn');
@@ -3166,6 +3176,15 @@ function updateScentGuide(pct, count) {
   } else {
     el.innerHTML = `That's <b>${tierFor(pct).name}</b> now (${pct}%) - stronger than your ${scentTarget.name} goal.`;
   }
+}
+
+// Artisan's Guide footer: show the concentrate the user is ACTUALLY making - the live
+// total once they start building, else their chosen tier target, else the 30% cap.
+function updateBuildGuide(total) {
+  const el = document.getElementById('bgConcPct');
+  if (!el) return;
+  const pct = total > 0 ? total : (scentTarget ? scentTarget.target : 30);
+  el.textContent = pct + '%';
 }
 
 let _toastTimer = null;
