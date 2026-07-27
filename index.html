@@ -432,6 +432,48 @@
   }
   .scent-guide b { color:var(--green-lt); font-weight:600; }
 
+  /* Composer's Guide - phased build tutorial under the intro (base-heavy = longevity).
+     Resting state is fully VISIBLE; the per-phase reveal is an additive flourish that
+     engages only when motion is allowed, so the content never depends on the animation. */
+  .build-guide {
+    margin:18px auto 0; max-width:520px; padding:15px 18px 13px;
+    border:1px solid var(--border); border-radius:14px;
+    background:linear-gradient(180deg, var(--surface), rgba(255,255,255,0));
+    text-align:left;
+  }
+  .build-guide__eyebrow {
+    display:block; font-family:var(--cinzel); font-size:.5rem; letter-spacing:.28em;
+    text-transform:uppercase; color:var(--amber); margin-bottom:3px;
+  }
+  .build-guide__title {
+    display:block; font-family:var(--serif); font-weight:300; font-size:1.15rem;
+    color:var(--white); line-height:1.1; margin-bottom:12px;
+  }
+  .build-guide__phases { display:flex; flex-direction:column; gap:11px; }
+  .bg-phase { display:flex; align-items:flex-start; gap:12px; }
+  .bg-phase__bar {
+    flex-shrink:0; width:var(--w,40px); height:8px; margin-top:4px; border-radius:999px;
+    background:linear-gradient(90deg, var(--green-lt), var(--amber));
+    box-shadow:0 0 8px rgba(140,196,15,.35);
+  }
+  .bg-phase__text { display:flex; flex-direction:column; gap:1px; min-width:0; }
+  .bg-phase__text b { color:var(--green-lt); font-weight:600; font-size:.74rem; letter-spacing:.02em; }
+  .bg-phase__text span { color:var(--white-dim); font-size:.72rem; line-height:1.35; }
+  .build-guide__foot {
+    margin-top:12px; padding-top:11px; border-top:1px solid var(--border-sub);
+    color:rgba(230,236,231,.55); font-size:.68rem; line-height:1.4; letter-spacing:.02em;
+  }
+  .build-guide__foot b { color:var(--amber); font-weight:600; }
+  @media (prefers-reduced-motion: no-preference) {
+    .build-guide.is-cued .bg-phase { opacity:0; transform:translateY(9px); }
+    .build-guide.is-revealed .bg-phase {
+      opacity:1; transform:none; transition:opacity .55s ease, transform .55s ease;
+    }
+    .build-guide.is-revealed .bg-phase:nth-child(1) { transition-delay:.12s; }
+    .build-guide.is-revealed .bg-phase:nth-child(2) { transition-delay:.42s; }
+    .build-guide.is-revealed .bg-phase:nth-child(3) { transition-delay:.72s; }
+  }
+
   .cap-modal-overlay {
     position:fixed; inset:0; background:rgba(0,0,0,.75);
     z-index:700; display:flex; align-items:center; justify-content:center;
@@ -1315,6 +1357,26 @@
   <div style="text-align:center;"><span class="eyebrow">Profound Naturals</span></div>
   <h1>Build Your <em>Signature</em> Scent</h1>
   <p>Select your botanicals, read their profiles, and compose a bespoke 50ml eau de parfum. Concentrates are capped at 30% - the rest is pure perfumers alcohol.</p>
+  <!-- Composer's Guide: phased build tutorial - the base-heavy pyramid for longevity. -->
+  <div class="build-guide" id="buildGuide" aria-label="How to compose a lasting blend">
+    <span class="build-guide__eyebrow">Composer's Guide</span>
+    <span class="build-guide__title">Build a scent that lasts</span>
+    <div class="build-guide__phases">
+      <div class="bg-phase">
+        <span class="bg-phase__bar" style="--w:62px"></span>
+        <span class="bg-phase__text"><b>Base notes - lean heaviest</b><span>Sandalwood, amber, vanilla, oud. Slowest to fade - they hold the scent for hours and leave its lasting trail.</span></span>
+      </div>
+      <div class="bg-phase">
+        <span class="bg-phase__bar" style="--w:40px"></span>
+        <span class="bg-phase__text"><b>Heart notes - a little less</b><span>Florals and spices - the character of your blend, blooming as the top lifts away.</span></span>
+      </div>
+      <div class="bg-phase">
+        <span class="bg-phase__bar" style="--w:24px"></span>
+        <span class="bg-phase__text"><b>Top notes - least of all</b><span>Citrus and fresh herbs - a bright first impression that sparkles, then lifts within minutes.</span></span>
+      </div>
+    </div>
+    <div class="build-guide__foot">Weight your 30% concentrate <b>base &gt; heart &gt; top</b> - a common start is roughly 40 / 35 / 25. A guide for longevity, not a rule; build what you love.</div>
+  </div>
   <div class="concentrate-bar">
     <span>Concentrate total</span>
     <span class="pct" id="totalPct">0%</span>
@@ -2863,9 +2925,33 @@ function mixHex(a, b, t) {
 let chipModalOpenTime = 0;
 
 // Use touchend for backdrop dismiss - absorbs the phantom click that mobile fires after a tap
+// Reveal the Composer's Guide phases in sequence. The resting state is fully visible,
+// so this only ADDS a staggered entrance (motion allowed only) - content never depends
+// on it. If the intro modal is up, wait until it closes so the reveal is actually seen.
+function cueBuildGuide() {
+  const bg = document.getElementById('buildGuide');
+  if (!bg || bg.dataset.cued || !matchMedia('(prefers-reduced-motion: no-preference)').matches) return;
+  const play = () => {
+    if (bg.dataset.cued) return;
+    bg.dataset.cued = '1';
+    bg.classList.add('is-cued');
+    requestAnimationFrame(() => requestAnimationFrame(() => bg.classList.add('is-revealed')));
+  };
+  const intro = document.getElementById('introModalOverlay');
+  if (intro && intro.classList.contains('open')) {
+    const mo = new MutationObserver(() => {
+      if (!intro.classList.contains('open')) { mo.disconnect(); play(); }
+    });
+    mo.observe(intro, { attributes: true, attributeFilter: ['class'] });
+  } else {
+    play();
+  }
+}
+
 document.addEventListener('DOMContentLoaded', () => {
   // Render the opening suggestion strip now that the mobile bar exists in the DOM
   renderSuggestions();
+  cueBuildGuide();
   // Handle Stripe redirect responses
   const params = new URLSearchParams(window.location.search);
   if (params.get('order_success') === '1') {
