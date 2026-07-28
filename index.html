@@ -57,34 +57,29 @@
     margin-left:280px; /* offset to match fixed bottle panel */
     box-sizing:border-box;
   }
-  .builder-header .eyebrow {
-    font-family:var(--cinzel); font-size:clamp(1.1rem,2.5vw,1.8rem); letter-spacing:.22em;
-    text-transform:uppercase; margin-bottom:20px; display:block;
-    position:relative; display:inline-block;
-    background:linear-gradient(
-      90deg,
-      var(--green-lt) 0%,
-      var(--green-lt) 42%,
-      #d4a017 48%,
-      #f0c040 50%,
-      #d4a017 52%,
-      var(--green-lt) 58%,
-      var(--green-lt) 100%
-    );
-    background-size:300% auto;
-    -webkit-background-clip:text;
-    -webkit-text-fill-color:transparent;
-    background-clip:text;
-    animation:eyebrowShimmer 7s linear infinite, eyebrowGlow 3s ease-in-out infinite;
-    filter:drop-shadow(0 0 8px rgba(160,217,22,0.4));
+  /* Wordmark replaces the old shimmering "Profound Naturals" text (28-07).
+     The sheen was a background-clip gradient sweeping across live text; an
+     image cannot be clipped that way, so the sweep is gone and the amber
+     now radiates OUT from the logo via drop-shadow. Two stacked shadows
+     give a tight core plus a wider bloom, which reads as a glow rather
+     than a blur. drop-shadow follows the PNG's alpha, so the glow traces
+     the letterforms instead of boxing the image. */
+  .builder-header .builder-logo {
+    display:block; margin:0 auto 20px;
+    height:clamp(44px, 7vw, 78px); width:auto;
+    max-width:min(88vw, 440px); object-fit:contain;
+    animation:logoAmberGlow 3s ease-in-out infinite;
   }
-  @keyframes eyebrowShimmer {
-    0%   { background-position:200% center; }
-    100% { background-position:-200% center; }
+  @keyframes logoAmberGlow {
+    0%,100% { filter:drop-shadow(0 0 6px rgba(212,160,23,.30)); }
+    50%     { filter:drop-shadow(0 0 18px rgba(212,160,23,.75))
+                     drop-shadow(0 0 34px rgba(212,160,23,.30)); }
   }
-  @keyframes eyebrowGlow {
-    0%,100% { filter:drop-shadow(0 0 6px rgba(160,217,22,0.3)); }
-    50%     { filter:drop-shadow(0 0 18px rgba(160,217,22,0.75)) drop-shadow(0 0 32px rgba(140,196,15,0.3)); }
+  @media (prefers-reduced-motion: reduce) {
+    .builder-header .builder-logo {
+      animation:none;
+      filter:drop-shadow(0 0 10px rgba(212,160,23,.45));
+    }
   }
   .builder-header h1 {
     font-family:var(--serif); font-size:clamp(2.4rem,5vw,4rem);
@@ -450,11 +445,30 @@
     color:var(--white); line-height:1.1; margin-bottom:12px;
   }
   .build-guide__phases { display:flex; flex-direction:column; gap:11px; }
-  .bg-phase { display:flex; align-items:flex-start; gap:12px; }
+  /* Phase bars (28-07): stacked above their own text rather than sitting
+     beside it, and every TRACK is now the same full width. The varying part
+     is the FILL inside it, so the three bars read as shares of one total
+     instead of three unrelated lengths.
+     True 40 / 35 / 25 scale. Base is the largest share so it fills the
+     track, and the other two are measured against it: 35/40 = 88%,
+     25/40 = 62%. The bars are therefore honest - heart really is only
+     slightly under base, and the footer numbers match what is drawn.
+     Colour walks amber (base, the heaviest) to green (top, the lightest);
+     the midpoint #babc16 is the literal RGB average of the two ends, so the
+     three steps are evenly spaced rather than eyeballed. */
+  .bg-phase { display:flex; flex-direction:column; gap:6px; }
   .bg-phase__bar {
-    flex-shrink:0; width:var(--w,40px); height:8px; margin-top:4px; border-radius:999px;
-    background:linear-gradient(90deg, var(--green-lt), var(--amber));
-    box-shadow:0 0 8px rgba(140,196,15,.35);
+    position:relative; width:100%; height:9px; border-radius:999px;
+    border:1px solid rgba(212,160,23,.45);
+    background:rgba(255,255,255,.03);
+    overflow:hidden;
+  }
+  .bg-phase__bar::before {
+    content:''; position:absolute; inset:0 auto 0 0;
+    width:var(--w,40%); border-radius:999px;
+    background:var(--fill, var(--amber));
+    box-shadow:0 0 9px var(--fill, var(--amber));
+    opacity:.92;
   }
   .bg-phase__text { display:flex; flex-direction:column; gap:1px; min-width:0; }
   .bg-phase__text b { color:var(--green-lt); font-weight:600; font-size:.74rem; letter-spacing:.02em; }
@@ -1415,7 +1429,7 @@
 <body>
 
 <header class="builder-header">
-  <div style="text-align:center;"><span class="eyebrow">Profound Naturals</span></div>
+  <img class="builder-logo" src="/images/pn-logo-wide.png" alt="Profound Naturals" width="440" height="78">
   <h1>Build Your <em>Signature</em> Scent</h1>
   <p>Select your botanicals, read their profiles, and compose a bespoke 50ml eau de parfum. Concentrates are capped at 30% - the rest is pure perfumers alcohol.</p>
   <!-- Artisan's Guide: phased build tutorial - the base-heavy pyramid for longevity. -->
@@ -1424,15 +1438,15 @@
     <span class="build-guide__title">Build a scent that lasts</span>
     <div class="build-guide__phases">
       <div class="bg-phase">
-        <span class="bg-phase__bar" style="--w:62px"></span>
+        <span class="bg-phase__bar" style="--w:100%; --fill:#d4a017" aria-hidden="true"></span>
         <span class="bg-phase__text"><b>Base notes - lean heaviest</b><span>Sandalwood, amber, vanilla, oud. Slowest to fade - they hold the scent for hours and leave its lasting trail.</span></span>
       </div>
       <div class="bg-phase">
-        <span class="bg-phase__bar" style="--w:40px"></span>
+        <span class="bg-phase__bar" style="--w:87.5%; --fill:#babc16" aria-hidden="true"></span>
         <span class="bg-phase__text"><b>Heart notes - a little less</b><span>Florals and spices - the character of your blend, blooming as the top lifts away.</span></span>
       </div>
       <div class="bg-phase">
-        <span class="bg-phase__bar" style="--w:24px"></span>
+        <span class="bg-phase__bar" style="--w:62.5%; --fill:#a0d916" aria-hidden="true"></span>
         <span class="bg-phase__text"><b>Top notes - least of all</b><span>Citrus and fresh herbs - a bright first impression that sparkles, then lifts within minutes.</span></span>
       </div>
     </div>
