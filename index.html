@@ -906,7 +906,46 @@
        is a single scroller, so we just slim the amber bar down for phones. */
     ::-webkit-scrollbar { width:6px; height:6px; }
 
-    /* ── Hide the desktop bottle-side entirely on mobile ── */
+  
+  /* ══════════════════════════════════════════════════════════════
+     SITE FOOTER (28-07)
+     The builder takes payment and collects personal details on its own
+     domain, so the policies have to be reachable from here rather than
+     only from the main site. Aligned to the 280px bottle panel on desktop,
+     full width on mobile where that panel is hidden.
+     ══════════════════════════════════════════════════════════════ */
+  .builder-foot {
+    margin-left:280px;
+    border-top:1px solid var(--border-sub);
+    background:rgba(15,31,2,.30);
+    padding:30px 40px 34px;
+    display:flex; flex-direction:column; align-items:center; gap:16px;
+    text-align:center;
+  }
+  .foot-links {
+    display:flex; flex-wrap:wrap; justify-content:center;
+    gap:10px 22px; list-style:none; padding:0; margin:0;
+  }
+  .foot-links a {
+    font-size:.74rem; letter-spacing:.06em; font-weight:300;
+    color:var(--white-dim); text-decoration:none;
+    transition:color .2s, text-shadow .2s;
+  }
+  .foot-links a:hover { color:var(--green-lt); }
+  .foot-links a.foot-shop { color:var(--teal); text-shadow:0 0 10px rgba(53,184,212,.4); }
+  .foot-links a.foot-shop:hover { color:#5fd4ec; text-shadow:0 0 14px rgba(53,184,212,.8); }
+  .foot-pay {
+    display:flex; flex-wrap:wrap; justify-content:center; gap:12px;
+    font-size:.64rem; letter-spacing:.1em;
+  }
+  .foot-copy { font-size:.7rem; font-weight:300; color:rgba(255,255,255,.25); }
+  .foot-made {
+    font-size:.72rem; font-weight:300; color:var(--green-lt);
+    display:inline-flex; align-items:center; gap:6px;
+  }
+  .foot-made img { width:15px; height:15px; object-fit:contain; }
+
+  /* ── Hide the desktop bottle-side entirely on mobile ── */
     .bottle-side { display:none !important; }
 
     /* ── Builder main becomes single full-width column ── */
@@ -916,6 +955,19 @@
       padding-bottom:128px;   /* static fallback; syncBottomReserve() sets the exact px at runtime */
     }
     .builder-header { margin-left:0; }
+
+    /* Footer carries the fixed-bar reserve on mobile now (see
+       syncBottomReserve) - .builder-main no longer needs its own, or the two
+       would stack into a large empty gap above the footer. */
+    .builder-main { padding-bottom:0; }
+    .builder-foot {
+      margin-left:0;
+      padding:26px 20px 30px;
+      padding-bottom:128px; /* static fallback; syncBottomReserve sets the real px */
+    }
+    .foot-links { gap:9px 16px; }
+    .foot-links a { font-size:.78rem; }
+
 
     /* ── Ingredients side fills screen ── */
     .ingredients-side {
@@ -1458,6 +1510,23 @@
 <div class="builder-main">
   <div class="ingredients-side" id="ingredientsSide"></div>
 </div>
+
+<footer class="builder-foot">
+  <ul class="foot-links">
+    <li><a href="/">Scent Builder</a></li>
+    <li><a class="foot-shop" href="https://profoundnaturals.com.au">Main Shop</a></li>
+    <li><a href="shipping-delivery.html">Shipping &amp; Delivery</a></li>
+    <li><a href="returns-refunds.html">Returns &amp; Refunds</a></li>
+    <li><a href="privacy-policy.html">Privacy Policy</a></li>
+    <li><a href="contact.html">Contact</a></li>
+  </ul>
+  <div class="foot-pay">
+    <span style="color:#4da9e8">VISA</span><span style="color:#eb001b">MASTER<span style="color:#f79e1b">CARD</span></span><span style="color:#7b6ff0">STRIPE</span><span style="color:#b2fce4;filter:brightness(.8)">AFTERPAY</span><span style="color:#AA8FFF">ZIP</span><span><span style="color:#EA4335">G</span><span style="color:#FBBC05">P</span><span style="color:#34A853">A</span><span style="color:#4285F4">Y</span></span>
+  </div>
+  <span class="foot-made">Handcrafted to order in Canberra, Australia<img src="/images/Australia-icon.png" alt="" aria-hidden="true"></span>
+  <span class="foot-copy">&copy; 2026 Profound Naturals. All rights reserved.</span>
+</footer>
+
 
 <script>
 const INGREDIENTS = [
@@ -2574,7 +2643,9 @@ function rareToggle(id) {
 function syncBottomReserve() {
   const col = document.getElementById('mobBarCollapsed');
   const bar = document.getElementById('mobBar');
-  const main = document.querySelector('.builder-main');
+  // Reserve now lives on the footer, which is the last element in the flow.
+  // Falls back to .builder-main if the footer is ever removed.
+  const main = document.querySelector('.builder-foot') || document.querySelector('.builder-main');
   if (!col || !bar || !main) return;
   if (window.innerWidth > 768) { main.style.paddingBottom = ''; return; }
   // Measure the COLLAPSED bar (the panel may be mid close-transition, which would
